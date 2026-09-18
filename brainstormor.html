@@ -24,6 +24,173 @@
 
 @media(max-width:520px){.tool-area{justify-content:center}.history-controls{position:absolute;left:0;top:calc(100% + 8px)}.toolbar{max-width:100%}.tool-button{width:34px;flex-shrink:0}.selection-panel{top:77px}.board-footer{gap:8px}.empty-state{top:53%}}
 @media(max-width:360px){.tool-button{width:31px}.toolbar{padding:3px}.tool-area{left:8px;right:8px}.toolbar-divider{margin:0 2px}.tool-button svg{width:19px;height:19px}}
+
+/* Templates, search, and contextual editing tools. */
+.empty-templates-button {
+  pointer-events: auto;
+  margin-top: 22px;
+  height: 38px;
+  padding: 0 15px;
+  border: 1px solid #d4e1d3;
+  color: #50745a;
+  background: #ffffffb3;
+  font-size: 14px;
+}
+.empty-templates-button:hover { background: #edf4e9; border-color: #adc6a5; }
+.empty-templates-button + .local-first { margin-top: 16px; }
+.search-panel {
+  position: absolute;
+  z-index: 15;
+  top: 90px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 440px;
+  max-width: calc(100% - 48px);
+  padding: 9px 10px 9px 14px;
+  border-radius: 10px;
+}
+.search-icon { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: #7a8c78; stroke-width: 1.7; stroke-linecap: round; }
+#search-input { min-width: 0; width: 100%; height: 30px; border: 0; outline: none; padding: 0; background: transparent; color: var(--ink); font-size: 14px; }
+#search-input::placeholder { color: #94a08c; }
+#search-input::-webkit-search-cancel-button { display: none; }
+.search-count { flex-shrink: 0; min-width: 35px; color: #809078; font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.search-navigation { display: flex; align-items: center; gap: 1px; padding-left: 5px; border-left: 1px solid var(--line); }
+.search-navigation .icon-button { width: 29px; height: 30px; color: #6d7e65; }
+.search-navigation .icon-button svg { width: 16px; height: 16px; }
+.inspector-section { margin: 17px 0; padding-top: 15px; border-top: 1px solid var(--line); }
+.inspector-label { margin: 0 0 10px; color: #7a867d; font-size: 12px; font-weight: 500; line-height: 1.5; }
+.branch-grid, .distribution-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.panel-action-button { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 36px; padding: 5px 6px; border: 1px solid #e1e8dc; border-radius: 6px; color: #597052; background: #f9fbf6; font-size: 14px; line-height: 1.4; }
+.panel-action-button svg { width: 14px; height: 14px; }
+.panel-action-button:hover { color: #386331; background: #edf4e7; border-color: #b9cfad; }
+.panel-action-button:disabled { color: #819177; opacity: .38; }
+.alignment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 8px; }
+.alignment-grid .icon-button { width: 100%; height: 34px; border: 1px solid #e3e9de; background: #fafcf7; color: #687d5e; }
+.alignment-grid .icon-button:hover { background: #edf4e7; border-color: #b9cfad; }
+.alignment-grid .icon-button svg { width: 18px; height: 18px; }
+.distribution-grid { grid-template-columns: 1fr; }
+.panel-text-input { width: 100%; min-width: 0; height: 35px; border: 1px solid #dfe7d9; border-radius: 6px; padding: 6px 9px; color: var(--ink); background: #fafcf7; font-size: 14px; outline: none; }
+.panel-text-input:focus { border-color: #84ab77; box-shadow: 0 0 0 3px #84ab7714; background: #fff; }
+.panel-text-input::placeholder { color: #a1ae97; }
+.inspector-select-field { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.inspector-select-field select { height: 34px; min-width: 86px; max-width: 105px; border: 1px solid #dfe7d9; border-radius: 6px; padding: 0 7px; background: #fafcf7; color: #52684a; font-size: 14px; }
+#arrow-controls .panel-field:last-child { margin-bottom: 0; }
+.templates-dialog { width: 745px; padding: 30px; }
+.template-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; margin: 23px 0; }
+.template-card { display: flex; flex-direction: column; align-items: stretch; min-width: 0; padding: 10px 10px 16px; text-align: left; white-space: normal; border: 1px solid #dfe7da; border-radius: 11px; background: #fdfefb; transition: border-color .16s, box-shadow .16s, background .16s; }
+.template-card:hover { border-color: #9ebb90; background: #f7faf2; box-shadow: 0 3px 13px #4672360b; }
+.template-card:focus-visible { outline-offset: 3px; }
+.template-preview { display: flex; align-items: center; justify-content: center; height: 110px; margin-bottom: 15px; border-radius: 6px; background: #f1f5eb; overflow: hidden; }
+.template-preview:empty { display: none; }
+.template-preview svg { display: block; width: 100%; height: 100%; }
+.template-title, .template-card > strong { display: block; padding: 0 4px; font-size: 15px; font-weight: 600; line-height: 1.5; color: #425838; }
+.template-description, .template-card > small { display: block; margin-top: 8px; padding: 0 4px; color: #88977b; font-size: 12px; line-height: 1.75; }
+.templates-dialog .dialog-tip { font-size: 12px; }
+.extra-shortcuts { grid-template-columns: 1fr; margin-top: 5px; padding-top: 0; border-top: 0; }
+.extra-shortcuts > div { grid-column: 1 / -1; font-size: 12px; }
+.extra-shortcuts kbd { font-size: 12px; }
+
+@media (min-width: 1600px) {
+  .search-panel { top: 95px; left: 32px; }
+}
+@media (max-width: 1100px) {
+  .search-panel { top: 83px; left: 18px; }
+  .distribution-grid { grid-template-columns: 1fr; }
+  .branch-grid .panel-action-button svg { display: none; }
+  .document-heading { gap: 14px; }
+  .document-details input { width: 145px; }
+  .document-actions .button { padding: 0 9px; }
+}
+@media (max-width: 980px) {
+  .app-header { flex-wrap: wrap; gap: 10px; min-height: 110px; padding: 12px 18px; }
+  .document-heading { display: flex; align-items: center; width: 100%; gap: 20px; }
+  .header-divider { display: block; height: 29px; }
+  .document-details { flex: 1; margin-top: 0; }
+  .document-details input { width: 100%; max-width: 380px; font-size: 14px; line-height: 20px; }
+  .save-status { font-size: 11px; line-height: 14px; }
+  .document-actions { width: 100%; justify-content: flex-end; gap: 4px; padding-top: 0; }
+  .document-actions .button { height: 34px; font-size: 14px; }
+  .document-actions .icon-button { height: 34px; width: 32px; }
+  #export-board span { display: inline; }
+  #export-board { width: auto; padding: 0 9px; }
+}
+@media (max-width: 760px) {
+  .app-header { padding: 11px 16px; }
+  .document-heading { gap: 14px; }
+  .document-details { min-width: 0; }
+  .document-details input { width: 100%; }
+  .search-panel { top: 77px; left: 14px; max-width: calc(100% - 28px); width: 440px; }
+  #search-panel:not([hidden]) ~ .selection-panel { top: 137px; max-height: calc(100% - 200px); }
+  .templates-dialog { padding: 23px; }
+  .template-list { gap: 9px; }
+  .template-preview { height: 90px; }
+  .template-card { padding: 7px 7px 12px; }
+  .template-title, .template-card > strong { font-size: 14px; }
+}
+@media (max-width: 560px) {
+  .template-list { grid-template-columns: 1fr; gap: 10px; margin: 18px 0; }
+  .template-card { display: grid; grid-template-columns: 92px 1fr; grid-template-rows: auto auto; align-content: center; column-gap: 13px; padding: 11px; }
+  .template-preview { grid-column: 1; grid-row: 1 / 3; width: 92px; height: 76px; margin: 0; }
+  .template-title, .template-card > strong { grid-column: 2; align-self: end; font-size: 15px; }
+  .template-description, .template-card > small { grid-column: 2; margin-top: 5px; }
+  .template-card:not(:has(.template-preview)) { grid-template-columns: 1fr; padding: 15px; }
+  .template-card:not(:has(.template-preview)) .template-title, .template-card:not(:has(.template-preview)) .template-description { grid-column: 1; }
+}
+@media (max-width: 520px) {
+  .document-heading { gap: 12px; }
+  .header-divider { display: none; }
+  .document-details input { font-size: 13px; }
+  .save-status { font-size: 10px; }
+  .document-actions { justify-content: space-between; gap: 3px; }
+  .document-actions .button { padding: 0 8px; font-size: 13px; }
+  .document-actions .button svg { display: block; width: 16px; height: 16px; }
+  #templates-btn span { display: none; }
+  #templates-btn { width: 34px; padding: 0; }
+  #export-board { padding: 0 7px; }
+  .search-panel { top: 128px; left: 10px; max-width: calc(100% - 20px); gap: 7px; padding: 8px 7px 8px 10px; }
+  .search-navigation { padding-left: 3px; }
+  .search-navigation .icon-button { width: 27px; }
+  #search-panel:not([hidden]) ~ .selection-panel { top: 185px; max-height: calc(100% - 246px); }
+  .empty-templates-button { font-size: 14px; margin-top: 18px; }
+}
+@media (max-width: 380px) {
+  .app-header { padding: 10px 12px; }
+  .brand { gap: 5px; font-size: 16px; }
+  .brand-mark { width: 23px; height: 23px; }
+  .document-heading { gap: 10px; }
+  .document-actions .button { padding: 0 6px; gap: 4px; }
+  .document-actions .icon-button { width: 28px; }
+  #export-board { padding: 0 5px; }
+  .template-card { grid-template-columns: 74px 1fr; column-gap: 9px; }
+  .template-preview { width: 74px; height: 72px; }
+  .extra-shortcuts > div { flex-wrap: wrap; gap: 5px; padding: 7px 0; }
+}
+@media (max-height: 700px) {
+  .empty-templates-button { height: 34px; margin-top: 15px; }
+  .empty-templates-button + .local-first { display: none; }
+}
+@media (max-height: 570px) {
+  .empty-state { top: 55%; }
+  .empty-templates-button { margin-top: 12px; }
+}
+
+.mermaid-dialog{width:800px;max-height:calc(100dvh - 32px)}
+.mermaid-tabs{display:flex;gap:4px;border-radius:10px;background:#eef3ef;padding:4px;margin:0 0 16px}
+.mermaid-tabs button{flex:1;padding:9px 14px;border-radius:7px;font-size:14px;color:#65716b}
+.mermaid-tabs button[aria-pressed=true]{background:white;color:var(--accent);font-weight:650;box-shadow:0 1px 4px #23343010}
+.mermaid-dialog .dialog-description{margin-bottom:8px;color:#59685e}
+.mermaid-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0;font-size:13px;color:#68776b;min-height:38px}
+.mermaid-tools label{display:flex;gap:10px;align-items:center}.mermaid-tools select{border:1px solid var(--line);padding:6px 9px;border-radius:6px;background:white;color:var(--ink)}
+#mermaid-code{display:block;resize:vertical;width:100%;height:270px;min-height:150px;max-height:48vh;background:#f8faf8;color:#253c36;border:1px solid #dce5de;border-radius:10px;padding:16px;font:14px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2;white-space:pre;overflow:auto;outline:none}
+#mermaid-code:focus{border-color:#6da394;box-shadow:0 0 0 3px #26756810}
+.mermaid-message{background:#fff7de;border:1px solid #ebdcaa;border-radius:8px;padding:10px 13px;font-size:13px;line-height:1.65;white-space:pre-line;margin-top:12px;color:#736025}
+.mermaid-message.is-error{background:#fff0ed;border-color:#efc7bf;color:#a44032}.mermaid-scope{font-size:12px;line-height:1.8;color:#748276;margin:12px 0 18px}
+.mermaid-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+@media(max-width:1200px) and (min-width:981px){.document-details input{width:145px}.document-heading{gap:14px}.document-actions .button{padding:0 8px}}
+@media(max-width:520px){#mermaid-btn span{display:none}#mermaid-btn{width:34px;padding:0}#mermaid-btn svg{display:block}.mermaid-dialog{padding:20px}.mermaid-tools{flex-wrap:wrap}.mermaid-scope{font-size:12px}.mermaid-actions .button{font-size:13px}}
+.replace-dialog{width:600px}.replace-dialog h2{font-size:22px;margin:0 0 16px}.replace-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -43,8 +210,11 @@
       </div>
       <nav class="document-actions" aria-label="ファイル操作">
         <button id="new-board" class="icon-button subtle-button" type="button" title="新しいボード" aria-label="新しいボード"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="templates-btn" class="button quiet-button" type="button" title="テンプレートから始める" aria-label="テンプレートから始める"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h7m-7 4h7m-7 3h4"/></svg><span>テンプレート</span></button>
+        <button id="mermaid-btn" class="button quiet-button" type="button" title="Mermaidを読み込み・書き出し" aria-label="Mermaidを読み込み・書き出し"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></svg><span>Mermaid</span></button>
+        <button id="search-btn" class="icon-button subtle-button" type="button" title="ボード内を検索 (⌘/Ctrl+F)" aria-label="ボード内を検索"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
         <button id="open-board" class="button quiet-button" type="button" title="ボードを開く (⌘/Ctrl+O)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2M3 7v11a2 2 0 0 0 2 2h13a2 2 0 0 0 1.9-1.4L22 11H7l-3 7"/></svg><span>開く</span></button>
-        <button id="export-board" class="button quiet-button" type="button" title="画像を書き出す"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>書き出し</span></button>
+        <button id="export-board" class="button quiet-button" type="button" title="ボードを書き出す"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>書き出し</span></button>
         <button id="save-board" class="button primary-button" type="button" title="ファイルに保存 (⌘/Ctrl+S)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg><span>保存</span></button>
       </nav>
     </header>
@@ -72,6 +242,17 @@
         </div>
       </div>
 
+      <div id="search-panel" class="search-panel floating-surface" role="search" hidden>
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+        <input id="search-input" type="search" placeholder="ボード内を検索" aria-label="ボード内を検索" autocomplete="off" spellcheck="false">
+        <span id="search-count" class="search-count" aria-live="polite">0 / 0</span>
+        <div class="search-navigation" role="group" aria-label="検索結果を移動">
+          <button id="search-prev" class="icon-button" type="button" title="前の結果 (Shift+Enter)" aria-label="前の結果"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>
+          <button id="search-next" class="icon-button" type="button" title="次の結果 (Enter)" aria-label="次の結果"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <button id="close-search" class="icon-button" type="button" title="検索を閉じる (Escape)" aria-label="検索を閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </div>
+      </div>
+
       <section id="empty-state" class="empty-state" aria-label="はじめかた">
         <div class="empty-illustration shape-illustration" aria-hidden="true"><span class="mini-shape mini-shape-circle"></span><span class="mini-shape mini-shape-rect"><span></span><span></span></span><svg viewBox="0 0 80 50"><path d="M6 38C19 11 47 9 69 20m-11-16 13 16-20 5"/></svg></div>
         <p class="eyebrow">A LITTLE SPACE FOR BIG IDEAS</p>
@@ -82,6 +263,7 @@
           <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg></span><span><strong>そのまま文字を書く</strong><small>あとからダブルクリックで編集も</small></span></div>
           <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11"/></svg></span><span><strong>矢印でつなぐ</strong><small>始点から終点までドラッグ</small></span></div>
         </div>
+        <button id="empty-templates" class="button empty-templates-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h7m-7 4h7m-7 3h4"/></svg>テンプレートから始める</button>
         <p class="local-first"><span aria-hidden="true"></span>続きはいつでも。ひとつのファイルに保存</p>
       </section>
 
@@ -90,6 +272,36 @@
         <div class="panel-field"><span class="field-label">カラー</span><div id="colors" class="color-swatches" role="group" aria-label="カラー"></div></div>
         <label class="panel-field font-field" for="font-size"><span class="field-label">文字サイズ</span><select id="font-size"><option value="16">16 px</option><option value="20">20 px</option><option value="24" selected>24 px</option><option value="32">32 px</option><option value="40">40 px</option><option value="56">56 px</option></select></label>
         <button id="image-caption" class="button caption-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg>文字をのせる</button>
+        <section id="branch-controls" class="inspector-section" aria-label="つながる図形を追加" hidden>
+          <h3 class="inspector-label">つながる図形を追加</h3>
+          <div class="branch-grid">
+            <button class="panel-action-button" type="button" data-branch="left" title="左につながる図形を追加"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>左に追加</button>
+            <button class="panel-action-button" type="button" data-branch="up" title="上につながる図形を追加"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>上に追加</button>
+            <button class="panel-action-button" type="button" data-branch="down" title="下につながる図形を追加 (Shift+Tab)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-6-6 6 6 6-6"/></svg>下に追加</button>
+            <button class="panel-action-button" type="button" data-branch="right" title="右につながる図形を追加 (Tab)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>右に追加</button>
+          </div>
+        </section>
+        <section id="alignment-controls" class="inspector-section" aria-label="配置を整える" hidden>
+          <h3 class="inspector-label">配置を整える</h3>
+          <div class="alignment-grid" role="group" aria-label="図形を揃える">
+            <button class="icon-button" type="button" data-align="left" title="左端を揃える" aria-label="左端を揃える"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v18"/><rect x="8" y="5" width="12" height="5" rx="1"/><rect x="8" y="14" width="7" height="5" rx="1"/></svg></button>
+            <button class="icon-button" type="button" data-align="center" title="左右の中心を揃える" aria-label="左右の中心を揃える"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3m0 5v4m0 5v3"/><rect x="4" y="5" width="16" height="5" rx="1"/><rect x="8" y="14" width="8" height="5" rx="1"/></svg></button>
+            <button class="icon-button" type="button" data-align="right" title="右端を揃える" aria-label="右端を揃える"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3v18"/><rect x="4" y="5" width="12" height="5" rx="1"/><rect x="9" y="14" width="7" height="5" rx="1"/></svg></button>
+            <button class="icon-button" type="button" data-align="top" title="上端を揃える" aria-label="上端を揃える"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18"/><rect x="5" y="8" width="5" height="12" rx="1"/><rect x="14" y="8" width="5" height="7" rx="1"/></svg></button>
+            <button class="icon-button" type="button" data-align="middle" title="上下の中心を揃える" aria-label="上下の中心を揃える"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h3m5 0h4m5 0h3"/><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="8" width="5" height="8" rx="1"/></svg></button>
+            <button class="icon-button" type="button" data-align="bottom" title="下端を揃える" aria-label="下端を揃える"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><rect x="5" y="4" width="5" height="12" rx="1"/><rect x="14" y="9" width="5" height="7" rx="1"/></svg></button>
+          </div>
+          <div class="distribution-grid" role="group" aria-label="図形を等間隔にする">
+            <button class="panel-action-button" type="button" data-align="distribute-x" title="左右に等間隔で並べる（3個以上）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4v16m18-16v16M7 12h10"/><rect x="10" y="5" width="4" height="14" rx="1"/></svg>横に等間隔</button>
+            <button class="panel-action-button" type="button" data-align="distribute-y" title="上下に等間隔で並べる（3個以上）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h16M4 21h16M12 7v10"/><rect x="5" y="10" width="14" height="4" rx="1"/></svg>縦に等間隔</button>
+          </div>
+        </section>
+        <section id="arrow-controls" class="inspector-section" aria-label="矢印の設定" hidden>
+          <label class="panel-field" for="arrow-label"><span class="field-label">矢印のラベル</span><input id="arrow-label" class="panel-text-input" type="text" maxlength="200" placeholder="例：次に試す" autocomplete="off"></label>
+          <label class="panel-field inspector-select-field" for="arrow-line-style"><span class="field-label">線の種類</span><select id="arrow-line-style"><option value="solid">実線</option><option value="dashed">破線</option></select></label>
+          <label class="panel-field inspector-select-field" for="arrow-head"><span class="field-label">矢印の向き</span><select id="arrow-head"><option value="end">片矢印</option><option value="both">両矢印</option><option value="none">線</option></select></label>
+          <label class="panel-field inspector-select-field" for="arrow-width"><span class="field-label">線の太さ</span><select id="arrow-width"><option value="2">細い</option><option value="3" selected>標準</option><option value="5">太い</option></select></label>
+        </section>
         <div class="panel-divider"></div>
         <div class="arrange-buttons"><button id="bring-forward" class="button quiet-button" type="button" title="前面へ移動"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="2"/><path d="M19 9h2v10a2 2 0 0 1-2 2H9v-2"/></svg>前面へ</button><button id="send-backward" class="button quiet-button" type="button" title="背面へ移動"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H3V5a2 2 0 0 1 2-2h10v2"/></svg>背面へ</button></div>
         <div class="arrange-buttons"><button id="duplicate-btn" class="button quiet-button" type="button" title="複製 (⌘/Ctrl+D)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 4V3H5a2 2 0 0 0-2 2v11h1"/></svg>複製</button><button id="delete-btn" class="button danger-button" type="button" title="削除 (Delete)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>削除</button></div>
@@ -108,21 +320,47 @@
     <div class="dialog-heading"><div><p class="eyebrow">MAKE ROOM FOR IDEAS</p><h2>気軽に、使いこなそう。</h2></div><button id="close-help" class="icon-button" type="button" aria-label="使いかたを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <p class="dialog-description">図形を置いたら、そのまま文字を入力。<br>矢印でつなげば、考えの流れが見えてきます。</p>
     <div class="shortcut-list"><div><span>選択・移動</span><kbd>V</kbd></div><div><span>ボードを移動</span><kbd>H</kbd></div><div><span>四角を置く</span><kbd>R</kbd></div><div><span>丸を置く</span><kbd>O</kbd></div><div><span>ひし形を置く</span><kbd>D</kbd></div><div><span>付箋を置く</span><kbd>N</kbd></div><div><span>文字を置く</span><kbd>T</kbd></div><div><span>矢印を引く</span><kbd>A</kbd></div><div><span>一時的にボードを移動</span><kbd>Space + ドラッグ</kbd></div><div><span>元に戻す / やり直す</span><kbd>⌘ / Ctrl + Z / Shift + Z</kbd></div><div><span>複製</span><kbd>⌘ / Ctrl + D</kbd></div><div><span>ファイルに保存</span><kbd>⌘ / Ctrl + S</kbd></div><div><span>全体を表示</span><kbd>F</kbd></div><div><span>選択した要素を削除</span><kbd>Delete</kbd></div></div>
-    <p class="dialog-tip">図形の文字はダブルクリックで編集。矢印は始点から終点へドラッグして引けます。</p>
+    <div class="shortcut-list extra-shortcuts"><div><span>右 / 下につながる図形を追加</span><kbd>Tab / Shift + Tab</kbd></div><div><span>ボード内を検索</span><kbd>⌘ / Ctrl + F</kbd></div><div><span>次 / 前の検索結果</span><kbd>Enter / Shift + Enter</kbd></div><div><span>検索を閉じる</span><kbd>Escape</kbd></div></div>
+    <p class="dialog-tip">図形の文字はダブルクリックで編集。文字を編集していない状態で図形を選び、Tab で右、Shift + Tab で下につながる図形を追加できます。</p>
+    <p class="dialog-tip">複数選択すると、右のパネルで位置揃えや等間隔の配置ができます。矢印を選ぶと、ラベル・線の種類・向き・太さを変更できます。</p>
     <p class="dialog-tip">「保存」で .brainstorm ファイルに保存し、「開く」で続きを編集できます。中身は JSON 形式です。</p>
     <p class="privacy-note">ファイルはあなたの手元に。インターネット接続なしで使えます。</p>
   </dialog>
 
+  <dialog id="templates-dialog" class="app-dialog templates-dialog">
+    <div class="dialog-heading"><div><p class="eyebrow">A PLACE TO START</p><h2>考えはじめる、きっかけに。</h2></div><button id="close-templates" class="icon-button" type="button" aria-label="テンプレートを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <p class="dialog-description">近いものを選んで、あなたのことばに書き換えよう。</p>
+    <div id="template-list" class="template-list" aria-label="ボードのテンプレート"></div>
+    <p class="dialog-tip">テンプレートを開くと、現在のボードを置き換えます。未保存の変更がある場合は、確認してから切り替えます。</p>
+  </dialog>
+
   <dialog id="export-dialog" class="app-dialog export-dialog">
     <div class="dialog-heading"><div><p class="eyebrow">TAKE YOUR IDEAS WITH YOU</p><h2>ボードを書き出す</h2></div><button id="close-export" class="icon-button" type="button" aria-label="書き出しを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-    <p class="dialog-description">アイデアがある範囲を、1 枚の画像に。</p>
+    <p class="dialog-description">資料に使える画像や、編集できるコードに。</p>
+    <button id="export-mermaid" class="export-option" type="button"><span class="file-type">MMD</span><span><strong>Mermaidとして書き出す</strong><small>Markdownやドキュメントで使える図のコード</small></span></button>
     <button id="export-png" class="export-option" type="button"><span class="file-type">PNG</span><span><strong>画像として書き出す</strong><small>チャットや資料に、そのまま使える画像</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
     <button id="export-svg" class="export-option" type="button"><span class="file-type">SVG</span><span><strong>くっきり書き出す</strong><small>拡大しても、文字や矢印がきれい</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
     <p class="dialog-tip">あとから編集するなら、右上の「保存」で .brainstorm ファイルを保存してください。</p>
   </dialog>
+  <dialog id="mermaid-dialog" class="app-dialog mermaid-dialog">
+    <div class="dialog-heading"><div><p class="eyebrow">DIAGRAMS AS TEXT</p><h2>Mermaidでつなぐ</h2></div><button id="close-mermaid" class="icon-button" type="button" aria-label="Mermaidを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div class="mermaid-tabs" role="group" aria-label="Mermaidの操作"><button type="button" data-mermaid-mode="import" aria-pressed="true">読み込む</button><button type="button" data-mermaid-mode="export" aria-pressed="false">書き出す</button></div>
+    <p id="mermaid-hint" class="dialog-description">flowchart / graph のコードを貼り付けると、編集できる図形になります。</p>
+    <div class="mermaid-tools"><button id="mermaid-choose-file" class="button quiet-button" type="button">.mmdファイルを選ぶ</button><label id="mermaid-direction-field" hidden>図の向き <select id="mermaid-direction"><option value="LR">左から右</option><option value="TB">上から下</option><option value="RL">右から左</option><option value="BT">下から上</option></select></label><span id="mermaid-summary" aria-live="polite"></span></div>
+    <label class="sr-only" for="mermaid-code">Mermaidコード</label><textarea id="mermaid-code" spellcheck="false" autocomplete="off" aria-label="Mermaidコード"></textarea>
+    <div id="mermaid-message" class="mermaid-message" role="status" aria-live="polite" hidden></div>
+    <p class="mermaid-scope">対応：基本的なflowchart / graph（四角・丸・ひし形、矢印、ラベル、色）。位置は読み込み時に自動配置します。元の配置を残すには .brainstorm で保存してください。</p>
+    <div class="mermaid-actions"><button id="mermaid-copy" class="button quiet-button" type="button" hidden>コードをコピー</button><button id="mermaid-download" class="button primary-button" type="button" hidden>.mmdを保存</button><button id="mermaid-load" class="button primary-button" type="button" disabled>ボードに読み込む</button></div>
+  </dialog>
+  <input id="mermaid-file-input" type="file" accept=".mmd,.mermaid,.txt" hidden>
+  <dialog id="replace-dialog" class="app-dialog replace-dialog" aria-labelledby="replace-title">
+    <h2 id="replace-title">いまのボードを保存しますか？</h2>
+    <p class="dialog-description">ファイルに保存していない変更があります。別のボードを開く前に、続きを残せます。</p>
+    <div class="replace-actions"><button id="replace-cancel" class="button quiet-button" type="button" autofocus>キャンセル</button><button id="replace-discard" class="button quiet-button" type="button">保存せず切り替える</button><button id="replace-save" class="button primary-button" type="button">保存して切り替える</button></div>
+  </dialog>
   <div id="toast" role="status" aria-live="polite"></div>
   <input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
-  <input id="file-input" type="file" accept=".brainstorm,.json" hidden>
+  <input id="file-input" type="file" accept=".brainstorm,.json,.mmd,.mermaid" hidden>
   <script>(function (root, factory) {
   'use strict';
   const api = factory();
@@ -133,7 +371,7 @@
 
   const FORMAT = 'brainstormor';
   const VERSION = 1;
-  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000 });
+  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000, arrowLabel: 200 });
   const DEFAULTS = Object.freeze({ noteColor: '#fff2aa', textColor: '#24334a', arrowColor: '#526076', rectColor: '#daeafd', ellipseColor: '#d7f1e3', diamondColor: '#eee0ff', noteFontSize: 20, textFontSize: 24, shapeFontSize: 20, strokeWidth: 3 });
   const SHAPES = ['rect', 'ellipse', 'diamond'];
   const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
@@ -153,6 +391,15 @@
     return value;
   }
   function coordinate(value, name) { return number(value, name, -LIMITS.coordinate, LIMITS.coordinate); }
+  function choice(value, choices, name) {
+    if (!choices.includes(value)) fail(name + 'の形式が正しくありません。');
+    return value;
+  }
+  function arrowLabel(value) {
+    const label = value === undefined ? '' : value;
+    if (typeof label !== 'string' || Array.from(label).length > LIMITS.arrowLabel) fail('矢印のラベルは200文字以内にしてください。');
+    return label;
+  }
   function color(value) {
     if (typeof value !== 'string' || !/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)) fail('色の形式が正しくありません。');
     return value;
@@ -222,6 +469,9 @@
       result.to = endpoint(value.to, '矢印の終点');
       result.color = color(value.color);
       result.strokeWidth = number(value.strokeWidth === undefined ? DEFAULTS.strokeWidth : value.strokeWidth, '線の太さ', 0.1, 100);
+      result.label = arrowLabel(value.label);
+      result.lineStyle = choice(value.lineStyle === undefined ? 'solid' : value.lineStyle, ['solid', 'dashed'], '線のスタイル');
+      result.head = choice(value.head === undefined ? 'end' : value.head, ['end', 'both', 'none'], '矢印の先端');
     }
     return result;
   }
@@ -262,7 +512,7 @@
       : type === 'text' ? { width: 280, height: 52, text: '', color: DEFAULTS.textColor, fontSize: DEFAULTS.textFontSize }
       : SHAPES.includes(type) ? { width: type === 'diamond' ? 240 : 220, height: type === 'diamond' ? 160 : 130, text: '', color: DEFAULTS[type + 'Color'], fontSize: DEFAULTS.shapeFontSize, textColor: DEFAULTS.textColor }
       : type === 'image' ? { width: 400, height: 300, src: TRANSPARENT_IMAGE, name: '画像' }
-      : type === 'arrow' ? { width: 0, height: 0, from: { x: 0, y: 0 }, to: { x: 160, y: 0 }, color: DEFAULTS.arrowColor, strokeWidth: DEFAULTS.strokeWidth }
+      : type === 'arrow' ? { width: 0, height: 0, from: { x: 0, y: 0 }, to: { x: 160, y: 0 }, color: DEFAULTS.arrowColor, strokeWidth: DEFAULTS.strokeWidth, label: '', lineStyle: 'solid', head: 'end' }
       : {};
     return normalizeItem(Object.assign({}, common, defaults, overrides, { type }));
   }
@@ -310,6 +560,37 @@
       to: toItem ? edge(toItem, fromCenter, -1) : { x: arrow.to.x, y: arrow.to.y }
     };
   }
+  function arrowLabelLayout(arrow, elements) {
+    if (typeof arrow.label !== 'string' || !arrow.label.trim()) return null;
+    const lines = [];
+    let contentWidth = 0;
+    // Use the same deterministic metrics for the editor, exports, and framing.
+    // Iterate code points so supplementary Unicode characters are never split.
+    for (const paragraph of arrow.label.split(/\r\n|\r|\n/)) {
+      let line = '', width = 0;
+      for (const character of paragraph) {
+        const advance = character.codePointAt(0) <= 0x7f ? 10 : 16;
+        if (line && width + advance > 180) {
+          lines.push(line);
+          contentWidth = Math.max(contentWidth, width);
+          line = ''; width = 0;
+        }
+        line += character;
+        width += advance;
+      }
+      lines.push(line);
+      contentWidth = Math.max(contentWidth, width);
+    }
+    const width = contentWidth + 16;
+    const height = lines.length * 22 + 12;
+    const endpoints = arrowEndpoints(arrow, elements);
+    return {
+      lines, width, height,
+      x: (endpoints.from.x + endpoints.to.x) / 2 - width / 2,
+      y: (endpoints.from.y + endpoints.to.y) / 2 - height / 2,
+      lineHeight: 22
+    };
+  }
   function getBounds(elements) {
     if (!elements.length) return { x: 0, y: 0, width: 0, height: 0 };
     let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
@@ -321,6 +602,11 @@
         top = Math.min(top, points.from.y, points.to.y);
         right = Math.max(right, points.from.x, points.to.x);
         bottom = Math.max(bottom, points.from.y, points.to.y);
+        const label = arrowLabelLayout(item, items);
+        if (label) {
+          left = Math.min(left, label.x); top = Math.min(top, label.y);
+          right = Math.max(right, label.x + label.width); bottom = Math.max(bottom, label.y + label.height);
+        }
       } else {
         left = Math.min(left, item.x); top = Math.min(top, item.y);
         right = Math.max(right, item.x + item.width); bottom = Math.max(bottom, item.y + item.height);
@@ -328,12 +614,532 @@
     }
     return { x: left, y: top, width: right - left, height: bottom - top };
   }
-  return { FORMAT, VERSION, LIMITS, DEFAULTS, createDocument, createItem, parse, serialize, clone, arrowEndpoints, getBounds };
+  return { FORMAT, VERSION, LIMITS, DEFAULTS, createDocument, createItem, parse, serialize, clone, arrowEndpoints, arrowLabelLayout, getBounds };
+});
+</script>
+  <script>(function (root, factory) {
+  'use strict';
+  const commonJS = typeof module === 'object' && module.exports;
+  const api = factory(commonJS ? require('./model.js') : root.BrainstormorModel);
+  if (commonJS) module.exports = api;
+  if (root) root.BrainstormorFeatures = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (M) {
+  'use strict';
+
+  if (!M) throw new Error('BrainstormorModelを先に読み込んでください。');
+  const SHAPES = new Set(['rect', 'ellipse', 'diamond', 'note']);
+  const DIRECTIONS = new Set(['right', 'down', 'left', 'up']);
+  const ALIGNMENTS = new Set(['left', 'center', 'right', 'top', 'middle', 'bottom', 'distribute-x', 'distribute-y']);
+  const templates = Object.freeze([
+    Object.freeze({ id: 'mindmap', title: 'アイデアマップ', description: 'テーマを中心に、気になることや試したいことを広げます。', kind: 'mindmap' }),
+    Object.freeze({ id: 'flow', title: '判断フロー', description: '判断の条件と、その先の行動を整理します。', kind: 'flow' }),
+    Object.freeze({ id: 'retro', title: 'ふりかえり', description: '続けること、困ったこと、次に試すことを書き出します。', kind: 'retro' })
+  ]);
+
+  function center(item) { return { x: item.x + item.width / 2, y: item.y + item.height / 2 }; }
+  function connect(from, to, label = '') {
+    return M.createItem('arrow', { from: { ...center(from), elementId: from.id }, to: { ...center(to), elementId: to.id }, strokeWidth: 3, label });
+  }
+  function heading(text, x, y, width, fontSize = 24, color = '#24334a') {
+    return M.createItem('text', { x, y, width, height: fontSize * 1.5 + 20, text, fontSize, color });
+  }
+  function createTemplate(id) {
+    const template = templates.find(item => item.id === id);
+    if (!template) throw new Error('このテンプレートは見つかりません。');
+    const doc = M.createDocument(template.title);
+    const title = heading(template.title, 0, 0, 1000, 32);
+    const subtitle = heading(template.description, 0, 65, 1000, 18, '#526076');
+    if (id === 'mindmap') {
+      const root = M.createItem('ellipse', { x: 385, y: 300, width: 230, height: 150, text: '考えたいテーマ\nここから広げる', color: '#d7f1e3', fontSize: 22 });
+      const branches = [
+        M.createItem('rect', { x: 0, y: 170, width: 260, height: 125, text: '誰のため？\n使う人・困っている人', color: '#daeafd' }),
+        M.createItem('rect', { x: 740, y: 170, width: 260, height: 125, text: '何を実現したい？\nうれしい変化・ゴール', color: '#eee0ff' }),
+        M.createItem('rect', { x: 0, y: 470, width: 260, height: 125, text: 'どんな方法がある？\n思いつくままに書く', color: '#fff2aa' }),
+        M.createItem('rect', { x: 740, y: 470, width: 260, height: 125, text: 'まず何を試す？\n小さな一歩を決める', color: '#fbdde9' })
+      ];
+      doc.elements = [title, subtitle, ...branches.map(branch => connect(root, branch)), root, ...branches];
+    } else if (id === 'flow') {
+      const start = M.createItem('ellipse', { x: 385, y: 150, width: 230, height: 90, text: '検討したいアイデア', color: '#daeafd' });
+      const decision = M.createItem('diamond', { x: 385, y: 290, width: 230, height: 155, text: '目的に\n合っている？', color: '#eee0ff' });
+      const revise = M.createItem('rect', { x: 40, y: 495, width: 280, height: 120, text: '見直す\n条件や範囲を調整', color: '#fff2aa' });
+      const tryIt = M.createItem('rect', { x: 680, y: 495, width: 280, height: 120, text: '小さく試す\nまず一歩を決める', color: '#d7f1e3' });
+      doc.elements = [title, subtitle, connect(start, decision), connect(decision, revise, 'いいえ'), connect(decision, tryIt, 'はい'), start, decision, revise, tryIt];
+    } else {
+      const columns = [
+        { x: 0, title: 'Keep / 続ける', color: '#d7f1e3', notes: ['うまくいったこと\n続けたい工夫は？', '助けになったこと\n誰に感謝したい？'] },
+        { x: 350, title: 'Problem / 困ったこと', color: '#fbdde9', notes: ['困った場面\n何が起きた？', 'つまずいた理由\n変えられそうなことは？'] },
+        { x: 700, title: 'Try / 次に試す', color: '#daeafd', notes: ['次に試したいこと\n小さく始めるなら？', '最初の一歩\n誰が・いつまでに？'] }
+      ];
+      doc.elements = [title, subtitle];
+      for (const column of columns) {
+        doc.elements.push(heading(column.title, column.x, 160, 300, 22));
+        column.notes.forEach((text, index) => doc.elements.push(M.createItem('note', { x: column.x, y: 240 + index * 200, width: 300, height: 155, text, color: column.color, fontSize: 20 })));
+      }
+    }
+    return doc;
+  }
+
+  function overlaps(a, b, padding = 0) {
+    return a.x < b.x + b.width + padding && a.x + a.width + padding > b.x
+      && a.y < b.y + b.height + padding && a.y + a.height + padding > b.y;
+  }
+  function branchElements(elements, sourceId, direction = 'right', dimensions = null) {
+    const source = elements.find(item => item.id === sourceId);
+    if (!source || !SHAPES.has(source.type) || !DIRECTIONS.has(direction)) return [];
+    const horizontal = direction === 'right' || direction === 'left';
+    const position = { x: source.x, y: source.y, width: dimensions?.width ?? source.width, height: dimensions?.height ?? source.height };
+    if (![position.width, position.height].every(value => Number.isFinite(value) && value > 0 && value <= M.LIMITS.dimension)) return [];
+    if (direction === 'right') position.x += source.width + 100;
+    if (direction === 'left') position.x -= position.width + 100;
+    if (direction === 'down') position.y += source.height + 100;
+    if (direction === 'up') position.y -= position.height + 100;
+    const obstacles = elements.filter(item => item.type !== 'arrow');
+    // Each step passes the far edge of at least one obstacle, so the scan terminates.
+    for (let attempt = 0; attempt <= obstacles.length; attempt++) {
+      const collisions = obstacles.filter(item => overlaps(position, item, 24));
+      if (!collisions.length) break;
+      if (horizontal) position.y = Math.max(...collisions.map(item => item.y + item.height)) + 24;
+      else position.x = Math.max(...collisions.map(item => item.x + item.width)) + 24;
+    }
+    const childCenter = center(position), sourceCenter = center(source);
+    if ([position.x, position.y, childCenter.x, childCenter.y, sourceCenter.x, sourceCenter.y].some(value => Math.abs(value) > M.LIMITS.coordinate)) return [];
+    const child = M.createItem(source.type, { ...position, text: '新しいアイデア', color: source.color, fontSize: source.fontSize,
+      ...(source.textColor === undefined ? {} : { textColor: source.textColor }) });
+    return [child, connect(source, child)];
+  }
+
+  function alignElements(elements, ids, mode) {
+    const result = elements.slice();
+    if (!ALIGNMENTS.has(mode)) return result;
+    const selection = new Set(ids);
+    const items = elements.filter(item => selection.has(item.id) && item.type !== 'arrow');
+    const distributing = mode === 'distribute-x' || mode === 'distribute-y';
+    if (items.length < (distributing ? 3 : 2)) return result;
+    const positions = new Map();
+    if (distributing) {
+      const axis = mode === 'distribute-x' ? 'x' : 'y';
+      const size = axis === 'x' ? 'width' : 'height';
+      const ordered = items.slice().sort((a, b) => a[axis] - b[axis]);
+      const first = ordered[0], last = ordered[ordered.length - 1];
+      const occupied = ordered.reduce((sum, item) => sum + item[size], 0);
+      const gap = (last[axis] + last[size] - first[axis] - occupied) / (ordered.length - 1);
+      let cursor = first[axis] + first[size] + gap;
+      for (let index = 1; index < ordered.length - 1; index++) {
+        const item = ordered[index];
+        positions.set(item.id, { [axis]: cursor });
+        cursor += item[size] + gap;
+      }
+    } else {
+      const left = Math.min(...items.map(item => item.x)), top = Math.min(...items.map(item => item.y));
+      const right = Math.max(...items.map(item => item.x + item.width)), bottom = Math.max(...items.map(item => item.y + item.height));
+      for (const item of items) {
+        const position = mode === 'left' ? { x: left } : mode === 'center' ? { x: (left + right - item.width) / 2 }
+          : mode === 'right' ? { x: right - item.width } : mode === 'top' ? { y: top }
+          : mode === 'middle' ? { y: (top + bottom - item.height) / 2 } : { y: bottom - item.height };
+        positions.set(item.id, position);
+      }
+    }
+    return result.map(item => positions.has(item.id) ? { ...item, ...positions.get(item.id) } : item);
+  }
+
+  function normalized(text) { return text.normalize('NFKC').toLowerCase(); }
+  function searchElements(elements, query) {
+    if (typeof query !== 'string') return [];
+    const needle = normalized(query).trim();
+    if (!needle) return [];
+    return elements.filter(item => {
+      const text = item.type === 'arrow' ? item.label : item.text;
+      return typeof text === 'string' && normalized(text).includes(needle);
+    }).map(item => item.id);
+  }
+
+  return { templates, createTemplate, branchElements, alignElements, searchElements };
+});
+</script>
+  <script>(function (root, factory) {
+  'use strict';
+  const commonJS = typeof module === 'object' && module.exports;
+  const api = factory(commonJS ? require('./model.js') : root.BrainstormorModel);
+  if (commonJS) module.exports = api;
+  if (root) root.BrainstormorMermaid = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (M) {
+  'use strict';
+
+  // This is an offline converter for the documented basic flowchart subset, not a Mermaid renderer.
+  // Syntax reference: https://mermaid.js.org/syntax/flowchart.html
+  const MAX_SOURCE_BYTES = 1024 * 1024;
+  const DIRECTIONS = new Set(['LR', 'RL', 'TD', 'TB', 'BT']);
+  const NODE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'note', 'text']);
+  const ID = /^[\p{L}\p{N}_]+/u;
+  const COLOR = /^#(?:[\da-f]{3}|[\da-f]{4}|[\da-f]{6}|[\da-f]{8})$/i;
+  const ENTITIES = Object.freeze({ quot: '"', apos: "'", amp: '&', lt: '<', gt: '>', nbsp: '\u00a0', num: '#', lpar: '(', rpar: ')', lbrack: '[', rbrack: ']', vert: '|', hearts: '♥', copy: '©', reg: '®', trade: '™', hellip: '…', ndash: '–', mdash: '—' });
+  function fail(line, message) { throw new Error(`${line}行目: ${message}`); }
+  function bytes(text) { return new TextEncoder().encode(text).length; }
+  function center(item) { return { x: item.x + item.width / 2, y: item.y + item.height / 2 }; }
+  function warning(warnings, line, message) { warnings.push(`${line}行目: ${message}`); }
+
+  function statements(source) {
+    if (typeof source !== 'string') fail(1, 'Mermaidのコードをテキストで入力してください。');
+    if (bytes(source) > MAX_SOURCE_BYTES) fail(1, 'Mermaidのコードは1MB以内にしてください。');
+    const lines = source.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split('\n');
+    const first = lines.findIndex(line => line.trim());
+    if (first >= 0 && lines[first].trim().startsWith('```')) {
+      if (!/^```(?:mermaid)?\s*$/i.test(lines[first].trim())) fail(first + 1, 'mermaidのコードブロックを選んでください。');
+      let last = lines.length - 1;
+      while (last > first && !lines[last].trim()) last--;
+      if (last === first || lines[last].trim() !== '```') fail(first + 1, 'コードブロックを閉じる ``` がありません。');
+      lines[first] = ''; lines[last] = '';
+    }
+    const text = lines.join('\n'), result = [], stack = [];
+    let buffer = '', line = 1, start = 1, quoted = false, pipe = false;
+    const push = () => { if (buffer.trim()) result.push({ text: buffer.trim(), line: start }); buffer = ''; };
+    for (let i = 0; i < text.length; i++) {
+      const character = text[i];
+      if (!buffer.trim() && !/\s/.test(character)) start = line;
+      if (quoted) {
+        buffer += character;
+        if (character === '\\' && ['"', '\\'].includes(text[i + 1])) { buffer += text[++i]; continue; }
+        if (character === '"') quoted = false;
+        if (character === '\n') line++;
+        continue;
+      }
+      if (character === '"') { quoted = true; buffer += character; continue; }
+      if (!stack.length && !pipe && character === '%' && text[i + 1] === '%') {
+        if (text[i + 2] === '{') fail(line, '設定ディレクティブは未対応です。%%{ ... }%% を取り除いてください。');
+        while (i < text.length && text[i] !== '\n') i++;
+        if (i < text.length) { push(); line++; }
+        continue;
+      }
+      if (!stack.length && character === '|') { pipe = !pipe; buffer += character; continue; }
+      if (!pipe && '[({'.includes(character)) stack.push(character);
+      if (!pipe && '])}'.includes(character)) {
+        const opening = stack.pop();
+        if (!opening || '[({'.indexOf(opening) !== '])}'.indexOf(character)) fail(line, '図形の括弧の組み合わせを確認してください。');
+      }
+      // Mermaid entity codes contain semicolons that are not statement separators.
+      if (!stack.length && !pipe && (character === '#' || character === '&')) {
+        const entity = /^(?:&#(?:x[\da-f]+|\d+)|#[\da-z]+|&[a-z][\da-z]*);/i.exec(text.slice(i));
+        if (entity) { buffer += entity[0]; i += entity[0].length - 1; continue; }
+      }
+      if (!stack.length && !pipe && (character === ';' || character === '\n')) push();
+      else buffer += character;
+      if (character === '\n') line++;
+    }
+    if (quoted || stack.length || pipe) fail(start, 'ラベルの引用符・括弧・区切り記号を閉じてください。');
+    push(); return result;
+  }
+
+  function decodeLabel(raw, line, warnings) {
+    let text = raw.replace(/<br\s*\/?\s*>/gi, '\n');
+    if (/<\/?[a-z][^>]*>/i.test(text)) warning(warnings, line, 'HTML装飾は適用せず、文字として読み込みます。');
+    if (/^`[\s\S]*`$/.test(text)) warning(warnings, line, 'Markdown装飾は適用せず、記号を含む文字として読み込みます。');
+    if (/\bfa[brsldk]?:fa-/i.test(text)) warning(warnings, line, 'アイコン指定は文字として読み込みます。');
+    text = text.replace(/(?:&#(?:x[\da-f]+|\d+)|#[\da-z]+|&[a-z][\da-z]*);/gi, entity => {
+      const key = entity.replace(/^&?#|^&/, '').slice(0, -1);
+      if (/^\d+$/.test(key) || (/^&#x/i.test(entity) && /^x[\da-f]+$/i.test(key))) {
+        const value = /^x/i.test(key) ? parseInt(key.slice(1), 16) : Number(key);
+        if (!Number.isSafeInteger(value) || value < 0 || value > 0x10ffff || (value >= 0xd800 && value <= 0xdfff)) fail(line, '文字参照の番号が範囲外です。');
+        return String.fromCodePoint(value);
+      }
+      if (Object.prototype.hasOwnProperty.call(ENTITIES, key)) return ENTITIES[key];
+      fail(line, `文字参照「${entity}」は未対応です。#数字; の形式にしてください。`);
+    });
+    if (text.length > M.LIMITS.text) fail(line, '図形のテキストが長すぎます。');
+    return text;
+  }
+  function readQuoted(text, position, line) {
+    let value = '', i = position + 1;
+    for (; i < text.length; i++) {
+      if (text[i] === '"') return { value, position: i + 1 };
+      if (text[i] === '\\' && ['"', '\\'].includes(text[i + 1])) value += text[++i];
+      else value += text[i];
+    }
+    fail(line, 'ラベルの引用符を閉じてください。');
+  }
+  function labelValue(raw, line, warnings) {
+    const value = raw.trim();
+    if (!value.startsWith('"')) return decodeLabel(value, line, warnings);
+    const quoted = readQuoted(value, 0, line);
+    if (value.slice(quoted.position).trim()) fail(line, 'ラベルの引用符の後に不要な文字があります。');
+    return decodeLabel(quoted.value, line, warnings);
+  }
+  function ids(value, line) {
+    const result = value.split(',');
+    if (result.some(item => !item || ID.exec(item)?.[0] !== item)) fail(line, 'IDには英数字・日本語・アンダースコアを使ってください。');
+    return result;
+  }
+  function parseStyles(raw, line, warnings, edge = false) {
+    const styles = {};
+    for (const part of raw.split(/(?<!\\),/)) {
+      const colon = part.indexOf(':');
+      if (colon < 1) fail(line, 'スタイルは fill:#色,color:#色 のように指定してください。');
+      const name = part.slice(0, colon).trim(), value = part.slice(colon + 1).trim().replace(/\\,/g, ',');
+      if ((!edge && ['fill', 'color'].includes(name)) || (edge && name === 'stroke')) {
+        if (COLOR.test(value)) styles[edge ? 'color' : name === 'fill' ? 'color' : 'textColor'] = value;
+        else warning(warnings, line, `スタイル「${name}:${value}」は未対応です。色は#から始まる形式のみ反映します。`);
+      } else if ((!edge && name === 'font-size') || (edge && name === 'stroke-width')) {
+        const numeric = /^(\d+(?:\.\d+)?)(?:px)?$/.exec(value);
+        const number = numeric ? Number(numeric[1]) : NaN;
+        if (number >= (edge ? .1 : 1) && number <= (edge ? 100 : 1000)) styles[edge ? 'strokeWidth' : 'fontSize'] = number;
+        else warning(warnings, line, `スタイル「${name}:${value}」は範囲外または未対応なので反映しません。`);
+      } else if (edge && name === 'stroke-dasharray') {
+        if (value === 'none' || /^(?:0[ ,]*)+$/.test(value)) styles.lineStyle = 'solid';
+        else if (/^\d+(?:\.\d+)?(?:[ ,]+\d+(?:\.\d+)?)*$/.test(value)) {
+          styles.lineStyle = 'dashed';
+          if (value !== '6 4') warning(warnings, line, '破線の間隔はボードの標準の間隔に置き換えます。');
+        } else warning(warnings, line, '未対応の破線の指定を反映しません。');
+      } else warning(warnings, line, `スタイル「${name}」はボードでは反映しません。`);
+    }
+    return styles;
+  }
+
+  function layout(nodes, edges, direction, line) {
+    const ordered = [...nodes.values()], outgoing = new Map(), incoming = new Map(), ranks = new Map();
+    for (const node of ordered) { outgoing.set(node.sourceId, []); incoming.set(node.sourceId, 0); ranks.set(node.sourceId, 0); }
+    for (const edge of edges) {
+      outgoing.get(edge.from).push(edge.to); incoming.set(edge.to, incoming.get(edge.to) + 1);
+    }
+    const queue = ordered.filter(node => incoming.get(node.sourceId) === 0).map(node => node.sourceId), visited = new Set();
+    let cursor = 0, fallback = 0;
+    while (visited.size < ordered.length) {
+      if (cursor === queue.length) {
+        while (visited.has(ordered[fallback].sourceId)) fallback++;
+        queue.push(ordered[fallback].sourceId);
+      }
+      const id = queue[cursor++];
+      if (visited.has(id)) continue;
+      visited.add(id);
+      for (const next of outgoing.get(id)) {
+        if (visited.has(next)) continue;
+        ranks.set(next, Math.max(ranks.get(next), ranks.get(id) + 1));
+        incoming.set(next, incoming.get(next) - 1);
+        if (incoming.get(next) === 0) queue.push(next);
+      }
+    }
+    const horizontal = direction === 'LR' || direction === 'RL';
+    const groups = new Map();
+    for (const node of ordered) {
+      const rank = ranks.get(node.sourceId);
+      if (!groups.has(rank)) groups.set(rank, []);
+      groups.get(rank).push(node);
+    }
+    let primary = 0;
+    for (const rank of [...groups.keys()].sort((a, b) => a - b)) {
+      let secondary = 0, extent = 0;
+      for (const node of groups.get(rank)) {
+        const item = node.item;
+        item.x = horizontal ? primary : secondary; item.y = horizontal ? secondary : primary;
+        secondary += (horizontal ? item.height : item.width) + 70;
+        extent = Math.max(extent, horizontal ? item.width : item.height);
+      }
+      primary += extent + 120;
+    }
+    const width = Math.max(0, ...ordered.map(node => node.item.x + node.item.width));
+    const height = Math.max(0, ...ordered.map(node => node.item.y + node.item.height));
+    for (const { item } of ordered) {
+      if (direction === 'RL') item.x = width - item.x - item.width;
+      if (direction === 'BT') item.y = height - item.y - item.height;
+      if (Math.max(item.x + item.width, item.y + item.height) > M.LIMITS.coordinate) fail(line, '図が大きすぎます。複数の図に分けてください。');
+    }
+  }
+
+  function importFlowchart(source) {
+    const parts = statements(source), first = parts.shift();
+    if (!first) fail(1, 'flowchart LR などから始まるMermaidのコードを入力してください。');
+    const header = /^(?:flowchart|graph)\s+(LR|RL|TD|TB|BT)\b/.exec(first.text);
+    if (!header) fail(first.line, '対応しているのは flowchart / graph の LR・RL・TD・TB・BT です。他の種類の図は読み込めません。');
+    if (first.text.slice(header[0].length).trim()) parts.unshift({ text: first.text.slice(header[0].length).trim(), line: first.line });
+    const direction = header[1], nodes = new Map(), edges = [], warnings = ['配置は接続関係から再計算します。Mermaidと同じ位置・サイズ・曲線にはなりません。'];
+    const classes = new Map(), assignments = [], styles = [], edgeStyles = [];
+    function limit(line) { if (nodes.size + edges.length > M.LIMITS.elements) fail(line, `図形と矢印は合計${M.LIMITS.elements}個以内にしてください。`); }
+    function ensureNode(sourceId, line) {
+      if (sourceId.length > 128) fail(line, '図形のIDは128文字以内にしてください。');
+      if (sourceId === 'end') fail(line, 'end は予約語です。End などのIDに変更してください。');
+      if (!nodes.has(sourceId)) { nodes.set(sourceId, { sourceId, line, item: M.createItem('rect', { text: sourceId }) }); limit(line); }
+      return nodes.get(sourceId);
+    }
+    for (const statement of parts) {
+      const { text, line } = statement;
+      if (/^(?:subgraph|end|direction|click|flowchart|graph|sequenceDiagram|mindmap|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph|journey|accTitle|accDescr)\b/.test(text)) fail(line, 'この構文は未対応です。subgraph・操作指定などを含まない基本のフローチャートにしてください。');
+      let command;
+      if ((command = /^(style|classDef|class|linkStyle)\s+(\S+)\s+([\s\S]+)$/.exec(text))) {
+        const [, kind, targets, rest] = command;
+        if (kind === 'classDef') for (const name of ids(targets, line)) classes.set(name, { value: parseStyles(rest, line, warnings), line });
+        else if (kind === 'class') assignments.push({ targets: ids(targets, line), names: ids(rest.trim(), line), line });
+        else if (kind === 'style') styles.push({ targets: ids(targets, line), value: parseStyles(rest, line, warnings), line });
+        else {
+          if (targets !== 'default' && !/^\d+(?:,\d+)*$/.test(targets)) fail(line, 'linkStyleは矢印の番号（0から）を指定してください。');
+          edgeStyles.push({ targets, value: parseStyles(rest, line, warnings, true), line });
+        }
+        continue;
+      }
+      let position = 0;
+      const skip = () => { while (/\s/.test(text[position] || '') && position < text.length) position++; };
+      function readNode() {
+        skip(); const match = ID.exec(text.slice(position));
+        if (!match) fail(line, '図形のIDが必要です。複数端点（&）や拡張構文は未対応です。');
+        position += match[0].length;
+        const node = ensureNode(match[0], line); skip();
+        const opening = text.startsWith('((', position) ? '((' : ['[', '(', '{'].includes(text[position]) ? text[position] : null;
+        if (opening) {
+          const closing = opening === '((' ? '))' : opening === '(' ? ')' : opening === '[' ? ']' : '}';
+          position += opening.length; skip(); let raw;
+          if (text[position] === '"') {
+            const quoted = readQuoted(text, position, line); raw = quoted.value; position = quoted.position; skip();
+          } else {
+            const end = text.indexOf(closing, position);
+            if (end < 0) fail(line, '図形の括弧を閉じてください。');
+            raw = text.slice(position, end).trim();
+            if (/[\[\](){}]/.test(raw) || (/^[\/\\]/.test(raw) && opening === '[')) fail(line, 'この図形は未対応です。四角・丸・ひし形を使い、ラベル内の括弧は引用符で囲んでください。');
+            position = end;
+          }
+          if (!text.startsWith(closing, position)) fail(line, '引用符の後に図形の閉じ括弧が必要です。');
+          position += closing.length;
+          const label = decodeLabel(raw, line, warnings), type = opening === '((' ? 'ellipse' : opening === '{' ? 'diamond' : 'rect';
+          const rows = label.split('\n'), longest = Math.max(0, ...rows.map(row => Array.from(row).length));
+          const width = Math.min(420, Math.max(type === 'diamond' ? 260 : 220, longest * 20 + 48));
+          const capacity = Math.max(1, Math.floor((width - 60) / (type === 'diamond' ? 30 : 20)));
+          const wrappedLines = rows.reduce((sum, row) => sum + Math.max(1, Math.ceil(Array.from(row).length / capacity)), 0);
+          const height = Math.max(type === 'diamond' ? 160 : 120, wrappedLines * 29 + 60);
+          if (height > M.LIMITS.dimension) fail(line, 'ラベルが長すぎます。図形を分けてください。');
+          node.item = M.createItem(type, { id: node.item.id, text: label, width, height });
+          if (opening === '(') warning(warnings, line, '角丸四角はボードの四角として読み込みます。');
+        }
+        skip();
+        while (text.startsWith(':::', position)) {
+          position += 3;
+          const name = ID.exec(text.slice(position));
+          if (!name) fail(line, '::: の後にクラス名を指定してください。');
+          assignments.push({ targets: [node.sourceId], names: [name[0]], line }); position += name[0].length; skip();
+        }
+        return node.sourceId;
+      }
+      function readEdge() {
+        skip(); const remaining = text.slice(position);
+        const direct = /^<?(?:-{2,}>|-{3,}|-\.+->|-\.+-)/.exec(remaining);
+        let token, label = '';
+        if (direct) {
+          token = direct[0]; position += token.length;
+          if (token.endsWith('-') && /^[ox]/.test(text.slice(position))) fail(line, '丸・交差の先端は未対応です。通常の線の終点IDなら、線とIDの間に空白を入れてください。');
+          skip();
+          if (token.startsWith('<') && !token.endsWith('>')) fail(line, 'この矢印の先端は未対応です。-->・<-->・--- を使ってください。');
+          if (text[position] === '|') {
+            position++; const start = position; let quoted = false;
+            while (position < text.length) {
+              if (text[position] === '\\' && quoted && ['"', '\\'].includes(text[position + 1])) { position += 2; continue; }
+              if (text[position] === '"') quoted = !quoted;
+              if (text[position] === '|' && !quoted) break;
+              position++;
+            }
+            if (position === text.length) fail(line, '矢印のラベルを | で閉じてください。');
+            label = labelValue(text.slice(start, position++), line, warnings);
+          }
+        } else if (remaining.startsWith('--') || remaining.startsWith('-.')) {
+          const dashed = remaining.startsWith('-.'); position += 2; const start = position;
+          let quoted = false, closing = null;
+          while (position < text.length) {
+            if (text[position] === '\\' && quoted && ['"', '\\'].includes(text[position + 1])) { position += 2; continue; }
+            if (text[position] === '"') quoted = !quoted;
+            if (!quoted) closing = (dashed ? /^\.+->|^\.+-/ : /^-{2,}>|^-{3,}/).exec(text.slice(position));
+            if (closing) break;
+            position++;
+          }
+          if (!closing) fail(line, '矢印は -->・-.->・---・<--> の形式で指定してください。');
+          label = labelValue(text.slice(start, position), line, warnings); token = (dashed ? '-' : '') + closing[0]; position += closing[0].length;
+        } else fail(line, '未対応の構文があります。矢印は -->・-.->・---・<--> を使ってください。複数端点（&）は分けて記述してください。');
+        if (!['-->', '---', '<-->', '-.->', '-.-', '<-.->'].includes(token)) warning(warnings, line, '矢印の長さの指定は標準の間隔に置き換えます。');
+        if (Array.from(label).length > M.LIMITS.arrowLabel) fail(line, '矢印のラベルは200文字以内にしてください。');
+        return { label, lineStyle: token.includes('.') ? 'dashed' : 'solid', head: token.startsWith('<') ? 'both' : token.endsWith('>') ? 'end' : 'none', line };
+      }
+      let from = readNode();
+      while (position < text.length) {
+        const properties = readEdge(), to = readNode(); edges.push({ from, to, ...properties }); limit(line); from = to; skip();
+      }
+    }
+    if (!nodes.size) fail(first.line, '少なくとも1つの図形を記述してください。');
+    const assigned = new Set(assignments.flatMap(entry => entry.targets));
+    if (classes.has('default')) for (const node of nodes.values()) if (!assigned.has(node.sourceId)) Object.assign(node.item, classes.get('default').value);
+    for (const assignment of assignments) {
+      for (const name of assignment.names) {
+        if (!classes.has(name)) fail(assignment.line, `クラス「${name}」のclassDefがありません。`);
+        for (const target of assignment.targets) {
+          if (!nodes.has(target)) fail(assignment.line, `図形「${target}」が見つかりません。`);
+          Object.assign(nodes.get(target).item, classes.get(name).value);
+        }
+      }
+    }
+    for (const style of styles) for (const target of style.targets) {
+      if (!nodes.has(target)) fail(style.line, `図形「${target}」が見つかりません。`);
+      Object.assign(nodes.get(target).item, style.value);
+    }
+    for (const style of edgeStyles) {
+      const indices = style.targets === 'default' ? edges.map((_, index) => index) : style.targets.split(',').map(Number);
+      for (const index of indices) {
+        if (!edges[index]) fail(style.line, `矢印の番号 ${index} が見つかりません。`);
+        Object.assign(edges[index], style.value);
+      }
+    }
+    // Font styles may arrive after declarations; size every node using its final text and font.
+    for (const node of nodes.values()) {
+      const item = node.item, rows = item.text.split('\n');
+      const longest = Math.max(0, ...rows.map(row => Array.from(row).length));
+      item.width = Math.min(6000, Math.max(item.type === 'diamond' ? 260 : 220, longest * item.fontSize + 60));
+      const capacity = Math.max(1, Math.floor((item.width - 60) / (item.fontSize * (item.type === 'diamond' ? 1.5 : 1))));
+      const wrappedLines = rows.reduce((sum, row) => sum + Math.max(1, Math.ceil(Array.from(row).length / capacity)), 0);
+      item.height = Math.max(item.type === 'diamond' ? 160 : 120, wrappedLines * item.fontSize * 1.45 + 60);
+      if (item.height > M.LIMITS.dimension) fail(node.line, 'ラベルが長すぎます。図形を分けてください。');
+    }
+    layout(nodes, edges, direction, first.line);
+    const doc = M.createDocument('Mermaidから読み込んだボード');
+    doc.elements = [...nodes.values()].map(node => node.item);
+    for (const edge of edges) {
+      const from = nodes.get(edge.from).item, to = nodes.get(edge.to).item;
+      doc.elements.push(M.createItem('arrow', { from: { ...center(from), elementId: from.id }, to: { ...center(to), elementId: to.id },
+        label: edge.label, lineStyle: edge.lineStyle, head: edge.head, ...(edge.color ? { color: edge.color } : {}), ...(edge.strokeWidth ? { strokeWidth: edge.strokeWidth } : {}) }));
+    }
+    return { document: doc, warnings: [...new Set(warnings)] };
+  }
+
+  function encodeLabel(text) {
+    return Array.from(text, character => character === '\n' ? '<br/>' : /[&"'#;|<>\[\]{}()`\\\r]/.test(character) ? `#${character.codePointAt(0)};` : character).join('');
+  }
+  function exportFlowchart(document, direction = 'LR') {
+    if (!DIRECTIONS.has(direction)) throw new Error('向きはLR・RL・TD・TB・BTから選んでください。');
+    const doc = M.parse(M.serialize(document)), nodes = doc.elements.filter(item => NODE_TYPES.has(item.type));
+    if (!nodes.length) throw new Error('Mermaidに書き出せる図形・付箋・テキストを追加してください。');
+    const warnings = ['位置・サイズ・重なり順はMermaidには保存されません。Mermaid側で配置を決めます。'];
+    const images = doc.elements.filter(item => item.type === 'image').length;
+    if (images) warnings.push(`画像${images}個はMermaidに含めません。`);
+    const simplified = nodes.filter(item => item.type === 'note' || item.type === 'text').length;
+    if (simplified) warnings.push(`付箋・テキスト${simplified}個は四角い図形として書き出します。`);
+    const mapping = new Map(nodes.map((item, index) => [item.id, `n${index + 1}`]));
+    const lines = [`flowchart ${direction}`], nodeStyles = [], linkStyles = [];
+    for (const item of nodes) {
+      const id = mapping.get(item.id), text = `"${encodeLabel(item.text)}"`;
+      lines.push(`  ${id}${item.type === 'ellipse' ? `((${text}))` : item.type === 'diamond' ? `{${text}}` : `[${text}]`}`);
+      const fill = item.type === 'text' ? '#ffffff' : item.color;
+      const ink = item.type === 'text' ? item.color : item.textColor || M.DEFAULTS.textColor;
+      nodeStyles.push(`  style ${id} fill:${fill},color:${ink},font-size:${item.fontSize}px`);
+    }
+    let skipped = 0, edgeIndex = 0;
+    for (const item of doc.elements.filter(item => item.type === 'arrow')) {
+      if (!mapping.has(item.from.elementId) || !mapping.has(item.to.elementId)) { skipped++; continue; }
+      const dashed = item.lineStyle === 'dashed', head = item.head || 'end';
+      const token = head === 'both' ? '<-->' : head === 'none' ? (dashed ? '-.-' : '---') : (dashed ? '-.->' : '-->');
+      const label = item.label ? `|"${encodeLabel(item.label)}"|` : '';
+      lines.push(`  ${mapping.get(item.from.elementId)} ${token}${label} ${mapping.get(item.to.elementId)}`);
+      linkStyles.push(`  linkStyle ${edgeIndex++} stroke:${item.color},stroke-width:${item.strokeWidth}px${dashed && head === 'both' ? ',stroke-dasharray:6 4' : ''}`);
+    }
+    if (skipped) warnings.push(`両端が書き出す図形につながっていない矢印${skipped}本は含めません。`);
+    return { source: [...lines, ...nodeStyles, ...linkStyles].join('\n') + '\n', warnings };
+  }
+  return { importFlowchart, exportFlowchart };
 });
 </script>
   <script>(() => {
   'use strict';
   const M = window.BrainstormorModel;
+  const F = window.BrainstormorFeatures;
   const $ = id => document.getElementById(id);
   const stage = $('stage'), canvas = $('canvas'), world = $('world'), overlay = $('overlay');
   const editor = $('text-editor');
@@ -346,6 +1152,7 @@
   let lastPointer = null, restoring = true, clipboardElements = null, dbPromise;
   let persistenceQueue = Promise.resolve();
   let saving = false, lastTap = null;
+  let searchMatches = [], searchIndex = -1;
   document.querySelector('.app-shell').inert = true;
   const measure = document.createElement('canvas').getContext('2d');
   const fonts = '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
@@ -404,7 +1211,7 @@
     $('item-count').textContent = `${doc.elements.length} オブジェクト`;
     $('empty-state').hidden = doc.elements.length > 0;
     $('zoom-label').textContent = `${Math.round(doc.viewport.zoom * 100)}%`;
-    status(); updateInspector();
+    status(); updateSearch(); updateInspector();
   }
   function getDB() {
     if (!dbPromise) dbPromise = new Promise((resolve, reject) => {
@@ -510,9 +1317,21 @@
       const dx = to.x - from.x, dy = to.y - from.y, length = Math.hypot(dx, dy);
       const nx = length ? dx / length : 1, ny = length ? dy / length : 0;
       const head = Math.min(16, length / 2), color = el.color || '#526076';
+      const endHead = el.head !== 'none', startHead = el.head === 'both';
       group.append(svg('line', { x1: from.x, y1: from.y, x2: to.x, y2: to.y, stroke: 'transparent', 'stroke-width': Math.max(18, 18 / doc.viewport.zoom), 'pointer-events': 'stroke' }));
-      group.append(svg('line', { x1: from.x, y1: from.y, x2: to.x - nx * head * .6, y2: to.y - ny * head * .6, stroke: color, 'stroke-width': el.strokeWidth || 2.5, 'stroke-linecap': 'round', 'pointer-events': 'none' }));
-      group.append(svg('path', { d: `M ${to.x} ${to.y} L ${to.x - nx * head - ny * head * .42} ${to.y - ny * head + nx * head * .42} L ${to.x - nx * head + ny * head * .42} ${to.y - ny * head - nx * head * .42} Z`, fill: color, 'pointer-events': 'none' }));
+      group.append(svg('line', { x1: from.x + (startHead ? nx * head * .6 : 0), y1: from.y + (startHead ? ny * head * .6 : 0), x2: to.x - (endHead ? nx * head * .6 : 0), y2: to.y - (endHead ? ny * head * .6 : 0), stroke: color, 'stroke-width': el.strokeWidth || 3, 'stroke-linecap': 'round', ...(el.lineStyle === 'dashed' ? { 'stroke-dasharray': '10 7' } : {}), 'pointer-events': 'none' }));
+      function appendHead(tip, vx, vy) {
+        group.append(svg('path', { d: `M ${tip.x} ${tip.y} L ${tip.x - vx * head - vy * head * .42} ${tip.y - vy * head + vx * head * .42} L ${tip.x - vx * head + vy * head * .42} ${tip.y - vy * head - vx * head * .42} Z`, fill: color, 'pointer-events': 'none' }));
+      }
+      if (endHead) appendHead(to, nx, ny);
+      if (startHead) appendHead(from, -nx, -ny);
+      const label = M.arrowLabelLayout(el, doc.elements);
+      if (label) {
+        group.append(svg('rect', { x: label.x, y: label.y, width: label.width, height: label.height, rx: 6, fill: '#ffffff', stroke: color, 'stroke-opacity': .18 }));
+        const text = svg('text', { x: label.x + label.width / 2, y: label.y + 22, 'text-anchor': 'middle', 'font-size': 16, 'font-family': 'ui-monospace,SFMono-Regular,Consolas,monospace', fill: color, 'pointer-events': 'none' });
+        label.lines.forEach((line, i) => text.append(svg('tspan', { x: label.x + label.width / 2, dy: i ? label.lineHeight : 0 }, line || '\u00a0')));
+        group.append(text);
+      }
       return group;
     }
     group.setAttribute('transform', `translate(${el.x} ${el.y})`);
@@ -548,6 +1367,11 @@
     stage.style.backgroundPosition = `${x}px ${y}px`;
     world.replaceChildren(...doc.elements.map(renderElement));
     overlay.replaceChildren();
+    if (!$('search-panel').hidden) for (const id of searchMatches) {
+      const el = getElement(id); if (!el) continue;
+      const b = elementBounds(el);
+      overlay.append(svg('rect', { x: b.x - 7 / zoom, y: b.y - 7 / zoom, width: b.width + 14 / zoom, height: b.height + 14 / zoom, rx: 8 / zoom, fill: '#f4be3215', stroke: id === searchMatches[searchIndex] ? '#cf8b13' : '#eac777', 'stroke-width': (id === searchMatches[searchIndex] ? 2.5 : 1.5) / zoom, 'pointer-events': 'none' }));
+    }
     for (const id of selected) {
       const el = getElement(id); if (!el) continue;
       if (el.type === 'arrow') {
@@ -557,6 +1381,17 @@
       } else {
         overlay.append(svg('rect', { x: el.x - 3 / zoom, y: el.y - 3 / zoom, width: el.width + 6 / zoom, height: el.height + 6 / zoom, rx: 6 / zoom, fill: 'none', stroke: '#138776', 'stroke-width': 1.5 / zoom, 'pointer-events': 'none' }));
         if (selected.size === 1) overlay.append(svg('rect', { x: el.x + el.width - 5 / zoom, y: el.y + el.height - 5 / zoom, width: 10 / zoom, height: 10 / zoom, rx: 2 / zoom, fill: 'white', stroke: '#138776', 'stroke-width': 1.5 / zoom, 'data-handle': 'resize', 'data-id': el.id, cursor: 'nwse-resize' }));
+        if (selected.size === 1 && (isShape(el) || el.type === 'note') && tool === 'select' && !editing) {
+          for (const direction of ['right', 'down']) {
+            const cx = direction === 'right' ? el.x + el.width + 23 / zoom : el.x + el.width / 2;
+            const cy = direction === 'down' ? el.y + el.height + 23 / zoom : el.y + el.height / 2;
+            const handle = svg('g', { 'data-handle': `branch-${direction}`, 'data-id': el.id, cursor: 'pointer' });
+            handle.append(svg('title', {}, direction === 'right' ? '右にアイデアを追加 (Tab)' : '下にアイデアを追加 (Shift+Tab)'));
+            handle.append(svg('circle', { cx, cy, r: 10 / zoom, fill: '#138776', 'data-handle': `branch-${direction}`, 'data-id': el.id }));
+            handle.append(svg('path', { d: `M ${cx - 4 / zoom} ${cy} H ${cx + 4 / zoom} M ${cx} ${cy - 4 / zoom} V ${cy + 4 / zoom}`, stroke: '#fff', 'stroke-width': 1.5 / zoom, 'pointer-events': 'none' }));
+            overlay.append(handle);
+          }
+        }
       }
     }
     if (gesture?.type === 'marquee') {
@@ -646,6 +1481,8 @@
       const arrow = M.createItem('arrow', { from: endpoint(p), to: { ...p } });
       doc.elements.push(arrow); selected = new Set([arrow.id]);
       gesture = { type: 'arrow', id: arrow.id, start: p, created: true };
+    } else if (handle?.startsWith('branch-')) {
+      event.preventDefault(); addBranch(handle.slice(7)); return;
     } else if (handle) {
       const el = getElement(event.target.getAttribute('data-id'));
       gesture = { type: handle === 'resize' ? 'resize' : 'endpoint', end: handle, id: el.id, start: p, original: M.clone(el) };
@@ -668,7 +1505,7 @@
       const dx = p.x - g.start.x, dy = p.y - g.start.y;
       if (Math.hypot(dx, dy) * doc.viewport.zoom > 2) g.moved = true;
       if (g.moved) for (const original of g.originals) {
-        const el = getElement(original.id);
+        const el = getElement(original.id); if (!el) continue;
         if (el.type === 'arrow') {
           for (const end of ['from', 'to']) {
             const base = original[end].elementId && !selected.has(original[end].elementId) ? original.visibleEnds[end] : original[end];
@@ -725,10 +1562,10 @@
     if (event && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     // SVG nodes are regenerated on selection; use stable pointer positions for double clicks.
     if (!cancelled && event && tool === 'select' && ((g.type === 'move' && !g.moved) || (g.type === 'marquee' && Math.hypot(g.current.x - g.start.x, g.current.y - g.start.y) < 3))) {
-      const p = point(event), hit = boxAt(p), now = performance.now();
+      const p = point(event), selectedArrow = g.type === 'move' && g.originals.length === 1 && g.originals[0].type === 'arrow' ? getElement(g.originals[0].id) : null, hit = selectedArrow || boxAt(p), now = performance.now();
       if (lastTap && now - lastTap.time < 450 && lastTap.id === (hit?.id || null) && Math.hypot(lastTap.x - event.clientX, lastTap.y - event.clientY) < 6) {
         lastTap = null;
-        if (hit) editText(hit);
+        if (hit) editElement(hit);
         else addItem('note', p, { text: 'アイデアを書く' }, true);
       } else lastTap = { id: hit?.id || null, time: now, x: event.clientX, y: event.clientY };
     } else lastTap = null;
@@ -760,6 +1597,11 @@
     doc.viewport = { zoom, x: stage.clientWidth / 2 - (b.x + b.width / 2) * zoom, y: stage.clientHeight / 2 - (b.y + b.height / 2) * zoom };
     render(); scheduleAutosave();
   }
+  function setSelectValue(id, value, label) {
+    const select = $(id); select.querySelectorAll('option[data-custom]').forEach(option => option.remove());
+    if (![...select.options].some(option => option.value === String(value))) { const option = document.createElement('option'); option.value = String(value); option.textContent = label; option.dataset.custom = 'true'; select.append(option); }
+    select.value = String(value);
+  }
   function updateInspector() {
     const elements = doc.elements.filter(el => selected.has(el.id));
     $('selection-panel').hidden = elements.length === 0 || !!editing;
@@ -777,8 +1619,248 @@
       button.addEventListener('click', () => { one.color = color; commit(); }); $('colors').append(button);
     }
     $('font-size').hidden = !one || !hasText(one); $('font-size').closest('.font-field').hidden = $('font-size').hidden;
-    if (one && hasText(one)) $('font-size').value = String(one.fontSize);
+    if (one && hasText(one)) setSelectValue('font-size', one.fontSize, `${one.fontSize} px`);
     $('image-caption').hidden = one?.type !== 'image';
+    $('branch-controls').hidden = !one || !(isShape(one) || one.type === 'note');
+    const boxes = elements.filter(el => el.type !== 'arrow');
+    $('alignment-controls').hidden = boxes.length < 2;
+    document.querySelectorAll('[data-align^="distribute"]').forEach(button => { button.disabled = boxes.length < 3; });
+    $('arrow-controls').hidden = one?.type !== 'arrow';
+    if (one?.type === 'arrow') {
+      const field = $('arrow-label'); field.dataset.elementId = one.id;
+      if (document.activeElement !== field) field.value = one.label || '';
+      $('arrow-line-style').value = one.lineStyle || 'solid';
+      $('arrow-head').value = one.head || 'end';
+      setSelectValue('arrow-width', one.strokeWidth, `${one.strokeWidth} px`);
+    }
+  }
+  function elementBounds(el) {
+    if (el.type !== 'arrow') return M.getBounds([el]);
+    const ends = M.arrowEndpoints(el, doc.elements);
+    return M.getBounds([{ ...el, from: ends.from, to: ends.to }]);
+  }
+  function revealElement(el, centerOn = false) {
+    const b = elementBounds(el), v = doc.viewport;
+    const rightPanel = stage.clientWidth > 760 ? 250 : 30;
+    const left = 45, top = 120, right = Math.max(left + 160, stage.clientWidth - rightPanel), bottom = Math.max(top + 100, stage.clientHeight - 70);
+    if (centerOn) {
+      v.zoom = Math.max(.2, Math.min(v.zoom, (right - left) / Math.max(b.width + 40, 1), (bottom - top) / Math.max(b.height + 40, 1)));
+      v.x = (left + right) / 2 - (b.x + b.width / 2) * v.zoom;
+      v.y = (top + bottom) / 2 - (b.y + b.height / 2) * v.zoom;
+    } else {
+      const x1 = v.x + b.x * v.zoom, x2 = x1 + b.width * v.zoom;
+      const y1 = v.y + b.y * v.zoom, y2 = y1 + b.height * v.zoom;
+      if (x2 > right) v.x -= x2 - right;
+      else if (x1 < left) v.x += left - x1;
+      if (y2 > bottom) v.y -= y2 - bottom;
+      else if (y1 < top) v.y += top - y1;
+    }
+    scheduleAutosave();
+  }
+  function addBranch(direction = 'right') {
+    finishEdit();
+    if (selected.size !== 1) return;
+    if (doc.elements.length + 2 > M.LIMITS.elements) { toast('オブジェクト数の上限です。'); return; }
+    try {
+      const source = getElement([...selected][0]);
+      if (!source || !(isShape(source) || source.type === 'note')) return;
+      const draft = M.createItem(source.type, { width: source.width, height: source.height, fontSize: source.fontSize, text: '新しいアイデア' });
+      fitTextHeight(draft);
+      const additions = F.branchElements(doc.elements, source.id, direction, { width: draft.width, height: draft.height });
+      if (!additions.length) return;
+      const node = additions.find(el => el.type !== 'arrow');
+      doc.elements.push(...additions); selected = new Set([node.id]);
+      fitTextHeight(node); revealElement(node); setTool('select'); commit(); editText(node, true);
+    } catch (error) { toast(`図形を追加できません: ${error.message}`); }
+  }
+  function alignSelection(mode) {
+    finishEdit();
+    doc.elements = F.alignElements(doc.elements, [...selected], mode);
+    commit(); stage.focus({ preventScroll: true });
+  }
+  function editElement(el) {
+    if (el?.type === 'arrow') {
+      selected = new Set([el.id]); updateUI(); render();
+      $('arrow-label').focus(); $('arrow-label').select();
+    } else editText(el);
+  }
+  function updateSearch() {
+    if ($('search-panel').hidden) return;
+    const activeId = searchMatches[searchIndex];
+    searchMatches = F.searchElements(doc.elements, $('search-input').value);
+    searchIndex = searchMatches.length ? Math.max(0, searchMatches.indexOf(activeId)) : -1;
+    $('search-count').textContent = $('search-input').value.trim() ? (searchMatches.length ? `${searchIndex + 1} / ${searchMatches.length}` : '見つかりません') : '文字を入力';
+    $('search-prev').disabled = $('search-next').disabled = searchMatches.length === 0;
+  }
+  function focusSearchResult(step = 0) {
+    updateSearch();
+    if (!searchMatches.length) { render(); return; }
+    searchIndex = (searchIndex + step + searchMatches.length) % searchMatches.length;
+    const el = getElement(searchMatches[searchIndex]);
+    selected = new Set([el.id]); revealElement(el, true);
+    updateUI(); render();
+  }
+  function openSearch() {
+    finishEdit(); $('search-panel').hidden = false; updateSearch(); render();
+    $('search-input').focus(); $('search-input').select();
+  }
+  function closeSearch(focusCanvas = true) {
+    $('search-panel').hidden = true; $('search-input').value = '';
+    searchMatches = []; searchIndex = -1;
+    if (focusCanvas) stage.focus({ preventScroll: true });
+    render();
+  }
+  function openTemplates() { finishEdit(); $('templates-dialog').showModal(); }
+  async function useTemplate(id) {
+    finishEdit(); if (!(await confirmReplace())) return;
+    try {
+      const template = F.createTemplate(id);
+      closeSearch(false); doc = template; selected.clear(); savedSnapshot = ''; localSaved = false;
+      resetHistory(); revision++; setTool('select'); $('templates-dialog').close();
+      fitAll(); updateUI(); render(); autosave(); toast('テンプレートを開きました。文字は自由に書き換えられます。');
+      stage.focus({ preventScroll: true });
+    } catch (error) { toast(`テンプレートを開けません: ${error.message}`); }
+  }
+  function initializeFeatures() {
+    const icons = {
+      mindmap: '<path d="M50 42V22H22m28 0h28M50 42v20H22m28 0h28"/><rect x="35" y="33" width="30" height="18" rx="4"/><rect x="7" y="14" width="25" height="16" rx="4"/><rect x="68" y="14" width="25" height="16" rx="4"/><rect x="7" y="54" width="25" height="16" rx="4"/><rect x="68" y="54" width="25" height="16" rx="4"/>',
+      flow: '<rect x="8" y="30" width="24" height="22" rx="4"/><path d="M32 41h9m21 0h10M52 24l15 17-15 17-15-17z"/><rect x="72" y="30" width="23" height="22" rx="4"/>',
+      retro: '<rect x="6" y="13" width="26" height="54" rx="4"/><rect x="37" y="13" width="26" height="54" rx="4"/><rect x="68" y="13" width="26" height="54" rx="4"/><path d="M12 26h14m17 0h14m17 0h14M12 37h14m17 0h14m17 0h14M12 48h10m21 0h10m21 0h10"/>',
+    };
+    for (const template of F.templates) {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'template-card'; button.dataset.template = template.id;
+      const preview = document.createElement('span'); preview.className = `template-preview template-${template.kind}`;
+      // These diagrams are static application geometry, never imported file content.
+      preview.innerHTML = `<svg viewBox="0 0 100 82" fill="none" aria-hidden="true">${icons[template.kind] || icons.flow}</svg>`;
+      const title = document.createElement('span'); title.className = 'template-title'; title.textContent = template.title;
+      const description = document.createElement('span'); description.className = 'template-description'; description.textContent = template.description;
+      button.append(preview, title, description); button.addEventListener('click', () => useTemplate(template.id)); $('template-list').append(button);
+    }
+    $('templates-btn').addEventListener('click', openTemplates);
+    $('empty-templates')?.addEventListener('click', openTemplates);
+    $('close-templates').addEventListener('click', () => $('templates-dialog').close());
+    document.querySelectorAll('[data-branch]').forEach(button => button.addEventListener('click', () => addBranch(button.dataset.branch)));
+    document.querySelectorAll('[data-align]').forEach(button => button.addEventListener('click', () => alignSelection(button.dataset.align)));
+    $('search-btn').addEventListener('click', openSearch);
+    $('close-search').addEventListener('click', () => closeSearch());
+    $('search-input').addEventListener('input', () => { searchIndex = -1; focusSearchResult(); });
+    $('search-input').addEventListener('keydown', event => {
+      if (event.isComposing) return;
+      if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); focusSearchResult(event.shiftKey ? -1 : 1); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeSearch(); }
+    });
+    $('search-prev').addEventListener('click', () => focusSearchResult(-1));
+    $('search-next').addEventListener('click', () => focusSearchResult(1));
+    $('arrow-label').addEventListener('input', event => {
+      const el = getElement(event.target.dataset.elementId); if (el?.type !== 'arrow') return;
+      el.label = event.target.value; revision++; localSaved = false; scheduleAutosave(); status(); updateSearch(); render();
+    });
+    $('arrow-label').addEventListener('blur', () => commit());
+    $('arrow-label').addEventListener('keydown', event => {
+      if (event.isComposing) return;
+      if (event.key === 'Enter' || event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); event.target.blur(); stage.focus({ preventScroll: true }); }
+    });
+    for (const [id, property] of [['arrow-line-style', 'lineStyle'], ['arrow-head', 'head'], ['arrow-width', 'strokeWidth']]) {
+      $(id).addEventListener('change', event => {
+        const el = getElement([...selected][0]); if (el?.type !== 'arrow') return;
+        el[property] = property === 'strokeWidth' ? Number(event.target.value) : event.target.value; commit();
+      });
+    }
+  }
+  let mermaidMode = 'import', mermaidResult = null, mermaidTimer, mermaidFileName = '';
+  const mermaidExample = 'flowchart LR\n  A["アイデアを出す"] --> B{"すぐ試せる？"}\n  B -->|はい| C["小さく試す"]\n  B -->|いいえ| D["もっと小さく分ける"]\n  D -.-> A';
+  function mermaidMessage(messages, error = false) {
+    const message = $('mermaid-message');
+    message.textContent = Array.isArray(messages) ? messages.join('\n') : messages;
+    message.hidden = !message.textContent; message.classList.toggle('is-error', error);
+  }
+  function validateMermaid() {
+    clearTimeout(mermaidTimer); mermaidResult = null; $('mermaid-load').disabled = true;
+    if (mermaidMode !== 'import') return;
+    try {
+      mermaidResult = window.BrainstormorMermaid.importFlowchart($('mermaid-code').value);
+      const nodes = mermaidResult.document.elements.filter(el => el.type !== 'arrow').length;
+      const arrows = mermaidResult.document.elements.length - nodes;
+      $('mermaid-summary').textContent = `${nodes}個の図形 · ${arrows}本の矢印`;
+      mermaidMessage(mermaidResult.warnings); $('mermaid-load').disabled = false;
+    } catch (error) { $('mermaid-summary').textContent = ''; mermaidMessage(error.message, true); }
+  }
+  function generateMermaid() {
+    try {
+      const result = window.BrainstormorMermaid.exportFlowchart(doc, $('mermaid-direction').value);
+      $('mermaid-code').value = result.source; mermaidMessage(result.warnings);
+      $('mermaid-summary').textContent = `${result.source.split('\n').length}行`;
+      $('mermaid-download').disabled = $('mermaid-copy').disabled = false;
+    } catch (error) {
+      $('mermaid-code').value = ''; mermaidMessage(error.message, true);
+      $('mermaid-summary').textContent = ''; $('mermaid-download').disabled = $('mermaid-copy').disabled = true;
+    }
+  }
+  function setMermaidMode(mode, source) {
+    clearTimeout(mermaidTimer); mermaidMode = mode;
+    const importing = mode === 'import';
+    document.querySelectorAll('[data-mermaid-mode]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mermaidMode === mode)));
+    $('mermaid-code').readOnly = !importing;
+    $('mermaid-choose-file').hidden = !importing; $('mermaid-load').hidden = !importing;
+    $('mermaid-direction-field').hidden = importing; $('mermaid-copy').hidden = importing; $('mermaid-download').hidden = importing;
+    $('mermaid-hint').textContent = importing ? 'flowchart / graph のコードを貼り付けると、編集できる図形になります。' : 'いまのボードをMermaidコードに変換しました。コピーやファイル保存で持ち出せます。';
+    if (importing) { $('mermaid-code').value = source ?? mermaidDraft; validateMermaid(); }
+    else generateMermaid();
+  }
+  let mermaidDraft = mermaidExample;
+  function openMermaid(mode = 'import', source, name = '') {
+    finishEdit(); if (gesture) endGesture(null, true);
+    if (source !== undefined) { mermaidDraft = source; mermaidFileName = name; }
+    setMermaidMode(mode, source); $('mermaid-dialog').showModal();
+    if (mode === 'import') $('mermaid-code').focus();
+  }
+  async function readMermaidFile(file) {
+    if (!file) return;
+    try {
+      if (file.size > 1024 * 1024) throw new Error('Mermaidファイルは1MB以下にしてください。');
+      const source = await file.text();
+      mermaidDraft = source; mermaidFileName = file.name.replace(/\.[^.]+$/, '');
+      if ($('mermaid-dialog').open) setMermaidMode('import', source);
+      else openMermaid('import', source, mermaidFileName);
+    } catch (error) { if ($('mermaid-dialog').open) mermaidMessage(error.message, true); else toast(error.message); }
+  }
+  async function loadMermaidBoard() {
+    validateMermaid(); if (!mermaidResult || !(await confirmReplace())) return;
+    const loaded = M.clone(mermaidResult.document);
+    if (mermaidFileName) loaded.title = mermaidFileName;
+    closeSearch(false); doc = loaded; selected.clear(); savedSnapshot = ''; localSaved = false;
+    resetHistory(); revision++; setTool('select'); $('mermaid-dialog').close(); fitAll(); updateUI(); render(); autosave();
+    toast('Mermaidを図形に変換しました。ダブルクリックで文字を編集できます。'); stage.focus({ preventScroll: true });
+  }
+  function initializeMermaid() {
+    $('mermaid-btn').addEventListener('click', () => openMermaid());
+    $('export-mermaid').addEventListener('click', () => { $('export-dialog').close(); openMermaid('export'); });
+    $('close-mermaid').addEventListener('click', () => $('mermaid-dialog').close());
+    document.querySelectorAll('[data-mermaid-mode]').forEach(button => button.addEventListener('click', () => {
+      if (mermaidMode === 'import') mermaidDraft = $('mermaid-code').value;
+      setMermaidMode(button.dataset.mermaidMode);
+    }));
+    $('mermaid-code').addEventListener('input', () => {
+      if (mermaidMode !== 'import') return;
+      mermaidDraft = $('mermaid-code').value; mermaidFileName = ''; mermaidResult = null; $('mermaid-load').disabled = true;
+      clearTimeout(mermaidTimer); mermaidTimer = setTimeout(validateMermaid, 180);
+    });
+    $('mermaid-direction').addEventListener('change', generateMermaid);
+    $('mermaid-choose-file').addEventListener('click', () => $('mermaid-file-input').click());
+    $('mermaid-file-input').addEventListener('change', event => { readMermaidFile(event.target.files[0]); event.target.value = ''; });
+    $('mermaid-load').addEventListener('click', loadMermaidBoard);
+    $('mermaid-download').addEventListener('click', () => {
+      download(new Blob([$('mermaid-code').value], { type: 'text/plain;charset=utf-8' }), filename('.mmd'));
+      toast('Mermaidファイルを書き出しました。');
+    });
+    $('mermaid-copy').addEventListener('click', async () => {
+      const code = $('mermaid-code');
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(code.value);
+        else { code.focus(); code.select(); if (!document.execCommand('copy')) throw new Error('copy'); }
+        toast('Mermaidコードをコピーしました。');
+      } catch { code.focus(); code.select(); mermaidMessage('コードを選択しました。⌘ / Ctrl + C でコピーしてください。'); }
+    });
   }
   function removeSelected() {
     finishEdit(); if (!selected.size) return;
@@ -844,7 +1926,7 @@
   stage.addEventListener('dragleave', event => { event.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; $('drop-overlay').hidden = true; } });
   stage.addEventListener('drop', async event => {
     event.preventDefault(); dragDepth = 0; $('drop-overlay').hidden = true;
-    const files = [...event.dataTransfer.files], board = files.find(file => /\.(brainstorm|json)$/i.test(file.name));
+    const files = [...event.dataTransfer.files], board = files.find(file => /\.(brainstorm|json|mmd|mermaid)$/i.test(file.name));
     if (board) await openFile(board); else await addImages(files, point(event));
   });
   const isTyping = target => target instanceof Element && (target.matches('input,textarea,select') || target.isContentEditable);
@@ -877,30 +1959,40 @@
     commit();
   }
   async function saveFile() {
-    if (saving || restoring) return;
+    if (saving || restoring) return false;
     finishEdit(); syncTitle(); saving = true;
     try {
       const captured = M.clone(doc), serialized = M.serialize(captured);
       download(new Blob([serialized], { type: 'application/json' }), filename('.brainstorm', captured.title));
       savedSnapshot = contentSnapshot(captured); autosave(); status();
-      toast('編集できるボードファイルを書き出しました。');
-    } catch (error) { toast(`保存できませんでした: ${error.message}`); }
+      toast('編集できるボードファイルを書き出しました。'); return true;
+    } catch (error) { toast(`保存できませんでした: ${error.message}`); return false; }
     finally { saving = false; }
   }
   async function openFile(file) {
+    if (/\.(mmd|mermaid)$/i.test(file.name)) { await readMermaidFile(file); return; }
     finishEdit();
     try {
       if (file.size > MAX_BYTES) throw new Error('40MB以下のボードを選んでください。');
       const loaded = M.parse(await file.text());
-      if (!confirmReplace()) return;
-      doc = loaded; selected.clear(); savedSnapshot = contentSnapshot();
+      if (!(await confirmReplace())) return;
+      closeSearch(false); doc = loaded; selected.clear(); savedSnapshot = contentSnapshot();
       resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave(); toast('ボードを開きました。');
     } catch (error) { toast(`ファイルを開けません: ${error.message}`); }
   }
-  function confirmReplace() { return !fileDirty() || (!doc.elements.length && doc.title === '無題のボード') || confirm('現在のボードにはファイルに保存していない変更があります。保存せずに切り替えますか？'); }
-  function newBoard() {
-    finishEdit(); if (!confirmReplace()) return;
-    doc = M.createDocument(); selected.clear(); savedSnapshot = contentSnapshot();
+  let replaceResolver = null;
+  function confirmReplace() {
+    if (!fileDirty() || (!doc.elements.length && doc.title === '無題のボード')) return Promise.resolve(true);
+    if (replaceResolver) return Promise.resolve(false);
+    return new Promise(resolve => { replaceResolver = resolve; $('replace-dialog').showModal(); });
+  }
+  function finishReplace(accepted) {
+    const resolve = replaceResolver; replaceResolver = null;
+    $('replace-dialog').close(); if (resolve) resolve(accepted);
+  }
+  async function newBoard() {
+    finishEdit(); if (!(await confirmReplace())) return;
+    closeSearch(false); doc = M.createDocument(); selected.clear(); savedSnapshot = contentSnapshot();
     resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave();
   }
   function exportSVG() {
@@ -916,6 +2008,7 @@
   }
   async function exportImage(kind) {
     $('export-dialog').close(); const result = exportSVG(); if (!result) return;
+    const exportTitle = doc.title;
     if (kind === 'svg') { download(new Blob([result.source], { type: 'image/svg+xml' }), filename('.svg')); toast('SVGを書き出しました。'); return; }
     let url;
     try {
@@ -926,7 +2019,7 @@
       raster.getContext('2d').drawImage(image, 0, 0, raster.width, raster.height);
       const blob = await new Promise(resolve => raster.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('PNGの作成に失敗しました');
-      download(blob, filename('.png')); toast('PNG画像を書き出しました。');
+      download(blob, filename('.png', exportTitle)); toast('PNG画像を書き出しました。');
     } catch { toast('PNGを書き出せませんでした。SVGでの書き出しをお試しください。'); }
     finally { if (url) URL.revokeObjectURL(url); }
   }
@@ -963,18 +2056,23 @@
   document.addEventListener('keydown', event => {
     if (document.querySelector('dialog[open]') || restoring) return;
     const mod = event.ctrlKey || event.metaKey;
+    if (event.isComposing) return;
+    if (mod && event.key.toLowerCase() === 'f') { event.preventDefault(); openSearch(); return; }
     if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); if (document.activeElement === $('board-title')) $('board-title').blur(); saveFile(); return; }
     if (isTyping(event.target) || event.isComposing) return;
     const key = event.key.toLowerCase();
+    if (gesture && !['shift', 'control', 'meta', 'alt', ' '].includes(key)) endGesture(null, true);
     if (mod && key === 'z') { event.preventDefault(); undo(event.shiftKey ? 1 : -1); }
     else if (mod && key === 'y') { event.preventDefault(); undo(1); }
     else if (mod && key === 'd') { event.preventDefault(); duplicate(); }
     else if (mod && key === 'a') { event.preventDefault(); selected = new Set(doc.elements.map(el => el.id)); updateUI(); render(); }
     else if (mod && key === 'o') { event.preventDefault(); $('file-input').click(); }
     else if (key === 'delete' || key === 'backspace') { event.preventDefault(); removeSelected(); }
+    else if (key === 'tab' && !mod && !event.altKey && (event.target === stage || canvas.contains(event.target)) && selected.size === 1 && (isShape(getElement([...selected][0])) || getElement([...selected][0]).type === 'note')) { event.preventDefault(); addBranch(event.shiftKey ? 'down' : 'right'); }
+    else if (key === 'escape' && !$('search-panel').hidden) { event.preventDefault(); closeSearch(); }
     else if (key === 'escape') { if (gesture) endGesture(null, true); selected.clear(); setTool('select'); render(); updateUI(); }
     else if (key === ' ') { event.preventDefault(); spacePressed = true; stage.style.cursor = 'grab'; }
-    else if (key === 'enter' && selected.size === 1) { event.preventDefault(); editText(getElement([...selected][0])); }
+    else if (key === 'enter' && selected.size === 1) { event.preventDefault(); editElement(getElement([...selected][0])); }
     else if (!mod && ['arrowleft', 'arrowright', 'arrowup', 'arrowdown'].includes(key)) {
       event.preventDefault(); const amount = event.shiftKey ? 10 : 1, dx = key === 'arrowleft' ? -amount : key === 'arrowright' ? amount : 0, dy = key === 'arrowup' ? -amount : key === 'arrowdown' ? amount : 0;
       for (const el of doc.elements.filter(x => selected.has(x.id))) {
@@ -1010,6 +2108,12 @@
     }
     restoring = false; document.querySelector('.app-shell').inert = false; resetHistory(); setTool('select'); updateUI(); render();
   }
+  $('replace-cancel').addEventListener('click', () => finishReplace(false));
+  $('replace-discard').addEventListener('click', () => finishReplace(true));
+  $('replace-save').addEventListener('click', async () => { if (await saveFile()) finishReplace(true); });
+  $('replace-dialog').addEventListener('cancel', event => { event.preventDefault(); finishReplace(false); });
+  initializeFeatures();
+  initializeMermaid();
   init();
 })();
 </script>

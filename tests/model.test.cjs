@@ -169,3 +169,80 @@ test('connections between curved shapes stay bound when shapes are moved and res
   elements[1].x = 0; elements[1].y = 0; elements[1].height = 100;
   assert.deepEqual(model.arrowEndpoints(elements[2], elements), { from: { x: 200, y: 50 }, to: { x: 0, y: 50 } });
 });
+
+test('version-1 arrows missing new fields receive compatible label, line and head defaults', () => {
+  const legacy = model.createItem('arrow');
+  delete legacy.label; delete legacy.lineStyle; delete legacy.head;
+  const parsed = parseObject(board(legacy));
+  assert.equal(parsed.version, 1);
+  assert.deepEqual(parsed.elements[0], { ...legacy, label: '', lineStyle: 'solid', head: 'end' });
+  assert.equal(model.arrowLabelLayout(legacy, [legacy]), null);
+  assert.equal(model.arrowLabelLayout(model.createItem('arrow', { label: ' \n  ' }), []), null);
+  assert.deepEqual(model.getBounds([legacy]), { x: 0, y: 0, width: 160, height: 0 });
+});
+
+test('labeled arrows round trip all style combinations and preserve literal text safely as data', () => {
+  const arrows = [];
+  for (const lineStyle of ['solid', 'dashed']) {
+    for (const head of ['end', 'both', 'none']) {
+      arrows.push(model.createItem('arrow', { label: '条件 🧠\n<script>alert("x")</script>&', lineStyle, head }));
+    }
+  }
+  const original = board(...arrows);
+  const imported = model.parse(model.serialize(original));
+  assert.deepEqual(imported, original);
+  assert.equal(model.arrowLabelLayout(imported.elements[0], []).lines.join('').includes('<script>'), true);
+  const exactLimit = model.createItem('arrow', { label: '🧠'.repeat(200) });
+  assert.equal(parseObject(board(exactLimit)).elements[0].label, exactLimit.label);
+});
+
+test('invalid arrow styles or oversized/non-string labels reject import without mutating a document', () => {
+  const arrow = model.createItem('arrow', { label: '元のラベル' });
+  const original = board(arrow);
+  const before = model.serialize(original);
+  for (const invalid of [{ label: 12 }, { label: null }, { label: {} }, { label: '🧠'.repeat(201) }, { lineStyle: 'dotted' }, { lineStyle: null }, { head: 'start' }, { head: true }]) {
+    assert.throws(() => parseObject(board({ ...arrow, ...invalid })));
+  }
+  assert.equal(model.serialize(original), before);
+});
+
+test('Unicode labels wrap without splitting surrogate pairs and reserve predictable padded bounds', () => {
+  const arrow = model.createItem('arrow', { from: { x: 0, y: 0 }, to: { x: 0, y: 200 }, label: '日本語ラベルと絵文字🧠です' });
+  const layout = model.arrowLabelLayout(arrow, [arrow]);
+  assert.deepEqual(layout.lines, ['日本語ラベルと絵文字🧠', 'です']);
+  assert.equal(layout.width, 192);
+  assert.equal(layout.height, 56);
+  assert.equal(layout.x, -96);
+  assert.equal(layout.y, 72);
+  assert.equal(layout.lineHeight, 22);
+  assert.deepEqual(model.getBounds([arrow]), { x: -96, y: 0, width: 192, height: 200 });
+  const mixed = model.createItem('arrow', { label: 'ABC日本語\r\n\n🧠XYZ' });
+  const mixedLayout = model.arrowLabelLayout(mixed, []);
+  assert.deepEqual(mixedLayout.lines, ['ABC日本語', '', '🧠XYZ']);
+  assert.equal(mixedLayout.width, 94);
+  assert.equal(mixedLayout.height, 78);
+});
+
+test('label bounds follow diagonal bound arrows after movement and remain finite at coordinate limits', () => {
+  const shape = model.createItem('ellipse', { id: 'shape', x: -50, y: -50, width: 100, height: 100 });
+  const arrow = model.createItem('arrow', { from: { x: 0, y: 0, elementId: 'shape' }, to: { x: 30, y: 30 }, label: '斜めの接続ラベル' });
+  const elements = [shape, arrow];
+  const check = () => {
+    const endpoints = model.arrowEndpoints(arrow, elements);
+    const label = model.arrowLabelLayout(arrow, elements);
+    assert.equal(label.x + label.width / 2, (endpoints.from.x + endpoints.to.x) / 2);
+    assert.equal(label.y + label.height / 2, (endpoints.from.y + endpoints.to.y) / 2);
+    const bounds = model.getBounds(elements);
+    assert.ok(bounds.x <= label.x && bounds.y <= label.y);
+    assert.ok(bounds.x + bounds.width >= label.x + label.width);
+    assert.ok(bounds.y + bounds.height >= label.y + label.height);
+    return label;
+  };
+  const first = check();
+  shape.x = 200; shape.y = -500;
+  assert.notEqual(check().x, first.x);
+  arrow.from = { x: model.LIMITS.coordinate, y: -model.LIMITS.coordinate };
+  arrow.to = { x: model.LIMITS.coordinate, y: -model.LIMITS.coordinate };
+  const atLimit = model.arrowLabelLayout(arrow, []);
+  assert.ok(['x', 'y', 'width', 'height'].every(key => Number.isFinite(atLimit[key])));
+});

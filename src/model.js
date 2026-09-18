@@ -8,7 +8,7 @@
 
   const FORMAT = 'brainstormor';
   const VERSION = 1;
-  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000 });
+  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000, arrowLabel: 200 });
   const DEFAULTS = Object.freeze({ noteColor: '#fff2aa', textColor: '#24334a', arrowColor: '#526076', rectColor: '#daeafd', ellipseColor: '#d7f1e3', diamondColor: '#eee0ff', noteFontSize: 20, textFontSize: 24, shapeFontSize: 20, strokeWidth: 3 });
   const SHAPES = ['rect', 'ellipse', 'diamond'];
   const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
@@ -28,6 +28,15 @@
     return value;
   }
   function coordinate(value, name) { return number(value, name, -LIMITS.coordinate, LIMITS.coordinate); }
+  function choice(value, choices, name) {
+    if (!choices.includes(value)) fail(name + 'の形式が正しくありません。');
+    return value;
+  }
+  function arrowLabel(value) {
+    const label = value === undefined ? '' : value;
+    if (typeof label !== 'string' || Array.from(label).length > LIMITS.arrowLabel) fail('矢印のラベルは200文字以内にしてください。');
+    return label;
+  }
   function color(value) {
     if (typeof value !== 'string' || !/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)) fail('色の形式が正しくありません。');
     return value;
@@ -97,6 +106,9 @@
       result.to = endpoint(value.to, '矢印の終点');
       result.color = color(value.color);
       result.strokeWidth = number(value.strokeWidth === undefined ? DEFAULTS.strokeWidth : value.strokeWidth, '線の太さ', 0.1, 100);
+      result.label = arrowLabel(value.label);
+      result.lineStyle = choice(value.lineStyle === undefined ? 'solid' : value.lineStyle, ['solid', 'dashed'], '線のスタイル');
+      result.head = choice(value.head === undefined ? 'end' : value.head, ['end', 'both', 'none'], '矢印の先端');
     }
     return result;
   }
@@ -137,7 +149,7 @@
       : type === 'text' ? { width: 280, height: 52, text: '', color: DEFAULTS.textColor, fontSize: DEFAULTS.textFontSize }
       : SHAPES.includes(type) ? { width: type === 'diamond' ? 240 : 220, height: type === 'diamond' ? 160 : 130, text: '', color: DEFAULTS[type + 'Color'], fontSize: DEFAULTS.shapeFontSize, textColor: DEFAULTS.textColor }
       : type === 'image' ? { width: 400, height: 300, src: TRANSPARENT_IMAGE, name: '画像' }
-      : type === 'arrow' ? { width: 0, height: 0, from: { x: 0, y: 0 }, to: { x: 160, y: 0 }, color: DEFAULTS.arrowColor, strokeWidth: DEFAULTS.strokeWidth }
+      : type === 'arrow' ? { width: 0, height: 0, from: { x: 0, y: 0 }, to: { x: 160, y: 0 }, color: DEFAULTS.arrowColor, strokeWidth: DEFAULTS.strokeWidth, label: '', lineStyle: 'solid', head: 'end' }
       : {};
     return normalizeItem(Object.assign({}, common, defaults, overrides, { type }));
   }
@@ -185,6 +197,37 @@
       to: toItem ? edge(toItem, fromCenter, -1) : { x: arrow.to.x, y: arrow.to.y }
     };
   }
+  function arrowLabelLayout(arrow, elements) {
+    if (typeof arrow.label !== 'string' || !arrow.label.trim()) return null;
+    const lines = [];
+    let contentWidth = 0;
+    // Use the same deterministic metrics for the editor, exports, and framing.
+    // Iterate code points so supplementary Unicode characters are never split.
+    for (const paragraph of arrow.label.split(/\r\n|\r|\n/)) {
+      let line = '', width = 0;
+      for (const character of paragraph) {
+        const advance = character.codePointAt(0) <= 0x7f ? 10 : 16;
+        if (line && width + advance > 180) {
+          lines.push(line);
+          contentWidth = Math.max(contentWidth, width);
+          line = ''; width = 0;
+        }
+        line += character;
+        width += advance;
+      }
+      lines.push(line);
+      contentWidth = Math.max(contentWidth, width);
+    }
+    const width = contentWidth + 16;
+    const height = lines.length * 22 + 12;
+    const endpoints = arrowEndpoints(arrow, elements);
+    return {
+      lines, width, height,
+      x: (endpoints.from.x + endpoints.to.x) / 2 - width / 2,
+      y: (endpoints.from.y + endpoints.to.y) / 2 - height / 2,
+      lineHeight: 22
+    };
+  }
   function getBounds(elements) {
     if (!elements.length) return { x: 0, y: 0, width: 0, height: 0 };
     let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
@@ -196,6 +239,11 @@
         top = Math.min(top, points.from.y, points.to.y);
         right = Math.max(right, points.from.x, points.to.x);
         bottom = Math.max(bottom, points.from.y, points.to.y);
+        const label = arrowLabelLayout(item, items);
+        if (label) {
+          left = Math.min(left, label.x); top = Math.min(top, label.y);
+          right = Math.max(right, label.x + label.width); bottom = Math.max(bottom, label.y + label.height);
+        }
       } else {
         left = Math.min(left, item.x); top = Math.min(top, item.y);
         right = Math.max(right, item.x + item.width); bottom = Math.max(bottom, item.y + item.height);
@@ -203,5 +251,5 @@
     }
     return { x: left, y: top, width: right - left, height: bottom - top };
   }
-  return { FORMAT, VERSION, LIMITS, DEFAULTS, createDocument, createItem, parse, serialize, clone, arrowEndpoints, getBounds };
+  return { FORMAT, VERSION, LIMITS, DEFAULTS, createDocument, createItem, parse, serialize, clone, arrowEndpoints, arrowLabelLayout, getBounds };
 });

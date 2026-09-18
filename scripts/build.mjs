@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 let html = await readFile(new URL('src/shell.html', root), 'utf8');
-for (const [token, path] of [['/*__STYLES__*/','src/style.css'],['/*__MODEL__*/','src/model.js'],['/*__APP__*/','src/app.js']]) {
+for (const [token, path] of [['/*__STYLES__*/','src/style.css'],['/*__MODEL__*/','src/model.js'],['/*__FEATURES__*/','src/features.js'],['/*__MERMAID__*/','src/mermaid.js'],['/*__APP__*/','src/app.js']]) {
   if (!html.includes(token)) throw new Error(`Missing template token: ${token}`);
   const source = await readFile(new URL(path, root), 'utf8');
   if (/<\/script/i.test(source) && path.endsWith('.js')) throw new Error('Unsafe closing script tag in source');

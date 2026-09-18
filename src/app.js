@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const M = window.BrainstormorModel;
+  const F = window.BrainstormorFeatures;
   const $ = id => document.getElementById(id);
   const stage = $('stage'), canvas = $('canvas'), world = $('world'), overlay = $('overlay');
   const editor = $('text-editor');
@@ -13,6 +14,7 @@
   let lastPointer = null, restoring = true, clipboardElements = null, dbPromise;
   let persistenceQueue = Promise.resolve();
   let saving = false, lastTap = null;
+  let searchMatches = [], searchIndex = -1;
   document.querySelector('.app-shell').inert = true;
   const measure = document.createElement('canvas').getContext('2d');
   const fonts = '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
@@ -71,7 +73,7 @@
     $('item-count').textContent = `${doc.elements.length} オブジェクト`;
     $('empty-state').hidden = doc.elements.length > 0;
     $('zoom-label').textContent = `${Math.round(doc.viewport.zoom * 100)}%`;
-    status(); updateInspector();
+    status(); updateSearch(); updateInspector();
   }
   function getDB() {
     if (!dbPromise) dbPromise = new Promise((resolve, reject) => {
@@ -177,9 +179,21 @@
       const dx = to.x - from.x, dy = to.y - from.y, length = Math.hypot(dx, dy);
       const nx = length ? dx / length : 1, ny = length ? dy / length : 0;
       const head = Math.min(16, length / 2), color = el.color || '#526076';
+      const endHead = el.head !== 'none', startHead = el.head === 'both';
       group.append(svg('line', { x1: from.x, y1: from.y, x2: to.x, y2: to.y, stroke: 'transparent', 'stroke-width': Math.max(18, 18 / doc.viewport.zoom), 'pointer-events': 'stroke' }));
-      group.append(svg('line', { x1: from.x, y1: from.y, x2: to.x - nx * head * .6, y2: to.y - ny * head * .6, stroke: color, 'stroke-width': el.strokeWidth || 2.5, 'stroke-linecap': 'round', 'pointer-events': 'none' }));
-      group.append(svg('path', { d: `M ${to.x} ${to.y} L ${to.x - nx * head - ny * head * .42} ${to.y - ny * head + nx * head * .42} L ${to.x - nx * head + ny * head * .42} ${to.y - ny * head - nx * head * .42} Z`, fill: color, 'pointer-events': 'none' }));
+      group.append(svg('line', { x1: from.x + (startHead ? nx * head * .6 : 0), y1: from.y + (startHead ? ny * head * .6 : 0), x2: to.x - (endHead ? nx * head * .6 : 0), y2: to.y - (endHead ? ny * head * .6 : 0), stroke: color, 'stroke-width': el.strokeWidth || 3, 'stroke-linecap': 'round', ...(el.lineStyle === 'dashed' ? { 'stroke-dasharray': '10 7' } : {}), 'pointer-events': 'none' }));
+      function appendHead(tip, vx, vy) {
+        group.append(svg('path', { d: `M ${tip.x} ${tip.y} L ${tip.x - vx * head - vy * head * .42} ${tip.y - vy * head + vx * head * .42} L ${tip.x - vx * head + vy * head * .42} ${tip.y - vy * head - vx * head * .42} Z`, fill: color, 'pointer-events': 'none' }));
+      }
+      if (endHead) appendHead(to, nx, ny);
+      if (startHead) appendHead(from, -nx, -ny);
+      const label = M.arrowLabelLayout(el, doc.elements);
+      if (label) {
+        group.append(svg('rect', { x: label.x, y: label.y, width: label.width, height: label.height, rx: 6, fill: '#ffffff', stroke: color, 'stroke-opacity': .18 }));
+        const text = svg('text', { x: label.x + label.width / 2, y: label.y + 22, 'text-anchor': 'middle', 'font-size': 16, 'font-family': 'ui-monospace,SFMono-Regular,Consolas,monospace', fill: color, 'pointer-events': 'none' });
+        label.lines.forEach((line, i) => text.append(svg('tspan', { x: label.x + label.width / 2, dy: i ? label.lineHeight : 0 }, line || '\u00a0')));
+        group.append(text);
+      }
       return group;
     }
     group.setAttribute('transform', `translate(${el.x} ${el.y})`);
@@ -215,6 +229,11 @@
     stage.style.backgroundPosition = `${x}px ${y}px`;
     world.replaceChildren(...doc.elements.map(renderElement));
     overlay.replaceChildren();
+    if (!$('search-panel').hidden) for (const id of searchMatches) {
+      const el = getElement(id); if (!el) continue;
+      const b = elementBounds(el);
+      overlay.append(svg('rect', { x: b.x - 7 / zoom, y: b.y - 7 / zoom, width: b.width + 14 / zoom, height: b.height + 14 / zoom, rx: 8 / zoom, fill: '#f4be3215', stroke: id === searchMatches[searchIndex] ? '#cf8b13' : '#eac777', 'stroke-width': (id === searchMatches[searchIndex] ? 2.5 : 1.5) / zoom, 'pointer-events': 'none' }));
+    }
     for (const id of selected) {
       const el = getElement(id); if (!el) continue;
       if (el.type === 'arrow') {
@@ -224,6 +243,17 @@
       } else {
         overlay.append(svg('rect', { x: el.x - 3 / zoom, y: el.y - 3 / zoom, width: el.width + 6 / zoom, height: el.height + 6 / zoom, rx: 6 / zoom, fill: 'none', stroke: '#138776', 'stroke-width': 1.5 / zoom, 'pointer-events': 'none' }));
         if (selected.size === 1) overlay.append(svg('rect', { x: el.x + el.width - 5 / zoom, y: el.y + el.height - 5 / zoom, width: 10 / zoom, height: 10 / zoom, rx: 2 / zoom, fill: 'white', stroke: '#138776', 'stroke-width': 1.5 / zoom, 'data-handle': 'resize', 'data-id': el.id, cursor: 'nwse-resize' }));
+        if (selected.size === 1 && (isShape(el) || el.type === 'note') && tool === 'select' && !editing) {
+          for (const direction of ['right', 'down']) {
+            const cx = direction === 'right' ? el.x + el.width + 23 / zoom : el.x + el.width / 2;
+            const cy = direction === 'down' ? el.y + el.height + 23 / zoom : el.y + el.height / 2;
+            const handle = svg('g', { 'data-handle': `branch-${direction}`, 'data-id': el.id, cursor: 'pointer' });
+            handle.append(svg('title', {}, direction === 'right' ? '右にアイデアを追加 (Tab)' : '下にアイデアを追加 (Shift+Tab)'));
+            handle.append(svg('circle', { cx, cy, r: 10 / zoom, fill: '#138776', 'data-handle': `branch-${direction}`, 'data-id': el.id }));
+            handle.append(svg('path', { d: `M ${cx - 4 / zoom} ${cy} H ${cx + 4 / zoom} M ${cx} ${cy - 4 / zoom} V ${cy + 4 / zoom}`, stroke: '#fff', 'stroke-width': 1.5 / zoom, 'pointer-events': 'none' }));
+            overlay.append(handle);
+          }
+        }
       }
     }
     if (gesture?.type === 'marquee') {
@@ -313,6 +343,8 @@
       const arrow = M.createItem('arrow', { from: endpoint(p), to: { ...p } });
       doc.elements.push(arrow); selected = new Set([arrow.id]);
       gesture = { type: 'arrow', id: arrow.id, start: p, created: true };
+    } else if (handle?.startsWith('branch-')) {
+      event.preventDefault(); addBranch(handle.slice(7)); return;
     } else if (handle) {
       const el = getElement(event.target.getAttribute('data-id'));
       gesture = { type: handle === 'resize' ? 'resize' : 'endpoint', end: handle, id: el.id, start: p, original: M.clone(el) };
@@ -335,7 +367,7 @@
       const dx = p.x - g.start.x, dy = p.y - g.start.y;
       if (Math.hypot(dx, dy) * doc.viewport.zoom > 2) g.moved = true;
       if (g.moved) for (const original of g.originals) {
-        const el = getElement(original.id);
+        const el = getElement(original.id); if (!el) continue;
         if (el.type === 'arrow') {
           for (const end of ['from', 'to']) {
             const base = original[end].elementId && !selected.has(original[end].elementId) ? original.visibleEnds[end] : original[end];
@@ -392,10 +424,10 @@
     if (event && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     // SVG nodes are regenerated on selection; use stable pointer positions for double clicks.
     if (!cancelled && event && tool === 'select' && ((g.type === 'move' && !g.moved) || (g.type === 'marquee' && Math.hypot(g.current.x - g.start.x, g.current.y - g.start.y) < 3))) {
-      const p = point(event), hit = boxAt(p), now = performance.now();
+      const p = point(event), selectedArrow = g.type === 'move' && g.originals.length === 1 && g.originals[0].type === 'arrow' ? getElement(g.originals[0].id) : null, hit = selectedArrow || boxAt(p), now = performance.now();
       if (lastTap && now - lastTap.time < 450 && lastTap.id === (hit?.id || null) && Math.hypot(lastTap.x - event.clientX, lastTap.y - event.clientY) < 6) {
         lastTap = null;
-        if (hit) editText(hit);
+        if (hit) editElement(hit);
         else addItem('note', p, { text: 'アイデアを書く' }, true);
       } else lastTap = { id: hit?.id || null, time: now, x: event.clientX, y: event.clientY };
     } else lastTap = null;
@@ -427,6 +459,11 @@
     doc.viewport = { zoom, x: stage.clientWidth / 2 - (b.x + b.width / 2) * zoom, y: stage.clientHeight / 2 - (b.y + b.height / 2) * zoom };
     render(); scheduleAutosave();
   }
+  function setSelectValue(id, value, label) {
+    const select = $(id); select.querySelectorAll('option[data-custom]').forEach(option => option.remove());
+    if (![...select.options].some(option => option.value === String(value))) { const option = document.createElement('option'); option.value = String(value); option.textContent = label; option.dataset.custom = 'true'; select.append(option); }
+    select.value = String(value);
+  }
   function updateInspector() {
     const elements = doc.elements.filter(el => selected.has(el.id));
     $('selection-panel').hidden = elements.length === 0 || !!editing;
@@ -444,8 +481,248 @@
       button.addEventListener('click', () => { one.color = color; commit(); }); $('colors').append(button);
     }
     $('font-size').hidden = !one || !hasText(one); $('font-size').closest('.font-field').hidden = $('font-size').hidden;
-    if (one && hasText(one)) $('font-size').value = String(one.fontSize);
+    if (one && hasText(one)) setSelectValue('font-size', one.fontSize, `${one.fontSize} px`);
     $('image-caption').hidden = one?.type !== 'image';
+    $('branch-controls').hidden = !one || !(isShape(one) || one.type === 'note');
+    const boxes = elements.filter(el => el.type !== 'arrow');
+    $('alignment-controls').hidden = boxes.length < 2;
+    document.querySelectorAll('[data-align^="distribute"]').forEach(button => { button.disabled = boxes.length < 3; });
+    $('arrow-controls').hidden = one?.type !== 'arrow';
+    if (one?.type === 'arrow') {
+      const field = $('arrow-label'); field.dataset.elementId = one.id;
+      if (document.activeElement !== field) field.value = one.label || '';
+      $('arrow-line-style').value = one.lineStyle || 'solid';
+      $('arrow-head').value = one.head || 'end';
+      setSelectValue('arrow-width', one.strokeWidth, `${one.strokeWidth} px`);
+    }
+  }
+  function elementBounds(el) {
+    if (el.type !== 'arrow') return M.getBounds([el]);
+    const ends = M.arrowEndpoints(el, doc.elements);
+    return M.getBounds([{ ...el, from: ends.from, to: ends.to }]);
+  }
+  function revealElement(el, centerOn = false) {
+    const b = elementBounds(el), v = doc.viewport;
+    const rightPanel = stage.clientWidth > 760 ? 250 : 30;
+    const left = 45, top = 120, right = Math.max(left + 160, stage.clientWidth - rightPanel), bottom = Math.max(top + 100, stage.clientHeight - 70);
+    if (centerOn) {
+      v.zoom = Math.max(.2, Math.min(v.zoom, (right - left) / Math.max(b.width + 40, 1), (bottom - top) / Math.max(b.height + 40, 1)));
+      v.x = (left + right) / 2 - (b.x + b.width / 2) * v.zoom;
+      v.y = (top + bottom) / 2 - (b.y + b.height / 2) * v.zoom;
+    } else {
+      const x1 = v.x + b.x * v.zoom, x2 = x1 + b.width * v.zoom;
+      const y1 = v.y + b.y * v.zoom, y2 = y1 + b.height * v.zoom;
+      if (x2 > right) v.x -= x2 - right;
+      else if (x1 < left) v.x += left - x1;
+      if (y2 > bottom) v.y -= y2 - bottom;
+      else if (y1 < top) v.y += top - y1;
+    }
+    scheduleAutosave();
+  }
+  function addBranch(direction = 'right') {
+    finishEdit();
+    if (selected.size !== 1) return;
+    if (doc.elements.length + 2 > M.LIMITS.elements) { toast('オブジェクト数の上限です。'); return; }
+    try {
+      const source = getElement([...selected][0]);
+      if (!source || !(isShape(source) || source.type === 'note')) return;
+      const draft = M.createItem(source.type, { width: source.width, height: source.height, fontSize: source.fontSize, text: '新しいアイデア' });
+      fitTextHeight(draft);
+      const additions = F.branchElements(doc.elements, source.id, direction, { width: draft.width, height: draft.height });
+      if (!additions.length) return;
+      const node = additions.find(el => el.type !== 'arrow');
+      doc.elements.push(...additions); selected = new Set([node.id]);
+      fitTextHeight(node); revealElement(node); setTool('select'); commit(); editText(node, true);
+    } catch (error) { toast(`図形を追加できません: ${error.message}`); }
+  }
+  function alignSelection(mode) {
+    finishEdit();
+    doc.elements = F.alignElements(doc.elements, [...selected], mode);
+    commit(); stage.focus({ preventScroll: true });
+  }
+  function editElement(el) {
+    if (el?.type === 'arrow') {
+      selected = new Set([el.id]); updateUI(); render();
+      $('arrow-label').focus(); $('arrow-label').select();
+    } else editText(el);
+  }
+  function updateSearch() {
+    if ($('search-panel').hidden) return;
+    const activeId = searchMatches[searchIndex];
+    searchMatches = F.searchElements(doc.elements, $('search-input').value);
+    searchIndex = searchMatches.length ? Math.max(0, searchMatches.indexOf(activeId)) : -1;
+    $('search-count').textContent = $('search-input').value.trim() ? (searchMatches.length ? `${searchIndex + 1} / ${searchMatches.length}` : '見つかりません') : '文字を入力';
+    $('search-prev').disabled = $('search-next').disabled = searchMatches.length === 0;
+  }
+  function focusSearchResult(step = 0) {
+    updateSearch();
+    if (!searchMatches.length) { render(); return; }
+    searchIndex = (searchIndex + step + searchMatches.length) % searchMatches.length;
+    const el = getElement(searchMatches[searchIndex]);
+    selected = new Set([el.id]); revealElement(el, true);
+    updateUI(); render();
+  }
+  function openSearch() {
+    finishEdit(); $('search-panel').hidden = false; updateSearch(); render();
+    $('search-input').focus(); $('search-input').select();
+  }
+  function closeSearch(focusCanvas = true) {
+    $('search-panel').hidden = true; $('search-input').value = '';
+    searchMatches = []; searchIndex = -1;
+    if (focusCanvas) stage.focus({ preventScroll: true });
+    render();
+  }
+  function openTemplates() { finishEdit(); $('templates-dialog').showModal(); }
+  async function useTemplate(id) {
+    finishEdit(); if (!(await confirmReplace())) return;
+    try {
+      const template = F.createTemplate(id);
+      closeSearch(false); doc = template; selected.clear(); savedSnapshot = ''; localSaved = false;
+      resetHistory(); revision++; setTool('select'); $('templates-dialog').close();
+      fitAll(); updateUI(); render(); autosave(); toast('テンプレートを開きました。文字は自由に書き換えられます。');
+      stage.focus({ preventScroll: true });
+    } catch (error) { toast(`テンプレートを開けません: ${error.message}`); }
+  }
+  function initializeFeatures() {
+    const icons = {
+      mindmap: '<path d="M50 42V22H22m28 0h28M50 42v20H22m28 0h28"/><rect x="35" y="33" width="30" height="18" rx="4"/><rect x="7" y="14" width="25" height="16" rx="4"/><rect x="68" y="14" width="25" height="16" rx="4"/><rect x="7" y="54" width="25" height="16" rx="4"/><rect x="68" y="54" width="25" height="16" rx="4"/>',
+      flow: '<rect x="8" y="30" width="24" height="22" rx="4"/><path d="M32 41h9m21 0h10M52 24l15 17-15 17-15-17z"/><rect x="72" y="30" width="23" height="22" rx="4"/>',
+      retro: '<rect x="6" y="13" width="26" height="54" rx="4"/><rect x="37" y="13" width="26" height="54" rx="4"/><rect x="68" y="13" width="26" height="54" rx="4"/><path d="M12 26h14m17 0h14m17 0h14M12 37h14m17 0h14m17 0h14M12 48h10m21 0h10m21 0h10"/>',
+    };
+    for (const template of F.templates) {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'template-card'; button.dataset.template = template.id;
+      const preview = document.createElement('span'); preview.className = `template-preview template-${template.kind}`;
+      // These diagrams are static application geometry, never imported file content.
+      preview.innerHTML = `<svg viewBox="0 0 100 82" fill="none" aria-hidden="true">${icons[template.kind] || icons.flow}</svg>`;
+      const title = document.createElement('span'); title.className = 'template-title'; title.textContent = template.title;
+      const description = document.createElement('span'); description.className = 'template-description'; description.textContent = template.description;
+      button.append(preview, title, description); button.addEventListener('click', () => useTemplate(template.id)); $('template-list').append(button);
+    }
+    $('templates-btn').addEventListener('click', openTemplates);
+    $('empty-templates')?.addEventListener('click', openTemplates);
+    $('close-templates').addEventListener('click', () => $('templates-dialog').close());
+    document.querySelectorAll('[data-branch]').forEach(button => button.addEventListener('click', () => addBranch(button.dataset.branch)));
+    document.querySelectorAll('[data-align]').forEach(button => button.addEventListener('click', () => alignSelection(button.dataset.align)));
+    $('search-btn').addEventListener('click', openSearch);
+    $('close-search').addEventListener('click', () => closeSearch());
+    $('search-input').addEventListener('input', () => { searchIndex = -1; focusSearchResult(); });
+    $('search-input').addEventListener('keydown', event => {
+      if (event.isComposing) return;
+      if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); focusSearchResult(event.shiftKey ? -1 : 1); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeSearch(); }
+    });
+    $('search-prev').addEventListener('click', () => focusSearchResult(-1));
+    $('search-next').addEventListener('click', () => focusSearchResult(1));
+    $('arrow-label').addEventListener('input', event => {
+      const el = getElement(event.target.dataset.elementId); if (el?.type !== 'arrow') return;
+      el.label = event.target.value; revision++; localSaved = false; scheduleAutosave(); status(); updateSearch(); render();
+    });
+    $('arrow-label').addEventListener('blur', () => commit());
+    $('arrow-label').addEventListener('keydown', event => {
+      if (event.isComposing) return;
+      if (event.key === 'Enter' || event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); event.target.blur(); stage.focus({ preventScroll: true }); }
+    });
+    for (const [id, property] of [['arrow-line-style', 'lineStyle'], ['arrow-head', 'head'], ['arrow-width', 'strokeWidth']]) {
+      $(id).addEventListener('change', event => {
+        const el = getElement([...selected][0]); if (el?.type !== 'arrow') return;
+        el[property] = property === 'strokeWidth' ? Number(event.target.value) : event.target.value; commit();
+      });
+    }
+  }
+  let mermaidMode = 'import', mermaidResult = null, mermaidTimer, mermaidFileName = '';
+  const mermaidExample = 'flowchart LR\n  A["アイデアを出す"] --> B{"すぐ試せる？"}\n  B -->|はい| C["小さく試す"]\n  B -->|いいえ| D["もっと小さく分ける"]\n  D -.-> A';
+  function mermaidMessage(messages, error = false) {
+    const message = $('mermaid-message');
+    message.textContent = Array.isArray(messages) ? messages.join('\n') : messages;
+    message.hidden = !message.textContent; message.classList.toggle('is-error', error);
+  }
+  function validateMermaid() {
+    clearTimeout(mermaidTimer); mermaidResult = null; $('mermaid-load').disabled = true;
+    if (mermaidMode !== 'import') return;
+    try {
+      mermaidResult = window.BrainstormorMermaid.importFlowchart($('mermaid-code').value);
+      const nodes = mermaidResult.document.elements.filter(el => el.type !== 'arrow').length;
+      const arrows = mermaidResult.document.elements.length - nodes;
+      $('mermaid-summary').textContent = `${nodes}個の図形 · ${arrows}本の矢印`;
+      mermaidMessage(mermaidResult.warnings); $('mermaid-load').disabled = false;
+    } catch (error) { $('mermaid-summary').textContent = ''; mermaidMessage(error.message, true); }
+  }
+  function generateMermaid() {
+    try {
+      const result = window.BrainstormorMermaid.exportFlowchart(doc, $('mermaid-direction').value);
+      $('mermaid-code').value = result.source; mermaidMessage(result.warnings);
+      $('mermaid-summary').textContent = `${result.source.split('\n').length}行`;
+      $('mermaid-download').disabled = $('mermaid-copy').disabled = false;
+    } catch (error) {
+      $('mermaid-code').value = ''; mermaidMessage(error.message, true);
+      $('mermaid-summary').textContent = ''; $('mermaid-download').disabled = $('mermaid-copy').disabled = true;
+    }
+  }
+  function setMermaidMode(mode, source) {
+    clearTimeout(mermaidTimer); mermaidMode = mode;
+    const importing = mode === 'import';
+    document.querySelectorAll('[data-mermaid-mode]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mermaidMode === mode)));
+    $('mermaid-code').readOnly = !importing;
+    $('mermaid-choose-file').hidden = !importing; $('mermaid-load').hidden = !importing;
+    $('mermaid-direction-field').hidden = importing; $('mermaid-copy').hidden = importing; $('mermaid-download').hidden = importing;
+    $('mermaid-hint').textContent = importing ? 'flowchart / graph のコードを貼り付けると、編集できる図形になります。' : 'いまのボードをMermaidコードに変換しました。コピーやファイル保存で持ち出せます。';
+    if (importing) { $('mermaid-code').value = source ?? mermaidDraft; validateMermaid(); }
+    else generateMermaid();
+  }
+  let mermaidDraft = mermaidExample;
+  function openMermaid(mode = 'import', source, name = '') {
+    finishEdit(); if (gesture) endGesture(null, true);
+    if (source !== undefined) { mermaidDraft = source; mermaidFileName = name; }
+    setMermaidMode(mode, source); $('mermaid-dialog').showModal();
+    if (mode === 'import') $('mermaid-code').focus();
+  }
+  async function readMermaidFile(file) {
+    if (!file) return;
+    try {
+      if (file.size > 1024 * 1024) throw new Error('Mermaidファイルは1MB以下にしてください。');
+      const source = await file.text();
+      mermaidDraft = source; mermaidFileName = file.name.replace(/\.[^.]+$/, '');
+      if ($('mermaid-dialog').open) setMermaidMode('import', source);
+      else openMermaid('import', source, mermaidFileName);
+    } catch (error) { if ($('mermaid-dialog').open) mermaidMessage(error.message, true); else toast(error.message); }
+  }
+  async function loadMermaidBoard() {
+    validateMermaid(); if (!mermaidResult || !(await confirmReplace())) return;
+    const loaded = M.clone(mermaidResult.document);
+    if (mermaidFileName) loaded.title = mermaidFileName;
+    closeSearch(false); doc = loaded; selected.clear(); savedSnapshot = ''; localSaved = false;
+    resetHistory(); revision++; setTool('select'); $('mermaid-dialog').close(); fitAll(); updateUI(); render(); autosave();
+    toast('Mermaidを図形に変換しました。ダブルクリックで文字を編集できます。'); stage.focus({ preventScroll: true });
+  }
+  function initializeMermaid() {
+    $('mermaid-btn').addEventListener('click', () => openMermaid());
+    $('export-mermaid').addEventListener('click', () => { $('export-dialog').close(); openMermaid('export'); });
+    $('close-mermaid').addEventListener('click', () => $('mermaid-dialog').close());
+    document.querySelectorAll('[data-mermaid-mode]').forEach(button => button.addEventListener('click', () => {
+      if (mermaidMode === 'import') mermaidDraft = $('mermaid-code').value;
+      setMermaidMode(button.dataset.mermaidMode);
+    }));
+    $('mermaid-code').addEventListener('input', () => {
+      if (mermaidMode !== 'import') return;
+      mermaidDraft = $('mermaid-code').value; mermaidFileName = ''; mermaidResult = null; $('mermaid-load').disabled = true;
+      clearTimeout(mermaidTimer); mermaidTimer = setTimeout(validateMermaid, 180);
+    });
+    $('mermaid-direction').addEventListener('change', generateMermaid);
+    $('mermaid-choose-file').addEventListener('click', () => $('mermaid-file-input').click());
+    $('mermaid-file-input').addEventListener('change', event => { readMermaidFile(event.target.files[0]); event.target.value = ''; });
+    $('mermaid-load').addEventListener('click', loadMermaidBoard);
+    $('mermaid-download').addEventListener('click', () => {
+      download(new Blob([$('mermaid-code').value], { type: 'text/plain;charset=utf-8' }), filename('.mmd'));
+      toast('Mermaidファイルを書き出しました。');
+    });
+    $('mermaid-copy').addEventListener('click', async () => {
+      const code = $('mermaid-code');
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(code.value);
+        else { code.focus(); code.select(); if (!document.execCommand('copy')) throw new Error('copy'); }
+        toast('Mermaidコードをコピーしました。');
+      } catch { code.focus(); code.select(); mermaidMessage('コードを選択しました。⌘ / Ctrl + C でコピーしてください。'); }
+    });
   }
   function removeSelected() {
     finishEdit(); if (!selected.size) return;
@@ -511,7 +788,7 @@
   stage.addEventListener('dragleave', event => { event.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; $('drop-overlay').hidden = true; } });
   stage.addEventListener('drop', async event => {
     event.preventDefault(); dragDepth = 0; $('drop-overlay').hidden = true;
-    const files = [...event.dataTransfer.files], board = files.find(file => /\.(brainstorm|json)$/i.test(file.name));
+    const files = [...event.dataTransfer.files], board = files.find(file => /\.(brainstorm|json|mmd|mermaid)$/i.test(file.name));
     if (board) await openFile(board); else await addImages(files, point(event));
   });
   const isTyping = target => target instanceof Element && (target.matches('input,textarea,select') || target.isContentEditable);
@@ -544,30 +821,40 @@
     commit();
   }
   async function saveFile() {
-    if (saving || restoring) return;
+    if (saving || restoring) return false;
     finishEdit(); syncTitle(); saving = true;
     try {
       const captured = M.clone(doc), serialized = M.serialize(captured);
       download(new Blob([serialized], { type: 'application/json' }), filename('.brainstorm', captured.title));
       savedSnapshot = contentSnapshot(captured); autosave(); status();
-      toast('編集できるボードファイルを書き出しました。');
-    } catch (error) { toast(`保存できませんでした: ${error.message}`); }
+      toast('編集できるボードファイルを書き出しました。'); return true;
+    } catch (error) { toast(`保存できませんでした: ${error.message}`); return false; }
     finally { saving = false; }
   }
   async function openFile(file) {
+    if (/\.(mmd|mermaid)$/i.test(file.name)) { await readMermaidFile(file); return; }
     finishEdit();
     try {
       if (file.size > MAX_BYTES) throw new Error('40MB以下のボードを選んでください。');
       const loaded = M.parse(await file.text());
-      if (!confirmReplace()) return;
-      doc = loaded; selected.clear(); savedSnapshot = contentSnapshot();
+      if (!(await confirmReplace())) return;
+      closeSearch(false); doc = loaded; selected.clear(); savedSnapshot = contentSnapshot();
       resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave(); toast('ボードを開きました。');
     } catch (error) { toast(`ファイルを開けません: ${error.message}`); }
   }
-  function confirmReplace() { return !fileDirty() || (!doc.elements.length && doc.title === '無題のボード') || confirm('現在のボードにはファイルに保存していない変更があります。保存せずに切り替えますか？'); }
-  function newBoard() {
-    finishEdit(); if (!confirmReplace()) return;
-    doc = M.createDocument(); selected.clear(); savedSnapshot = contentSnapshot();
+  let replaceResolver = null;
+  function confirmReplace() {
+    if (!fileDirty() || (!doc.elements.length && doc.title === '無題のボード')) return Promise.resolve(true);
+    if (replaceResolver) return Promise.resolve(false);
+    return new Promise(resolve => { replaceResolver = resolve; $('replace-dialog').showModal(); });
+  }
+  function finishReplace(accepted) {
+    const resolve = replaceResolver; replaceResolver = null;
+    $('replace-dialog').close(); if (resolve) resolve(accepted);
+  }
+  async function newBoard() {
+    finishEdit(); if (!(await confirmReplace())) return;
+    closeSearch(false); doc = M.createDocument(); selected.clear(); savedSnapshot = contentSnapshot();
     resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave();
   }
   function exportSVG() {
@@ -583,6 +870,7 @@
   }
   async function exportImage(kind) {
     $('export-dialog').close(); const result = exportSVG(); if (!result) return;
+    const exportTitle = doc.title;
     if (kind === 'svg') { download(new Blob([result.source], { type: 'image/svg+xml' }), filename('.svg')); toast('SVGを書き出しました。'); return; }
     let url;
     try {
@@ -593,7 +881,7 @@
       raster.getContext('2d').drawImage(image, 0, 0, raster.width, raster.height);
       const blob = await new Promise(resolve => raster.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('PNGの作成に失敗しました');
-      download(blob, filename('.png')); toast('PNG画像を書き出しました。');
+      download(blob, filename('.png', exportTitle)); toast('PNG画像を書き出しました。');
     } catch { toast('PNGを書き出せませんでした。SVGでの書き出しをお試しください。'); }
     finally { if (url) URL.revokeObjectURL(url); }
   }
@@ -630,18 +918,23 @@
   document.addEventListener('keydown', event => {
     if (document.querySelector('dialog[open]') || restoring) return;
     const mod = event.ctrlKey || event.metaKey;
+    if (event.isComposing) return;
+    if (mod && event.key.toLowerCase() === 'f') { event.preventDefault(); openSearch(); return; }
     if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); if (document.activeElement === $('board-title')) $('board-title').blur(); saveFile(); return; }
     if (isTyping(event.target) || event.isComposing) return;
     const key = event.key.toLowerCase();
+    if (gesture && !['shift', 'control', 'meta', 'alt', ' '].includes(key)) endGesture(null, true);
     if (mod && key === 'z') { event.preventDefault(); undo(event.shiftKey ? 1 : -1); }
     else if (mod && key === 'y') { event.preventDefault(); undo(1); }
     else if (mod && key === 'd') { event.preventDefault(); duplicate(); }
     else if (mod && key === 'a') { event.preventDefault(); selected = new Set(doc.elements.map(el => el.id)); updateUI(); render(); }
     else if (mod && key === 'o') { event.preventDefault(); $('file-input').click(); }
     else if (key === 'delete' || key === 'backspace') { event.preventDefault(); removeSelected(); }
+    else if (key === 'tab' && !mod && !event.altKey && (event.target === stage || canvas.contains(event.target)) && selected.size === 1 && (isShape(getElement([...selected][0])) || getElement([...selected][0]).type === 'note')) { event.preventDefault(); addBranch(event.shiftKey ? 'down' : 'right'); }
+    else if (key === 'escape' && !$('search-panel').hidden) { event.preventDefault(); closeSearch(); }
     else if (key === 'escape') { if (gesture) endGesture(null, true); selected.clear(); setTool('select'); render(); updateUI(); }
     else if (key === ' ') { event.preventDefault(); spacePressed = true; stage.style.cursor = 'grab'; }
-    else if (key === 'enter' && selected.size === 1) { event.preventDefault(); editText(getElement([...selected][0])); }
+    else if (key === 'enter' && selected.size === 1) { event.preventDefault(); editElement(getElement([...selected][0])); }
     else if (!mod && ['arrowleft', 'arrowright', 'arrowup', 'arrowdown'].includes(key)) {
       event.preventDefault(); const amount = event.shiftKey ? 10 : 1, dx = key === 'arrowleft' ? -amount : key === 'arrowright' ? amount : 0, dy = key === 'arrowup' ? -amount : key === 'arrowdown' ? amount : 0;
       for (const el of doc.elements.filter(x => selected.has(x.id))) {
@@ -677,5 +970,11 @@
     }
     restoring = false; document.querySelector('.app-shell').inert = false; resetHistory(); setTool('select'); updateUI(); render();
   }
+  $('replace-cancel').addEventListener('click', () => finishReplace(false));
+  $('replace-discard').addEventListener('click', () => finishReplace(true));
+  $('replace-save').addEventListener('click', async () => { if (await saveFile()) finishReplace(true); });
+  $('replace-dialog').addEventListener('cancel', event => { event.preventDefault(); finishReplace(false); });
+  initializeFeatures();
+  initializeMermaid();
   init();
 })();
