@@ -1,0 +1,206 @@
+{
+  "format": "brainstormor",
+  "version": 1,
+  "title": "アイデアを小さく試す",
+  "elements": [
+    {
+      "id": "connect-1",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "from": {
+        "x": 140,
+        "y": 125,
+        "elementId": "notice"
+      },
+      "to": {
+        "x": 460,
+        "y": 125,
+        "elementId": "choose"
+      },
+      "color": "#739187",
+      "strokeWidth": 2.5
+    },
+    {
+      "id": "connect-2",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "from": {
+        "x": 460,
+        "y": 125,
+        "elementId": "choose"
+      },
+      "to": {
+        "x": 805,
+        "y": 125,
+        "elementId": "small"
+      },
+      "color": "#739187",
+      "strokeWidth": 2.5
+    },
+    {
+      "id": "connect-3",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "from": {
+        "x": 805,
+        "y": 125,
+        "elementId": "small"
+      },
+      "to": {
+        "x": 802.5,
+        "y": 370,
+        "elementId": "try"
+      },
+      "color": "#739187",
+      "strokeWidth": 2.5
+    },
+    {
+      "id": "connect-4",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "from": {
+        "x": 802.5,
+        "y": 370,
+        "elementId": "try"
+      },
+      "to": {
+        "x": 460,
+        "y": 373,
+        "elementId": "observe"
+      },
+      "color": "#739187",
+      "strokeWidth": 2.5
+    },
+    {
+      "id": "connect-5",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "from": {
+        "x": 460,
+        "y": 373,
+        "elementId": "observe"
+      },
+      "to": {
+        "x": 140,
+        "y": 372.5,
+        "elementId": "learn"
+      },
+      "color": "#739187",
+      "strokeWidth": 2.5
+    },
+    {
+      "id": "heading",
+      "type": "text",
+      "x": 25,
+      "y": -22,
+      "width": 650,
+      "height": 45,
+      "text": "アイデアを小さく試す",
+      "color": "#30443b",
+      "fontSize": 28
+    },
+    {
+      "id": "subheading",
+      "type": "text",
+      "x": 25,
+      "y": 20,
+      "width": 650,
+      "height": 28,
+      "text": "うまくまとめる前に、一度やってみる。",
+      "color": "#859285",
+      "fontSize": 15
+    },
+    {
+      "id": "notice",
+      "type": "rect",
+      "x": 25,
+      "y": 65,
+      "width": 230,
+      "height": 120,
+      "text": "気になること\n記録が続かない",
+      "color": "#e0eaf3",
+      "fontSize": 20,
+      "textColor": "#24334a"
+    },
+    {
+      "id": "choose",
+      "type": "rect",
+      "x": 350,
+      "y": 65,
+      "width": 220,
+      "height": 120,
+      "text": "ひとつ選ぶ\n3行だけ書いてみる",
+      "color": "#e4eee4",
+      "fontSize": 20,
+      "textColor": "#24334a"
+    },
+    {
+      "id": "small",
+      "type": "diamond",
+      "x": 675,
+      "y": 42,
+      "width": 260,
+      "height": 166,
+      "text": "30分で\n試せる？",
+      "color": "#eee3f1",
+      "fontSize": 22,
+      "textColor": "#24334a"
+    },
+    {
+      "id": "try",
+      "type": "ellipse",
+      "x": 685,
+      "y": 300,
+      "width": 235,
+      "height": 140,
+      "text": "まずは試す\n今日の終わりに",
+      "color": "#dceee7",
+      "fontSize": 20,
+      "textColor": "#24334a"
+    },
+    {
+      "id": "observe",
+      "type": "rect",
+      "x": 350,
+      "y": 313,
+      "width": 220,
+      "height": 120,
+      "text": "反応を見る\nどこが楽だった？",
+      "color": "#e0eaf3",
+      "fontSize": 20,
+      "textColor": "#24334a"
+    },
+    {
+      "id": "learn",
+      "type": "note",
+      "x": 25,
+      "y": 305,
+      "width": 230,
+      "height": 135,
+      "text": "学びを次へ\n\n続けやすい形へ",
+      "color": "#fff0b8",
+      "fontSize": 20,
+      "textColor": "#35433a"
+    }
+  ],
+  "viewport": {
+    "x": 30,
+    "y": 110,
+    "zoom": 0.85
+  }
+}

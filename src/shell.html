@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f4">
+  <meta name="description" content="図形を置いて、文字を書いて、矢印でつなぐ。考えを気軽に広げて、ひとつのファイルに保存するブレストボード。">
+  <title>brainstormor — 考えを、ひろげる。</title>
+  <style>/*__STYLES__*/</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="document-heading">
+        <a class="brand" href="#" aria-label="brainstormor">
+          <svg class="brand-mark" width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="9" fill="currentColor"/><path d="M9 9v12h5.8a4.2 4.2 0 1 0 0-8.4H9M15 7.5v5.1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>brainstormor<span class="brand-dot">.</span></span>
+        </a>
+        <span class="header-divider" aria-hidden="true"></span>
+        <div class="document-details">
+          <label class="sr-only" for="board-title">ボード名</label>
+          <input id="board-title" value="無題のボード" maxlength="120" autocomplete="off" spellcheck="false" aria-label="ボード名">
+          <span id="save-status" class="save-status">このブラウザに自動保存</span>
+        </div>
+      </div>
+      <nav class="document-actions" aria-label="ファイル操作">
+        <button id="new-board" class="icon-button subtle-button" type="button" title="新しいボード" aria-label="新しいボード"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="open-board" class="button quiet-button" type="button" title="ボードを開く (⌘/Ctrl+O)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2M3 7v11a2 2 0 0 0 2 2h13a2 2 0 0 0 1.9-1.4L22 11H7l-3 7"/></svg><span>開く</span></button>
+        <button id="export-board" class="button quiet-button" type="button" title="画像を書き出す"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>書き出し</span></button>
+        <button id="save-board" class="button primary-button" type="button" title="ファイルに保存 (⌘/Ctrl+S)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg><span>保存</span></button>
+      </nav>
+    </header>
+
+    <main id="stage" tabindex="0" aria-label="ブレストボードの編集領域">
+      <svg id="canvas" aria-label="ブレストボード" role="application"><defs></defs><g id="world"></g><g id="overlay"></g></svg>
+      <textarea id="text-editor" hidden spellcheck="false" aria-label="テキストを編集"></textarea>
+
+      <div class="tool-area">
+        <div class="toolbar floating-surface" role="toolbar" aria-label="描画ツール">
+          <button class="tool-button active" data-tool="select" type="button" title="選択・移動 (V)" aria-label="選択・移動" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 14 10-7 1.4L8 21 5 3Z"/></svg><span class="tool-key">V</span></button>
+          <button class="tool-button" data-tool="hand" type="button" title="ボードを移動 (H / Space)" aria-label="ボードを移動" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12V6a1.5 1.5 0 0 1 3 0m0 5V4a1.5 1.5 0 0 1 3 0v7m0-5a1.5 1.5 0 0 1 3 0v6m0-3a1.5 1.5 0 0 1 3 0v6c0 4-2.5 7-6.5 7-2.6 0-4.1-1.1-5.5-3l-4-6a1.5 1.5 0 0 1 2.3-1.9L8 13"/></svg><span class="tool-key">H</span></button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button class="tool-button" data-tool="rect" type="button" title="四角を置く (R)" aria-label="四角を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/></svg><span class="tool-key">R</span></button>
+          <button class="tool-button" data-tool="ellipse" type="button" title="丸を置く (O)" aria-label="丸を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="8"/></svg><span class="tool-key">O</span></button>
+          <button class="tool-button" data-tool="diamond" type="button" title="ひし形を置く (D)" aria-label="ひし形を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 10-10 10L2 12 12 2Z"/></svg><span class="tool-key">D</span></button>
+          <button class="tool-button" data-tool="note" type="button" title="付箋を置く (N)" aria-label="付箋を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10l6-6V5a2 2 0 0 0-2-2Z"/><path d="M15 21v-6h6M8 8h8M8 12h5"/></svg><span class="tool-key">N</span></button>
+          <button class="tool-button" data-tool="text" type="button" title="文字を置く (T)" aria-label="文字を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg><span class="tool-key">T</span></button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button class="tool-button" data-tool="arrow" type="button" title="矢印を引く (A)" aria-label="矢印を引く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11"/></svg><span class="tool-key">A</span></button>
+        </div>
+        <div class="history-controls floating-surface" role="group" aria-label="変更履歴">
+          <button id="undo-btn" class="icon-button" type="button" title="元に戻す (⌘/Ctrl+Z)" aria-label="元に戻す" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4-5 5 5 5M3 9h11a6 6 0 0 1 0 12h-3"/></svg></button>
+          <button id="redo-btn" class="icon-button" type="button" title="やり直す (⌘/Ctrl+Shift+Z)" aria-label="やり直す" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 4 5 5-5 5m5-5H10a6 6 0 0 0 0 12h3"/></svg></button>
+        </div>
+      </div>
+
+      <section id="empty-state" class="empty-state" aria-label="はじめかた">
+        <div class="empty-illustration shape-illustration" aria-hidden="true"><span class="mini-shape mini-shape-circle"></span><span class="mini-shape mini-shape-rect"><span></span><span></span></span><svg viewBox="0 0 80 50"><path d="M6 38C19 11 47 9 69 20m-11-16 13 16-20 5"/></svg></div>
+        <p class="eyebrow">A LITTLE SPACE FOR BIG IDEAS</p>
+        <h1>考えを、ここにひろげよう。</h1>
+        <p class="empty-description">まだまとまっていなくて、大丈夫。<br>図形にことばを書いて、つないでみよう。</p>
+        <div class="quick-start">
+          <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></span><span><strong>図形を置く</strong><small>四角・丸・ひし形を選んでクリック</small></span></div>
+          <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg></span><span><strong>そのまま文字を書く</strong><small>あとからダブルクリックで編集も</small></span></div>
+          <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11"/></svg></span><span><strong>矢印でつなぐ</strong><small>始点から終点までドラッグ</small></span></div>
+        </div>
+        <p class="local-first"><span aria-hidden="true"></span>続きはいつでも。ひとつのファイルに保存</p>
+      </section>
+
+      <aside id="selection-panel" class="selection-panel floating-surface" aria-label="選択した要素の設定" hidden>
+        <div class="panel-heading"><span id="selection-kind">付箋</span><span class="panel-eyebrow">スタイル</span></div>
+        <div class="panel-field"><span class="field-label">カラー</span><div id="colors" class="color-swatches" role="group" aria-label="カラー"></div></div>
+        <label class="panel-field font-field" for="font-size"><span class="field-label">文字サイズ</span><select id="font-size"><option value="16">16 px</option><option value="20">20 px</option><option value="24" selected>24 px</option><option value="32">32 px</option><option value="40">40 px</option><option value="56">56 px</option></select></label>
+        <button id="image-caption" class="button caption-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg>文字をのせる</button>
+        <div class="panel-divider"></div>
+        <div class="arrange-buttons"><button id="bring-forward" class="button quiet-button" type="button" title="前面へ移動"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="2"/><path d="M19 9h2v10a2 2 0 0 1-2 2H9v-2"/></svg>前面へ</button><button id="send-backward" class="button quiet-button" type="button" title="背面へ移動"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H3V5a2 2 0 0 1 2-2h10v2"/></svg>背面へ</button></div>
+        <div class="arrange-buttons"><button id="duplicate-btn" class="button quiet-button" type="button" title="複製 (⌘/Ctrl+D)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 4V3H5a2 2 0 0 0-2 2v11h1"/></svg>複製</button><button id="delete-btn" class="button danger-button" type="button" title="削除 (Delete)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>削除</button></div>
+      </aside>
+
+      <div id="drop-overlay" class="drop-overlay" hidden><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></svg><strong>ここに画像をドロップ</strong><span>思いつきのとなりに、インスピレーションを。</span></div></div>
+
+      <footer class="board-footer">
+        <div class="board-information"><span id="item-count">0 個のアイデア</span><span class="footer-separator" aria-hidden="true">·</span><span class="navigation-hint"><kbd>Space</kbd> + ドラッグで移動</span></div>
+        <div class="view-controls"><div class="zoom-controls floating-surface" role="group" aria-label="表示倍率"><button id="zoom-out" class="icon-button" type="button" title="縮小" aria-label="縮小"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button><button id="zoom-label" type="button" title="100% に戻す">100%</button><button id="zoom-in" class="icon-button" type="button" title="拡大" aria-label="拡大"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button><span class="toolbar-divider" aria-hidden="true"></span><button id="fit-btn" class="icon-button" type="button" title="全体を表示 (F)" aria-label="全体を表示"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button></div><button id="help-btn" class="icon-button floating-surface help-button" type="button" title="使いかた・ショートカット" aria-label="使いかた・ショートカット"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4M12 17h.01"/></svg></button></div>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="help-dialog" class="app-dialog">
+    <div class="dialog-heading"><div><p class="eyebrow">MAKE ROOM FOR IDEAS</p><h2>気軽に、使いこなそう。</h2></div><button id="close-help" class="icon-button" type="button" aria-label="使いかたを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <p class="dialog-description">図形を置いたら、そのまま文字を入力。<br>矢印でつなげば、考えの流れが見えてきます。</p>
+    <div class="shortcut-list"><div><span>選択・移動</span><kbd>V</kbd></div><div><span>ボードを移動</span><kbd>H</kbd></div><div><span>四角を置く</span><kbd>R</kbd></div><div><span>丸を置く</span><kbd>O</kbd></div><div><span>ひし形を置く</span><kbd>D</kbd></div><div><span>付箋を置く</span><kbd>N</kbd></div><div><span>文字を置く</span><kbd>T</kbd></div><div><span>矢印を引く</span><kbd>A</kbd></div><div><span>一時的にボードを移動</span><kbd>Space + ドラッグ</kbd></div><div><span>元に戻す / やり直す</span><kbd>⌘ / Ctrl + Z / Shift + Z</kbd></div><div><span>複製</span><kbd>⌘ / Ctrl + D</kbd></div><div><span>ファイルに保存</span><kbd>⌘ / Ctrl + S</kbd></div><div><span>全体を表示</span><kbd>F</kbd></div><div><span>選択した要素を削除</span><kbd>Delete</kbd></div></div>
+    <p class="dialog-tip">図形の文字はダブルクリックで編集。矢印は始点から終点へドラッグして引けます。</p>
+    <p class="dialog-tip">「保存」で .brainstorm ファイルに保存し、「開く」で続きを編集できます。中身は JSON 形式です。</p>
+    <p class="privacy-note">ファイルはあなたの手元に。インターネット接続なしで使えます。</p>
+  </dialog>
+
+  <dialog id="export-dialog" class="app-dialog export-dialog">
+    <div class="dialog-heading"><div><p class="eyebrow">TAKE YOUR IDEAS WITH YOU</p><h2>ボードを書き出す</h2></div><button id="close-export" class="icon-button" type="button" aria-label="書き出しを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <p class="dialog-description">アイデアがある範囲を、1 枚の画像に。</p>
+    <button id="export-png" class="export-option" type="button"><span class="file-type">PNG</span><span><strong>画像として書き出す</strong><small>チャットや資料に、そのまま使える画像</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+    <button id="export-svg" class="export-option" type="button"><span class="file-type">SVG</span><span><strong>くっきり書き出す</strong><small>拡大しても、文字や矢印がきれい</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+    <p class="dialog-tip">あとから編集するなら、右上の「保存」で .brainstorm ファイルを保存してください。</p>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+  <input id="file-input" type="file" accept=".brainstorm,.json" hidden>
+  <script>/*__MODEL__*/</script>
+  <script>/*__APP__*/</script>
+</body>
+</html>

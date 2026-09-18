@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f4">
+  <meta name="description" content="図形を置いて、文字を書いて、矢印でつなぐ。考えを気軽に広げて、ひとつのファイルに保存するブレストボード。">
+  <title>brainstormor — 考えを、ひろげる。</title>
+  <style>:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#233430;background:#f6f7f4;font-synthesis:none;--ink:#233430;--muted:#78827c;--accent:#267568;--accent-soft:#e7f2eb;--line:#e4e8e2;--surface:#fff;--shadow:0 4px 20px #23343007,0 1px 3px #23343008}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{font-size:14px;-webkit-font-smoothing:antialiased}button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit;border:0;background:none;-webkit-tap-highlight-color:transparent;white-space:nowrap}button,input,textarea,select,a{-webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #5aa39388;outline-offset:3px}button:disabled{cursor:default;opacity:.32}button:disabled:hover{background:transparent}button svg,.quick-start svg,.drop-overlay svg,.export-option svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}button{transition:background .14s,color .14s,box-shadow .14s,transform .14s}button:active:not(:disabled){transform:translateY(1px)}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.app-shell{height:100dvh;display:flex;flex-direction:column}.app-header{position:relative;z-index:20;flex:none;min-height:82px;padding:15px 28px 15px 25px;background:#ffffffed;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:24px}.document-heading{display:flex;align-items:center;min-width:0;gap:24px}.brand{display:flex;align-items:center;gap:10px;flex:none;text-decoration:none;color:var(--ink);font-size:21px;letter-spacing:-.85px;font-weight:730}.brand-mark{color:var(--accent)}.brand-dot{color:var(--accent)}.header-divider{height:32px;width:1px;background:var(--line);flex:none}.document-details{display:flex;min-width:80px;flex-direction:column;gap:3px}.document-details input{border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink);outline:none;min-width:80px;width:260px;max-width:100%;font-size:14px;font-weight:600;line-height:22px;padding:1px 5px;margin-left:-6px;text-overflow:ellipsis}.document-details input:hover{border-color:var(--line)}.document-details input:focus{border-color:#6da394;background:white;box-shadow:0 0 0 3px #2675680d}.save-status{color:var(--muted);font-size:11px;line-height:16px;letter-spacing:.1px}.document-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}.button{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 13px;font-size:14px;font-weight:550;border-radius:8px;line-height:1.4}.button svg{width:17px;height:17px}.quiet-button:hover,.icon-button:hover{background:#eff3ee}.subtle-button{color:#79837d}.primary-button{background:var(--accent);color:#fff;padding:0 17px;box-shadow:0 1px 2px #1a4c341c}.primary-button:hover{background:#1d6257}.primary-button:focus-visible{outline-color:#26756866}.icon-button{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;flex-shrink:0}.icon-button svg{width:18px;height:18px}
+#stage{position:relative;overflow:hidden;flex:1;min-height:0;outline:none;background-color:#f6f7f4;background-image:radial-gradient(#c7d0c64d .85px,transparent .85px);background-size:20px 20px}#canvas{display:block;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none;overflow:visible}#canvas text{user-select:none;-webkit-user-select:none}#text-editor{position:absolute;z-index:8;resize:none;overflow:hidden;margin:0;border:2px solid var(--accent);border-radius:4px;outline:0;padding:12px;color:var(--ink);background:#fffdf5;box-shadow:0 0 0 4px #26756813;line-height:1.45;white-space:pre-wrap;transform-origin:top left;font-family:inherit}#stage[data-tool="text"] #canvas,#stage[data-tool="note"] #canvas{cursor:crosshair}#stage[data-tool="arrow"] #canvas,#stage[data-tool="rect"] #canvas,#stage[data-tool="ellipse"] #canvas,#stage[data-tool="diamond"] #canvas{cursor:crosshair}#stage[data-tool="hand"] #canvas{cursor:grab}#stage.is-panning #canvas{cursor:grabbing}.floating-surface{background:#ffffffed;border:1px solid #e0e6dd;border-radius:12px;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.tool-area{position:absolute;top:22px;left:24px;display:flex;align-items:center;gap:10px;z-index:10}.toolbar{padding:5px;display:flex;align-items:center;gap:3px}.tool-button{position:relative;display:flex;align-items:center;justify-content:center;width:43px;height:43px;border-radius:8px;color:#65716b}.tool-button svg{width:21px;height:21px}.tool-button:hover{background:#f0f4ee;color:var(--ink)}.tool-button.active{background:var(--accent-soft);color:#1a6c5f;box-shadow:inset 0 0 0 1px #2675680b}.tool-key{position:absolute;bottom:3px;right:5px;line-height:1;font-size:8px;font-weight:600;opacity:.54}.toolbar-divider{width:1px;height:22px;background:var(--line);margin:0 4px;flex-shrink:0}.history-controls{display:flex;align-items:center;gap:2px;padding:7px}.history-controls .icon-button{width:34px;height:39px;color:#5f6b65}
+.empty-state{position:absolute;top:49%;left:50%;transform:translate(-50%,-50%);width:370px;max-width:calc(100% - 40px);text-align:center;pointer-events:none;user-select:none;-webkit-user-select:none}.empty-illustration{position:relative;width:140px;height:86px;margin:0 auto 22px}.mini-shape{position:absolute;display:block;border:1.5px solid #aec8bc;box-shadow:0 3px 6px #314b3907}.mini-shape-circle{width:51px;height:51px;border-radius:50%;background:#e1ece2;left:22px;top:3px}.mini-shape-rect{width:67px;height:49px;border-radius:7px;background:#f1eddd;border-color:#d2c8a5;left:68px;top:25px;padding:16px 14px}.mini-shape-rect span{display:block;height:2px;background:#b3a985;border-radius:2px;margin-bottom:7px;width:34px}.mini-shape-rect span:nth-child(2){width:26px}.empty-illustration>svg{position:absolute;width:72px;height:45px;left:2px;top:44px;fill:none;stroke:#73a48a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.eyebrow{color:#849087;font-size:10px;letter-spacing:2px;font-weight:600;line-height:1.5;margin:0 0 10px}.empty-state h1{font-size:23px;letter-spacing:.4px;font-weight:600;margin:0 0 14px;color:#35443c;line-height:1.6}.empty-description{color:#788374;font-size:14px;line-height:1.9;letter-spacing:.1px;margin:0}.quick-start{margin:27px auto 0;display:flex;flex-direction:column;gap:17px;text-align:left;width:max-content;max-width:100%}.quick-start>div{display:flex;align-items:center;gap:13px}.quick-start-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#fff9;border:1px solid #e4e8df;border-radius:10px;color:#658572;flex-shrink:0}.quick-start-icon svg{width:18px;height:18px}.quick-start strong{display:block;font-size:14px;line-height:1.4;font-weight:550;color:#5b6b5f;margin-bottom:3px}.quick-start small{display:block;font-size:12px;color:#8b9686;line-height:1.5}.local-first{display:flex;align-items:center;justify-content:center;gap:6px;color:#8d9986;font-size:11px;margin:27px 0 0}.local-first>span{width:4px;height:4px;border-radius:50%;background:#9db799}
+.selection-panel{position:absolute;right:24px;top:22px;width:224px;z-index:10;padding:16px;max-height:calc(100% - 114px);overflow:auto}.panel-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:19px}#selection-kind{font-size:14px;font-weight:600}.panel-eyebrow{font-size:10px;letter-spacing:1px;color:#98a092}.panel-field{display:flex;flex-direction:column;gap:10px;margin-bottom:17px}.field-label{font-size:12px;color:#7a867d;line-height:1.3}.color-swatches{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.color-swatch{position:relative;background:var(--swatch,#fceab0);width:24px;height:24px;flex-shrink:0;border-radius:50%;border:1px solid #24352a14;padding:0}.color-swatch::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid transparent}.color-swatch:hover::after{border-color:#cad6c9}.color-swatch.active::after,.color-swatch[aria-pressed="true"]::after{border-color:var(--accent)}.font-field{flex-direction:row;align-items:center;justify-content:space-between;gap:8px}.font-field select{border:1px solid var(--line);border-radius:6px;background:#f8faf6;height:32px;padding:0 6px;min-width:75px;font-size:14px;color:#526356}.caption-button{width:100%;background:var(--accent-soft);color:var(--accent);margin-bottom:15px;height:36px;font-size:13px}.caption-button:hover{background:#d8eadc}.panel-divider{height:1px;background:var(--line);margin:0 -1px 8px}.arrange-buttons{display:flex;gap:3px}.arrange-buttons .button{flex:1;padding:0 6px;font-size:12px;gap:6px;height:35px;justify-content:flex-start}.arrange-buttons .button svg{width:15px;height:15px}.danger-button{color:#b07466}.danger-button:hover{background:#faeeea;color:#b95d48}.drop-overlay{position:absolute;z-index:30;inset:12px;border:2px dashed #519280;border-radius:14px;background:#eff7eef5;display:flex;align-items:center;justify-content:center;pointer-events:none}.drop-overlay>div{display:flex;flex-direction:column;align-items:center;gap:18px;color:var(--accent)}.drop-overlay svg{width:40px;height:40px;stroke-width:1.3}.drop-overlay strong{font-size:21px;font-weight:600}.drop-overlay span{font-size:13px;color:#789b86}
+.board-footer{position:absolute;bottom:20px;left:27px;right:24px;display:flex;align-items:center;justify-content:space-between;gap:20px;pointer-events:none;z-index:10}.board-information{display:flex;align-items:center;gap:12px;font-size:11px;color:#929b90;line-height:1.5}.footer-separator{color:#bcc3b8}.navigation-hint{display:flex;align-items:center;gap:4px}kbd{font-family:inherit;font-size:10px;line-height:1.3;border:1px solid #dce3d7;border-bottom-width:2px;border-radius:4px;background:#fbfcf9;padding:2px 5px;color:#8a9686;white-space:nowrap}.view-controls{display:flex;align-items:center;gap:10px;pointer-events:auto}.zoom-controls{display:flex;align-items:center;padding:4px;gap:1px;border-radius:9px}.zoom-controls .icon-button{width:30px;height:30px}.zoom-controls .icon-button svg{width:16px;height:16px}#zoom-label{height:30px;min-width:53px;font-size:11px;border-radius:5px;font-variant-numeric:tabular-nums;color:#63745f}#zoom-label:hover{background:#eff3ed}.zoom-controls .toolbar-divider{height:17px;margin:0 3px}.help-button{width:40px;height:40px;border-radius:9px;color:#84907f}
+.app-dialog{border:1px solid #dfe7dc;outline:none;border-radius:18px;box-shadow:0 20px 80px #1b3b2333;background:#fff;color:var(--ink);width:500px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 40px);padding:28px;overflow:auto}.app-dialog::backdrop{background:#18312733;backdrop-filter:blur(4px)}.dialog-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin:0 0 15px}.dialog-heading h2{font-size:22px;line-height:1.5;font-weight:600;letter-spacing:.1px;margin:0}.dialog-heading .eyebrow{font-size:8px;letter-spacing:1.7px;margin-bottom:7px}.dialog-heading .icon-button{width:30px;height:30px;position:relative;top:-5px;right:-8px;color:#84917e}.dialog-description{font-size:14px;line-height:1.9;color:#899481;margin:0 0 20px}.shortcut-list{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;border-top:1px solid var(--line);padding-top:4px}.shortcut-list>div{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:37px;font-size:13px;color:#57664e;border-bottom:1px solid #f0f3ed}.shortcut-list>div:nth-child(n+9){grid-column:1/-1}.shortcut-list kbd{font-size:10px;flex-shrink:0}.dialog-tip{background:#f4f7f0;border-radius:8px;padding:13px 15px;font-size:13px;color:#738365;line-height:1.8;margin:20px 0 0}.privacy-note{font-size:11px;color:#a2aa9b;margin:16px 0 0;text-align:center}.export-dialog{width:475px}.export-option{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:18px 14px;background:#fbfcf9;border:1px solid var(--line);border-radius:10px;margin:12px 0}.export-option:hover{border-color:#a8c2a1;background:#f4f8ef}.file-type{width:43px;height:48px;border:1px solid #d1dfc8;border-radius:5px 10px 5px 5px;background:#eff5e9;color:#6b835a;font-size:10px;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700}.export-option strong{display:block;font-size:14px;line-height:1.5;font-weight:550;margin-bottom:4px}.export-option small{display:block;font-size:12px;color:#929e89;line-height:1.5}.export-option>svg{margin-left:auto;width:16px;height:16px;color:#98a78e}.export-dialog .dialog-tip{margin-top:19px}#toast{position:fixed;z-index:100;bottom:30px;left:50%;transform:translate(-50%,12px);background:#263e32f0;backdrop-filter:blur(10px);color:#fff;padding:12px 19px;border-radius:10px;box-shadow:0 4px 25px #132d2722;font-size:13px;line-height:1.6;max-width:calc(100vw - 32px);text-align:center;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}#toast.visible,#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:1600px){.empty-state{top:47%}.tool-area{left:32px;top:27px}.selection-panel{right:32px;top:27px}.board-footer{left:35px;right:32px;bottom:26px}}
+@media(max-width:1100px){.app-header{padding:14px 20px;gap:15px}.document-heading{gap:18px}.document-details input{width:180px}.brand{font-size:19px}.document-actions{gap:3px}.document-actions .button{padding:0 10px}.tool-area{left:18px;top:18px;gap:8px}.tool-button{width:39px}.history-controls{padding:7px 4px}.history-controls .icon-button{width:31px}.selection-panel{right:18px;top:84px;width:205px}.board-footer{left:21px;right:18px;bottom:18px}}
+@media(max-width:760px){.app-header{min-height:100px;align-items:flex-start;padding:13px 16px;gap:10px}.document-heading{display:block;position:relative;flex:1}.brand{font-size:18px;gap:7px}.brand-mark{width:25px;height:25px}.header-divider{display:none}.document-details{margin-top:10px;gap:2px}.document-details input{width:230px;font-size:12px;line-height:19px}.save-status{font-size:9px;line-height:12px}.document-actions{gap:1px;align-items:center;padding-top:0}.document-actions .button{height:34px;padding:0 9px;font-size:12px;gap:5px}.document-actions .button svg{width:16px;height:16px}.document-actions .icon-button{width:30px;height:34px}#export-board span{display:none}#export-board{width:32px;padding:0}.tool-area{top:14px;left:14px;right:14px;gap:8px;justify-content:space-between}.toolbar{padding:4px;gap:1px}.tool-button{width:38px;height:39px}.tool-button svg{width:20px;height:20px}.tool-key{font-size:7px;bottom:2px;right:4px}.toolbar-divider{margin:0 3px;height:19px}.history-controls{padding:4px;gap:0}.history-controls .icon-button{height:39px;width:31px}.selection-panel{right:14px;top:74px;width:200px;padding:13px;max-height:calc(100% - 140px)}.board-footer{bottom:14px;left:16px;right:14px}.board-information{font-size:10px;gap:7px}.navigation-hint,.footer-separator{display:none}.view-controls{gap:7px}.empty-state{top:49%;width:330px}.empty-state h1{font-size:21px}.empty-illustration{margin-bottom:16px}.empty-description{font-size:14px}.quick-start{gap:14px;margin-top:24px}.local-first{margin-top:23px}.selection-panel:not([hidden])~.board-footer .board-information{max-width:calc(100vw - 270px)}.app-dialog{padding:23px}.dialog-heading h2{font-size:20px}}
+@media(max-width:440px){.app-header{padding:12px 13px;min-height:104px}.document-actions .button{padding:0 8px}.document-actions .button svg{display:none}.document-actions #export-board svg{display:block}.document-actions #new-board{width:25px}.document-actions #open-board{padding:0 7px}#save-board{margin-left:3px}.brand{font-size:17px}.document-details input{width:200px}.tool-area{left:10px;right:10px;gap:6px}.tool-button{width:34px;height:37px}.toolbar{gap:0;padding:4px}.toolbar-divider{margin:0 2px}.history-controls{padding:4px 2px;border-radius:10px}.history-controls .icon-button{width:26px;height:37px}.history-controls .icon-button svg{width:16px;height:16px}.empty-state{top:49%;width:305px}.empty-state h1{font-size:20px}.empty-illustration{transform:scale(.9);margin-bottom:10px}.eyebrow{font-size:8px}.quick-start{gap:12px;margin-top:20px}.quick-start-icon{width:33px;height:33px;border-radius:8px}.quick-start strong{font-size:13px}.quick-start small{font-size:11px}.local-first{margin-top:18px;font-size:9px}.view-controls{gap:6px}.zoom-controls{padding:3px}.zoom-controls .icon-button{width:26px;height:28px}#zoom-label{min-width:45px;height:28px;font-size:10px}.help-button{width:36px;height:36px}.board-footer{left:14px;right:10px;gap:8px}.board-information{font-size:9px}.app-dialog{padding:20px}.shortcut-list{column-gap:12px}.shortcut-list>div{font-size:11px}.dialog-description{font-size:14px}.export-option{gap:10px;padding:14px 11px}.export-option strong{font-size:13px}.export-option small{font-size:12px}}
+@media(max-height:700px){.empty-state{top:52%}.empty-illustration{height:67px;transform:scale(.8);margin-bottom:8px}.empty-state h1{font-size:20px;margin-bottom:8px}.eyebrow{margin-bottom:7px}.empty-description{font-size:13px;line-height:1.8}.quick-start{gap:10px;margin-top:18px}.quick-start-icon{width:32px;height:32px;border-radius:8px}.quick-start strong{font-size:13px;margin-bottom:2px}.quick-start small{font-size:11px}.local-first{font-size:9px;margin-top:17px}}
+@media(max-height:570px){.empty-illustration,.empty-state>.eyebrow,.local-first{display:none}.empty-state{top:54%}.empty-state h1{font-size:19px}.empty-description{font-size:13px}.quick-start{margin-top:14px;gap:9px}.quick-start-icon{width:28px;height:28px}.tool-area{top:12px}.selection-panel{top:72px;max-height:calc(100% - 123px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+
+@media(max-width:520px){.tool-area{justify-content:center}.history-controls{position:absolute;left:0;top:calc(100% + 8px)}.toolbar{max-width:100%}.tool-button{width:34px;flex-shrink:0}.selection-panel{top:77px}.board-footer{gap:8px}.empty-state{top:53%}}
+@media(max-width:360px){.tool-button{width:31px}.toolbar{padding:3px}.tool-area{left:8px;right:8px}.toolbar-divider{margin:0 2px}.tool-button svg{width:19px;height:19px}}
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="document-heading">
+        <a class="brand" href="#" aria-label="brainstormor">
+          <svg class="brand-mark" width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="9" fill="currentColor"/><path d="M9 9v12h5.8a4.2 4.2 0 1 0 0-8.4H9M15 7.5v5.1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>brainstormor<span class="brand-dot">.</span></span>
+        </a>
+        <span class="header-divider" aria-hidden="true"></span>
+        <div class="document-details">
+          <label class="sr-only" for="board-title">ボード名</label>
+          <input id="board-title" value="無題のボード" maxlength="120" autocomplete="off" spellcheck="false" aria-label="ボード名">
+          <span id="save-status" class="save-status">このブラウザに自動保存</span>
+        </div>
+      </div>
+      <nav class="document-actions" aria-label="ファイル操作">
+        <button id="new-board" class="icon-button subtle-button" type="button" title="新しいボード" aria-label="新しいボード"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="open-board" class="button quiet-button" type="button" title="ボードを開く (⌘/Ctrl+O)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2M3 7v11a2 2 0 0 0 2 2h13a2 2 0 0 0 1.9-1.4L22 11H7l-3 7"/></svg><span>開く</span></button>
+        <button id="export-board" class="button quiet-button" type="button" title="画像を書き出す"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>書き出し</span></button>
+        <button id="save-board" class="button primary-button" type="button" title="ファイルに保存 (⌘/Ctrl+S)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg><span>保存</span></button>
+      </nav>
+    </header>
+
+    <main id="stage" tabindex="0" aria-label="ブレストボードの編集領域">
+      <svg id="canvas" aria-label="ブレストボード" role="application"><defs></defs><g id="world"></g><g id="overlay"></g></svg>
+      <textarea id="text-editor" hidden spellcheck="false" aria-label="テキストを編集"></textarea>
+
+      <div class="tool-area">
+        <div class="toolbar floating-surface" role="toolbar" aria-label="描画ツール">
+          <button class="tool-button active" data-tool="select" type="button" title="選択・移動 (V)" aria-label="選択・移動" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 14 10-7 1.4L8 21 5 3Z"/></svg><span class="tool-key">V</span></button>
+          <button class="tool-button" data-tool="hand" type="button" title="ボードを移動 (H / Space)" aria-label="ボードを移動" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12V6a1.5 1.5 0 0 1 3 0m0 5V4a1.5 1.5 0 0 1 3 0v7m0-5a1.5 1.5 0 0 1 3 0v6m0-3a1.5 1.5 0 0 1 3 0v6c0 4-2.5 7-6.5 7-2.6 0-4.1-1.1-5.5-3l-4-6a1.5 1.5 0 0 1 2.3-1.9L8 13"/></svg><span class="tool-key">H</span></button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button class="tool-button" data-tool="rect" type="button" title="四角を置く (R)" aria-label="四角を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/></svg><span class="tool-key">R</span></button>
+          <button class="tool-button" data-tool="ellipse" type="button" title="丸を置く (O)" aria-label="丸を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="8"/></svg><span class="tool-key">O</span></button>
+          <button class="tool-button" data-tool="diamond" type="button" title="ひし形を置く (D)" aria-label="ひし形を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 10-10 10L2 12 12 2Z"/></svg><span class="tool-key">D</span></button>
+          <button class="tool-button" data-tool="note" type="button" title="付箋を置く (N)" aria-label="付箋を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10l6-6V5a2 2 0 0 0-2-2Z"/><path d="M15 21v-6h6M8 8h8M8 12h5"/></svg><span class="tool-key">N</span></button>
+          <button class="tool-button" data-tool="text" type="button" title="文字を置く (T)" aria-label="文字を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg><span class="tool-key">T</span></button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button class="tool-button" data-tool="arrow" type="button" title="矢印を引く (A)" aria-label="矢印を引く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11"/></svg><span class="tool-key">A</span></button>
+        </div>
+        <div class="history-controls floating-surface" role="group" aria-label="変更履歴">
+          <button id="undo-btn" class="icon-button" type="button" title="元に戻す (⌘/Ctrl+Z)" aria-label="元に戻す" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4-5 5 5 5M3 9h11a6 6 0 0 1 0 12h-3"/></svg></button>
+          <button id="redo-btn" class="icon-button" type="button" title="やり直す (⌘/Ctrl+Shift+Z)" aria-label="やり直す" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 4 5 5-5 5m5-5H10a6 6 0 0 0 0 12h3"/></svg></button>
+        </div>
+      </div>
+
+      <section id="empty-state" class="empty-state" aria-label="はじめかた">
+        <div class="empty-illustration shape-illustration" aria-hidden="true"><span class="mini-shape mini-shape-circle"></span><span class="mini-shape mini-shape-rect"><span></span><span></span></span><svg viewBox="0 0 80 50"><path d="M6 38C19 11 47 9 69 20m-11-16 13 16-20 5"/></svg></div>
+        <p class="eyebrow">A LITTLE SPACE FOR BIG IDEAS</p>
+        <h1>考えを、ここにひろげよう。</h1>
+        <p class="empty-description">まだまとまっていなくて、大丈夫。<br>図形にことばを書いて、つないでみよう。</p>
+        <div class="quick-start">
+          <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></span><span><strong>図形を置く</strong><small>四角・丸・ひし形を選んでクリック</small></span></div>
+          <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg></span><span><strong>そのまま文字を書く</strong><small>あとからダブルクリックで編集も</small></span></div>
+          <div><span class="quick-start-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11"/></svg></span><span><strong>矢印でつなぐ</strong><small>始点から終点までドラッグ</small></span></div>
+        </div>
+        <p class="local-first"><span aria-hidden="true"></span>続きはいつでも。ひとつのファイルに保存</p>
+      </section>
+
+      <aside id="selection-panel" class="selection-panel floating-surface" aria-label="選択した要素の設定" hidden>
+        <div class="panel-heading"><span id="selection-kind">付箋</span><span class="panel-eyebrow">スタイル</span></div>
+        <div class="panel-field"><span class="field-label">カラー</span><div id="colors" class="color-swatches" role="group" aria-label="カラー"></div></div>
+        <label class="panel-field font-field" for="font-size"><span class="field-label">文字サイズ</span><select id="font-size"><option value="16">16 px</option><option value="20">20 px</option><option value="24" selected>24 px</option><option value="32">32 px</option><option value="40">40 px</option><option value="56">56 px</option></select></label>
+        <button id="image-caption" class="button caption-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg>文字をのせる</button>
+        <div class="panel-divider"></div>
+        <div class="arrange-buttons"><button id="bring-forward" class="button quiet-button" type="button" title="前面へ移動"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="2"/><path d="M19 9h2v10a2 2 0 0 1-2 2H9v-2"/></svg>前面へ</button><button id="send-backward" class="button quiet-button" type="button" title="背面へ移動"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H3V5a2 2 0 0 1 2-2h10v2"/></svg>背面へ</button></div>
+        <div class="arrange-buttons"><button id="duplicate-btn" class="button quiet-button" type="button" title="複製 (⌘/Ctrl+D)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 4V3H5a2 2 0 0 0-2 2v11h1"/></svg>複製</button><button id="delete-btn" class="button danger-button" type="button" title="削除 (Delete)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>削除</button></div>
+      </aside>
+
+      <div id="drop-overlay" class="drop-overlay" hidden><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></svg><strong>ここに画像をドロップ</strong><span>思いつきのとなりに、インスピレーションを。</span></div></div>
+
+      <footer class="board-footer">
+        <div class="board-information"><span id="item-count">0 個のアイデア</span><span class="footer-separator" aria-hidden="true">·</span><span class="navigation-hint"><kbd>Space</kbd> + ドラッグで移動</span></div>
+        <div class="view-controls"><div class="zoom-controls floating-surface" role="group" aria-label="表示倍率"><button id="zoom-out" class="icon-button" type="button" title="縮小" aria-label="縮小"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button><button id="zoom-label" type="button" title="100% に戻す">100%</button><button id="zoom-in" class="icon-button" type="button" title="拡大" aria-label="拡大"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button><span class="toolbar-divider" aria-hidden="true"></span><button id="fit-btn" class="icon-button" type="button" title="全体を表示 (F)" aria-label="全体を表示"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button></div><button id="help-btn" class="icon-button floating-surface help-button" type="button" title="使いかた・ショートカット" aria-label="使いかた・ショートカット"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4M12 17h.01"/></svg></button></div>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="help-dialog" class="app-dialog">
+    <div class="dialog-heading"><div><p class="eyebrow">MAKE ROOM FOR IDEAS</p><h2>気軽に、使いこなそう。</h2></div><button id="close-help" class="icon-button" type="button" aria-label="使いかたを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <p class="dialog-description">図形を置いたら、そのまま文字を入力。<br>矢印でつなげば、考えの流れが見えてきます。</p>
+    <div class="shortcut-list"><div><span>選択・移動</span><kbd>V</kbd></div><div><span>ボードを移動</span><kbd>H</kbd></div><div><span>四角を置く</span><kbd>R</kbd></div><div><span>丸を置く</span><kbd>O</kbd></div><div><span>ひし形を置く</span><kbd>D</kbd></div><div><span>付箋を置く</span><kbd>N</kbd></div><div><span>文字を置く</span><kbd>T</kbd></div><div><span>矢印を引く</span><kbd>A</kbd></div><div><span>一時的にボードを移動</span><kbd>Space + ドラッグ</kbd></div><div><span>元に戻す / やり直す</span><kbd>⌘ / Ctrl + Z / Shift + Z</kbd></div><div><span>複製</span><kbd>⌘ / Ctrl + D</kbd></div><div><span>ファイルに保存</span><kbd>⌘ / Ctrl + S</kbd></div><div><span>全体を表示</span><kbd>F</kbd></div><div><span>選択した要素を削除</span><kbd>Delete</kbd></div></div>
+    <p class="dialog-tip">図形の文字はダブルクリックで編集。矢印は始点から終点へドラッグして引けます。</p>
+    <p class="dialog-tip">「保存」で .brainstorm ファイルに保存し、「開く」で続きを編集できます。中身は JSON 形式です。</p>
+    <p class="privacy-note">ファイルはあなたの手元に。インターネット接続なしで使えます。</p>
+  </dialog>
+
+  <dialog id="export-dialog" class="app-dialog export-dialog">
+    <div class="dialog-heading"><div><p class="eyebrow">TAKE YOUR IDEAS WITH YOU</p><h2>ボードを書き出す</h2></div><button id="close-export" class="icon-button" type="button" aria-label="書き出しを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <p class="dialog-description">アイデアがある範囲を、1 枚の画像に。</p>
+    <button id="export-png" class="export-option" type="button"><span class="file-type">PNG</span><span><strong>画像として書き出す</strong><small>チャットや資料に、そのまま使える画像</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+    <button id="export-svg" class="export-option" type="button"><span class="file-type">SVG</span><span><strong>くっきり書き出す</strong><small>拡大しても、文字や矢印がきれい</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+    <p class="dialog-tip">あとから編集するなら、右上の「保存」で .brainstorm ファイルを保存してください。</p>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+  <input id="file-input" type="file" accept=".brainstorm,.json" hidden>
+  <script>(function (root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.BrainstormorModel = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const FORMAT = 'brainstormor';
+  const VERSION = 1;
+  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000 });
+  const DEFAULTS = Object.freeze({ noteColor: '#fff2aa', textColor: '#24334a', arrowColor: '#526076', rectColor: '#daeafd', ellipseColor: '#d7f1e3', diamondColor: '#eee0ff', noteFontSize: 20, textFontSize: 24, shapeFontSize: 20, strokeWidth: 3 });
+  const SHAPES = ['rect', 'ellipse', 'diamond'];
+  const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
+  let sequence = 0;
+
+  function fail(message) { throw new Error(message); }
+  function record(value, name) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) fail(name + 'の形式が正しくありません。');
+    return value;
+  }
+  function string(value, name, maximum) {
+    if (typeof value !== 'string' || value.length > maximum) fail(name + 'は' + maximum + '文字以内の文字列にしてください。');
+    return value;
+  }
+  function number(value, name, minimum, maximum) {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum || value > maximum) fail(name + 'の数値が範囲外です。');
+    return value;
+  }
+  function coordinate(value, name) { return number(value, name, -LIMITS.coordinate, LIMITS.coordinate); }
+  function color(value) {
+    if (typeof value !== 'string' || !/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)) fail('色の形式が正しくありません。');
+    return value;
+  }
+  function id(value) {
+    string(value, 'ID', 128);
+    if (!value.trim()) fail('空のIDは使えません。');
+    return value;
+  }
+  function newId() {
+    if (typeof globalThis !== 'undefined' && globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') return globalThis.crypto.randomUUID();
+    sequence += 1;
+    return 'item-' + Date.now().toString(36) + '-' + sequence.toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+  function byteLength(value) {
+    if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(value).length;
+    if (typeof Buffer !== 'undefined') return Buffer.byteLength(value, 'utf8');
+    return unescape(encodeURIComponent(value)).length;
+  }
+  function imageSource(value) {
+    if (typeof value !== 'string' || value.length > LIMITS.fileBytes) fail('画像データが大きすぎるか、形式が正しくありません。');
+    // Only embedded raster files are allowed: no remote requests, SVG, or executable URLs.
+    const match = /^data:image\/(png|jpeg|jpg|gif|webp|avif|bmp);base64,([A-Za-z0-9+/]+={0,2})$/i.exec(value);
+    if (!match || match[2].length % 4 !== 0) fail('画像はPNG・JPEG・GIF・WebP・AVIF・BMPの埋め込みデータにしてください。');
+    const prefix = match[2].slice(0, 64);
+    let bytes;
+    try {
+      bytes = typeof atob === 'function' ? atob(prefix) : Buffer.from(prefix, 'base64').toString('latin1');
+    } catch (_) { fail('画像の埋め込みデータが壊れています。'); }
+    const mime = match[1].toLowerCase();
+    const valid = mime === 'png' ? bytes.startsWith('\x89PNG\r\n\x1a\n')
+      : mime === 'jpeg' || mime === 'jpg' ? bytes.startsWith('\xff\xd8\xff')
+      : mime === 'gif' ? /^GIF8[79]a/.test(bytes)
+      : mime === 'webp' ? bytes.startsWith('RIFF') && bytes.slice(8, 12) === 'WEBP'
+      : mime === 'avif' ? bytes.slice(4, 8) === 'ftyp' && /avif|avis/.test(bytes.slice(8))
+      : bytes.startsWith('BM');
+    if (!valid) fail('画像の内容とファイル形式が一致しません。');
+    return value;
+  }
+  function endpoint(value, name) {
+    record(value, name);
+    const result = { x: coordinate(value.x, name + '.x'), y: coordinate(value.y, name + '.y') };
+    if (value.elementId !== undefined && value.elementId !== null) result.elementId = id(value.elementId);
+    return result;
+  }
+  function normalizeItem(value) {
+    record(value, '要素');
+    if (!['note', 'text', 'image', 'arrow', ...SHAPES].includes(value.type)) fail('未対応の要素が含まれています。');
+    const result = {
+      id: id(value.id), type: value.type,
+      x: coordinate(value.x, 'x'), y: coordinate(value.y, 'y'),
+      width: number(value.width, '幅', value.type === 'arrow' ? 0 : 0.01, LIMITS.dimension),
+      height: number(value.height, '高さ', value.type === 'arrow' ? 0 : 0.01, LIMITS.dimension)
+    };
+    if (value.type === 'note' || value.type === 'text' || SHAPES.includes(value.type)) {
+      result.text = string(value.text, 'テキスト', LIMITS.text);
+      result.color = color(value.color);
+      result.fontSize = number(value.fontSize, '文字サイズ', 1, 1000);
+      if (SHAPES.includes(value.type) || (value.type === 'note' && value.textColor !== undefined)) {
+        result.textColor = color(value.textColor === undefined ? DEFAULTS.textColor : value.textColor);
+      }
+    } else if (value.type === 'image') {
+      result.src = imageSource(value.src);
+      result.name = string(value.name, '画像名', 10000);
+    } else {
+      result.from = endpoint(value.from, '矢印の始点');
+      result.to = endpoint(value.to, '矢印の終点');
+      result.color = color(value.color);
+      result.strokeWidth = number(value.strokeWidth === undefined ? DEFAULTS.strokeWidth : value.strokeWidth, '線の太さ', 0.1, 100);
+    }
+    return result;
+  }
+  function normalizeDocument(value) {
+    record(value, 'ファイル');
+    if (value.format !== FORMAT) fail('Brainstormorのファイルではありません。');
+    if (value.version !== VERSION) fail('このファイルのバージョンには対応していません。');
+    if (!Array.isArray(value.elements) || value.elements.length > LIMITS.elements) fail('要素数は' + LIMITS.elements + '個以内にしてください。');
+    const viewport = record(value.viewport, '表示位置');
+    const result = {
+      format: FORMAT, version: VERSION, title: string(value.title, 'タイトル', LIMITS.title),
+      elements: value.elements.map(normalizeItem),
+      viewport: { x: coordinate(viewport.x, '表示位置.x'), y: coordinate(viewport.y, '表示位置.y'), zoom: number(viewport.zoom, 'ズーム', 0.01, 100) }
+    };
+    const ids = new Set();
+    const targets = new Set();
+    for (const item of result.elements) {
+      if (ids.has(item.id)) fail('要素のIDが重複しています。');
+      ids.add(item.id);
+      if (item.type !== 'arrow') targets.add(item.id);
+    }
+    for (const item of result.elements) {
+      if (item.type !== 'arrow') continue;
+      for (const point of [item.from, item.to]) {
+        // Stored coordinates remain usable when the referenced element was deleted.
+        if (point.elementId !== undefined && !targets.has(point.elementId)) delete point.elementId;
+      }
+    }
+    return result;
+  }
+  function createDocument(title = '無題のボード') {
+    return { format: FORMAT, version: VERSION, title: string(title, 'タイトル', LIMITS.title), elements: [], viewport: { x: 0, y: 0, zoom: 1 } };
+  }
+  function createItem(type, overrides = {}) {
+    record(overrides, '要素の設定');
+    const common = { id: newId(), type, x: 0, y: 0, width: 220, height: 150 };
+    const defaults = type === 'note' ? { text: '', color: DEFAULTS.noteColor, fontSize: DEFAULTS.noteFontSize }
+      : type === 'text' ? { width: 280, height: 52, text: '', color: DEFAULTS.textColor, fontSize: DEFAULTS.textFontSize }
+      : SHAPES.includes(type) ? { width: type === 'diamond' ? 240 : 220, height: type === 'diamond' ? 160 : 130, text: '', color: DEFAULTS[type + 'Color'], fontSize: DEFAULTS.shapeFontSize, textColor: DEFAULTS.textColor }
+      : type === 'image' ? { width: 400, height: 300, src: TRANSPARENT_IMAGE, name: '画像' }
+      : type === 'arrow' ? { width: 0, height: 0, from: { x: 0, y: 0 }, to: { x: 160, y: 0 }, color: DEFAULTS.arrowColor, strokeWidth: DEFAULTS.strokeWidth }
+      : {};
+    return normalizeItem(Object.assign({}, common, defaults, overrides, { type }));
+  }
+  function parse(source) {
+    if (typeof source !== 'string') fail('ファイルをテキストとして読み込めませんでした。');
+    if (byteLength(source) > LIMITS.fileBytes) fail('ファイルは40MB以内にしてください。');
+    let data;
+    try { data = JSON.parse(source.charCodeAt(0) === 0xfeff ? source.slice(1) : source); }
+    catch (_) { fail('JSONファイルが壊れているか、形式が正しくありません。'); }
+    return normalizeDocument(data);
+  }
+  function serialize(document) {
+    const source = JSON.stringify(normalizeDocument(document), null, 2) + '\n';
+    if (byteLength(source) > LIMITS.fileBytes) fail('ファイルは40MB以内にしてください。');
+    return source;
+  }
+  function clone(value) {
+    if (typeof structuredClone === 'function') return structuredClone(value);
+    return JSON.parse(JSON.stringify(value));
+  }
+  function center(item) { return { x: item.x + item.width / 2, y: item.y + item.height / 2 }; }
+  function edge(item, toward, fallbackDirection) {
+    const origin = center(item);
+    let dx = toward.x - origin.x;
+    let dy = toward.y - origin.y;
+    if (dx === 0 && dy === 0) dx = fallbackDirection;
+    const normalizedX = Math.abs(dx) / (item.width / 2);
+    const normalizedY = Math.abs(dy) / (item.height / 2);
+    const distance = item.type === 'ellipse' ? Math.hypot(normalizedX, normalizedY)
+      : item.type === 'diamond' ? normalizedX + normalizedY
+      : Math.max(normalizedX, normalizedY);
+    const factor = 1 / distance;
+    return { x: origin.x + dx * factor, y: origin.y + dy * factor };
+  }
+  function arrowEndpoints(arrow, elements) {
+    const items = elements instanceof Map ? elements : new Map((elements || []).map(item => [item.id, item]));
+    const fromTarget = items.get(arrow.from.elementId);
+    const toTarget = items.get(arrow.to.elementId);
+    const fromItem = fromTarget && fromTarget.type !== 'arrow' ? fromTarget : null;
+    const toItem = toTarget && toTarget.type !== 'arrow' ? toTarget : null;
+    const fromCenter = fromItem ? center(fromItem) : arrow.from;
+    const toCenter = toItem ? center(toItem) : arrow.to;
+    return {
+      from: fromItem ? edge(fromItem, toCenter, 1) : { x: arrow.from.x, y: arrow.from.y },
+      to: toItem ? edge(toItem, fromCenter, -1) : { x: arrow.to.x, y: arrow.to.y }
+    };
+  }
+  function getBounds(elements) {
+    if (!elements.length) return { x: 0, y: 0, width: 0, height: 0 };
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    const items = new Map(elements.map(item => [item.id, item]));
+    for (const item of elements) {
+      if (item.type === 'arrow') {
+        const points = arrowEndpoints(item, items);
+        left = Math.min(left, points.from.x, points.to.x);
+        top = Math.min(top, points.from.y, points.to.y);
+        right = Math.max(right, points.from.x, points.to.x);
+        bottom = Math.max(bottom, points.from.y, points.to.y);
+      } else {
+        left = Math.min(left, item.x); top = Math.min(top, item.y);
+        right = Math.max(right, item.x + item.width); bottom = Math.max(bottom, item.y + item.height);
+      }
+    }
+    return { x: left, y: top, width: right - left, height: bottom - top };
+  }
+  return { FORMAT, VERSION, LIMITS, DEFAULTS, createDocument, createItem, parse, serialize, clone, arrowEndpoints, getBounds };
+});
+</script>
+  <script>(() => {
+  'use strict';
+  const M = window.BrainstormorModel;
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), canvas = $('canvas'), world = $('world'), overlay = $('overlay');
+  const editor = $('text-editor');
+  const NS = 'http://www.w3.org/2000/svg';
+  const MAX_BYTES = 40 * 1024 * 1024;
+  let doc = M.createDocument(), selected = new Set(), tool = 'select';
+  let history = [], historyIndex = -1, savedSnapshot = '', autosaveTimer, toastTimer;
+  let gesture = null, editing = null, spacePressed = false;
+  let localSaved = false, autosaveFailed = false, revision = 0, dragDepth = 0;
+  let lastPointer = null, restoring = true, clipboardElements = null, dbPromise;
+  let persistenceQueue = Promise.resolve();
+  let saving = false, lastTap = null;
+  document.querySelector('.app-shell').inert = true;
+  const measure = document.createElement('canvas').getContext('2d');
+  const fonts = '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+  const isShape = el => ['rect', 'ellipse', 'diamond'].includes(typeof el === 'string' ? el : el.type);
+  const hasText = el => isShape(el) || ['note', 'text'].includes(typeof el === 'string' ? el : el.type);
+  const shapeColors = ['#daeafd', '#d7f1e3', '#eee0ff', '#fbdde9', '#fff2aa', '#ffffff'];
+  const palettes = {
+    rect: shapeColors, ellipse: shapeColors, diamond: shapeColors,
+    note: ['#fff2aa', '#d7f1e3', '#daeafd', '#fbdde9', '#eee0ff', '#ffffff'],
+    text: ['#24334a', '#ffffff', '#137b6b', '#be454c', '#4664d3', '#9b5bd3'],
+    arrow: ['#526076', '#137b6b', '#be454c', '#4664d3', '#9b5bd3', '#e39c25'],
+  };
+
+  function svg(tag, attrs = {}, content) {
+    const node = document.createElementNS(NS, tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+    if (content !== undefined) node.textContent = content;
+    return node;
+  }
+  function toast(message) {
+    $('toast').textContent = message; $('toast').classList.add('visible');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 3600);
+  }
+  function contentSnapshot(value = doc) { return JSON.stringify({ title: value.title, elements: value.elements }); }
+  function fileDirty() { return contentSnapshot() !== savedSnapshot; }
+  function commit() {
+    const snapshot = contentSnapshot();
+    if (history[historyIndex] !== snapshot) {
+      history = history.slice(0, historyIndex + 1); history.push(snapshot);
+      let bytes = history.reduce((sum, x) => sum + x.length * 2, 0);
+      while (history.length > 2 && (history.length > 50 || bytes > 60 * 1024 * 1024)) bytes -= history.shift().length * 2;
+      historyIndex = history.length - 1;
+      revision++; localSaved = false; scheduleAutosave();
+    }
+    updateUI(); render();
+  }
+  function resetHistory() { history = [contentSnapshot()]; historyIndex = 0; }
+  function undo(direction = -1) {
+    finishEdit();
+    const index = historyIndex + direction;
+    if (index < 0 || index >= history.length) return;
+    const state = JSON.parse(history[index]);
+    doc.title = state.title; doc.elements = state.elements; historyIndex = index;
+    selected.clear(); revision++; localSaved = false; scheduleAutosave(); updateUI(); render();
+  }
+  function status() {
+    const unsaved = fileDirty();
+    $('save-status').textContent = autosaveFailed ? 'ファイルに保存してください' : localSaved ? (unsaved ? 'ブラウザ保存済み · ファイル未保存' : '保存済み') : (unsaved ? '未保存の変更あり' : '保存済み');
+    $('save-status').classList.toggle('unsaved', unsaved);
+    document.title = `${unsaved ? '● ' : ''}${doc.title || '無題のボード'} — brainstormor`;
+  }
+  function updateUI() {
+    if (document.activeElement !== $('board-title')) $('board-title').value = doc.title;
+    $('undo-btn').disabled = historyIndex <= 0;
+    $('redo-btn').disabled = historyIndex >= history.length - 1;
+    $('item-count').textContent = `${doc.elements.length} オブジェクト`;
+    $('empty-state').hidden = doc.elements.length > 0;
+    $('zoom-label').textContent = `${Math.round(doc.viewport.zoom * 100)}%`;
+    status(); updateInspector();
+  }
+  function getDB() {
+    if (!dbPromise) dbPromise = new Promise((resolve, reject) => {
+      try {
+        const request = indexedDB.open('brainstormor-offline', 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('boards');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+        request.onblocked = () => reject(new Error('保存領域を開けませんでした'));
+      } catch (e) { reject(e); }
+    });
+    return dbPromise;
+  }
+  async function readLocal() {
+    let fallback = null, primary = null;
+    try { fallback = JSON.parse(localStorage.getItem('brainstormor-backup')); } catch { /* No readable fallback. */ }
+    try {
+      const db = await getDB();
+      primary = await new Promise((resolve, reject) => {
+        const request = db.transaction('boards').objectStore('boards').get('last-board');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    } catch { /* Try the independently stored fallback. */ }
+    return [primary, fallback].filter(Boolean).sort((a, b) => String(b.updated || '').localeCompare(String(a.updated || ''))).find(payload => {
+      try { M.parse(JSON.stringify(payload.document)); return true; } catch { return false; }
+    }) || null;
+  }
+  function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(autosave, 400); }
+  function autosave() {
+    if (restoring) return;
+    clearTimeout(autosaveTimer);
+    const captureRevision = revision;
+    const payload = { document: M.clone(doc), savedSnapshot, updated: new Date().toISOString() };
+    persistenceQueue = persistenceQueue.catch(() => {}).then(async () => {
+      try {
+        try {
+          const db = await getDB();
+          await new Promise((resolve, reject) => {
+            const transaction = db.transaction('boards', 'readwrite');
+            transaction.objectStore('boards').put(payload, 'last-board');
+            transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+          });
+        } catch { localStorage.setItem('brainstormor-backup', JSON.stringify(payload)); }
+        if (revision === captureRevision) { localSaved = true; autosaveFailed = false; }
+      } catch {
+        if (!autosaveFailed) toast('ブラウザの保存容量が不足しています。「保存」でファイルに残してください。');
+        autosaveFailed = true;
+      }
+      status();
+    });
+  }
+  const point = event => {
+    const rect = stage.getBoundingClientRect();
+    return { x: (event.clientX - rect.left - doc.viewport.x) / doc.viewport.zoom, y: (event.clientY - rect.top - doc.viewport.y) / doc.viewport.zoom };
+  };
+  const center = () => ({ x: (stage.clientWidth / 2 - doc.viewport.x) / doc.viewport.zoom, y: (stage.clientHeight / 2 - doc.viewport.y) / doc.viewport.zoom });
+  const getElement = id => doc.elements.find(element => element.id === id);
+  function boxAt(p, exclude) {
+    return [...doc.elements].reverse().find(el => {
+      if (el.type === 'arrow' || el.id === exclude) return false;
+      const dx = Math.abs(p.x - el.x - el.width / 2) / (el.width / 2), dy = Math.abs(p.y - el.y - el.height / 2) / (el.height / 2);
+      return el.type === 'ellipse' ? dx * dx + dy * dy <= 1 : el.type === 'diamond' ? dx + dy <= 1 : dx <= 1 && dy <= 1;
+    });
+  }
+  function endpoint(p, exclude) {
+    const hit = boxAt(p, exclude);
+    return { x: p.x, y: p.y, ...(hit ? { elementId: hit.id } : {}) };
+  }
+  function wrapText(text, maxWidth, fontSize) {
+    measure.font = `${fontSize}px ${fonts}`;
+    const lines = [];
+    for (const paragraph of String(text).split('\n')) {
+      let line = '';
+      for (const character of Array.from(paragraph)) {
+        if (line && measure.measureText(line + character).width > maxWidth) { lines.push(line); line = ''; }
+        line += character;
+      }
+      lines.push(line);
+    }
+    return lines;
+  }
+  function textLayout(el) {
+    const pad = el.type === 'note' ? 20 : el.type === 'rect' ? 16 : 10;
+    const width = Math.max(10, el.type === 'diamond' ? el.width * .56 : el.type === 'ellipse' ? el.width * .72 : el.width - pad * 2);
+    const lines = wrapText(el.text || '', width, el.fontSize);
+    const lineHeight = el.fontSize * 1.45;
+    const centered = isShape(el);
+    return { width, lines, lineHeight, x: centered ? (el.width - width) / 2 : pad, y: centered ? (el.height - lines.length * lineHeight) / 2 : pad, centered };
+  }
+  function fitTextHeight(el) {
+    if (!hasText(el)) return;
+    const layout = textLayout(el);
+    const contentHeight = layout.lines.length * layout.lineHeight;
+    if (isShape(el)) el.height = Math.max(el.height, el.type === 'diamond' ? contentHeight * 2 + 32 : el.type === 'ellipse' ? contentHeight / .65 + 20 : contentHeight + 32);
+    else el.height = Math.max(el.type === 'note' ? 100 : 44, contentHeight + (el.type === 'note' ? 40 : 20));
+  }
+  function renderElement(el) {
+    const group = svg('g', { 'data-element-id': el.id, class: `board-element element-${el.type}` });
+    if (el.type === 'arrow') {
+      const { from, to } = M.arrowEndpoints(el, doc.elements);
+      const dx = to.x - from.x, dy = to.y - from.y, length = Math.hypot(dx, dy);
+      const nx = length ? dx / length : 1, ny = length ? dy / length : 0;
+      const head = Math.min(16, length / 2), color = el.color || '#526076';
+      group.append(svg('line', { x1: from.x, y1: from.y, x2: to.x, y2: to.y, stroke: 'transparent', 'stroke-width': Math.max(18, 18 / doc.viewport.zoom), 'pointer-events': 'stroke' }));
+      group.append(svg('line', { x1: from.x, y1: from.y, x2: to.x - nx * head * .6, y2: to.y - ny * head * .6, stroke: color, 'stroke-width': el.strokeWidth || 2.5, 'stroke-linecap': 'round', 'pointer-events': 'none' }));
+      group.append(svg('path', { d: `M ${to.x} ${to.y} L ${to.x - nx * head - ny * head * .42} ${to.y - ny * head + nx * head * .42} L ${to.x - nx * head + ny * head * .42} ${to.y - ny * head - nx * head * .42} Z`, fill: color, 'pointer-events': 'none' }));
+      return group;
+    }
+    group.setAttribute('transform', `translate(${el.x} ${el.y})`);
+    if (el.type === 'note') {
+      group.append(svg('rect', { x: 0, y: 3, width: el.width, height: el.height, rx: 5, fill: '#263348', opacity: .06, 'pointer-events': 'none' }));
+      group.append(svg('rect', { width: el.width, height: el.height, rx: 5, fill: el.color, stroke: '#263348', 'stroke-opacity': .08 }));
+      group.append(svg('path', { d: `M 0 5 Q 0 0 5 0 L ${el.width - 5} 0 Q ${el.width} 0 ${el.width} 5 L ${el.width} 9 L 0 9 Z`, fill: '#fff', opacity: .25 }));
+    } else if (isShape(el)) {
+      const attrs = { fill: el.color, stroke: '#526076', 'stroke-opacity': .28, 'stroke-width': 1.5 };
+      if (el.type === 'rect') group.append(svg('rect', { width: el.width, height: el.height, rx: 12, ...attrs }));
+      if (el.type === 'ellipse') group.append(svg('ellipse', { cx: el.width / 2, cy: el.height / 2, rx: el.width / 2, ry: el.height / 2, ...attrs }));
+      if (el.type === 'diamond') group.append(svg('path', { d: `M ${el.width / 2} 0 L ${el.width} ${el.height / 2} L ${el.width / 2} ${el.height} L 0 ${el.height / 2} Z`, ...attrs }));
+    } else if (el.type === 'image') {
+      group.append(svg('rect', { width: el.width, height: el.height, rx: 4, fill: '#fff', stroke: '#dce2e8' }));
+      group.append(svg('image', { width: el.width, height: el.height, href: el.src, preserveAspectRatio: 'none' }));
+    } else {
+      group.append(svg('rect', { width: el.width, height: el.height, rx: 3, fill: 'transparent' }));
+    }
+    if (hasText(el)) {
+      const layout = textLayout(el);
+      const text = svg('text', { x: layout.centered ? el.width / 2 : layout.x, y: layout.y + el.fontSize * 1.08, fill: el.type === 'text' ? el.color : (el.textColor || '#24334a'), 'font-family': fonts, 'font-size': el.fontSize, 'text-anchor': layout.centered ? 'middle' : 'start', 'pointer-events': 'none', 'xml:space': 'preserve' });
+      if (el.type === 'text' && el.color === '#ffffff') { text.setAttribute('paint-order', 'stroke'); text.setAttribute('stroke', '#17212e88'); text.setAttribute('stroke-width', '3'); text.setAttribute('stroke-linejoin', 'round'); }
+      layout.lines.forEach((line, index) => text.append(svg('tspan', { x: layout.centered ? el.width / 2 : layout.x, dy: index ? layout.lineHeight : 0 }, line || '\u00a0')));
+      group.append(text);
+    }
+    return group;
+  }
+  function render() {
+    const { x, y, zoom } = doc.viewport;
+    world.setAttribute('transform', `translate(${x} ${y}) scale(${zoom})`);
+    overlay.setAttribute('transform', `translate(${x} ${y}) scale(${zoom})`);
+    stage.style.backgroundSize = `${24 * zoom}px ${24 * zoom}px`;
+    stage.style.backgroundPosition = `${x}px ${y}px`;
+    world.replaceChildren(...doc.elements.map(renderElement));
+    overlay.replaceChildren();
+    for (const id of selected) {
+      const el = getElement(id); if (!el) continue;
+      if (el.type === 'arrow') {
+        const endpoints = M.arrowEndpoints(el, doc.elements);
+        overlay.append(svg('line', { x1: endpoints.from.x, y1: endpoints.from.y, x2: endpoints.to.x, y2: endpoints.to.y, stroke: '#138776', 'stroke-width': 1 / zoom, 'stroke-dasharray': `${5 / zoom} ${4 / zoom}`, 'pointer-events': 'none' }));
+        for (const end of ['from', 'to']) overlay.append(svg('circle', { cx: endpoints[end].x, cy: endpoints[end].y, r: 6 / zoom, fill: 'white', stroke: '#138776', 'stroke-width': 2 / zoom, 'data-handle': end, 'data-id': el.id, cursor: 'crosshair' }));
+      } else {
+        overlay.append(svg('rect', { x: el.x - 3 / zoom, y: el.y - 3 / zoom, width: el.width + 6 / zoom, height: el.height + 6 / zoom, rx: 6 / zoom, fill: 'none', stroke: '#138776', 'stroke-width': 1.5 / zoom, 'pointer-events': 'none' }));
+        if (selected.size === 1) overlay.append(svg('rect', { x: el.x + el.width - 5 / zoom, y: el.y + el.height - 5 / zoom, width: 10 / zoom, height: 10 / zoom, rx: 2 / zoom, fill: 'white', stroke: '#138776', 'stroke-width': 1.5 / zoom, 'data-handle': 'resize', 'data-id': el.id, cursor: 'nwse-resize' }));
+      }
+    }
+    if (gesture?.type === 'marquee') {
+      const a = gesture.start, b = gesture.current;
+      overlay.append(svg('rect', { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), width: Math.abs(a.x - b.x), height: Math.abs(a.y - b.y), fill: '#13877612', stroke: '#138776', 'stroke-width': 1 / zoom, 'pointer-events': 'none' }));
+    }
+    $('zoom-label').textContent = `${Math.round(zoom * 100)}%`;
+    positionEditor();
+  }
+  function setTool(value) {
+    finishEdit(); tool = value;
+    document.querySelectorAll('[data-tool]').forEach(button => { button.classList.toggle('active', button.dataset.tool === tool); button.setAttribute('aria-pressed', String(button.dataset.tool === tool)); });
+    stage.dataset.tool = tool;
+    stage.style.cursor = tool === 'hand' ? 'grab' : tool === 'text' ? 'text' : ['arrow', 'note', 'rect', 'ellipse', 'diamond'].includes(tool) ? 'crosshair' : 'default';
+  }
+  function addItem(type, p = center(), overrides = {}, edit = false) {
+    if (doc.elements.length >= 5000) { toast('1つのボードに置ける上限は5,000個です。'); return; }
+    const element = M.createItem(type, { x: p.x, y: p.y, ...overrides });
+    doc.elements.push(element); selected = new Set([element.id]);
+    commit(); setTool('select');
+    if (edit) editText(element, true);
+    return element;
+  }
+  function positionEditor() {
+    if (!editing) return;
+    const el = getElement(editing.id); if (!el) return;
+    const z = doc.viewport.zoom, layout = textLayout(el);
+    editor.style.left = `${doc.viewport.x + (el.x + layout.x) * z}px`;
+    editor.style.top = `${doc.viewport.y + (el.y + layout.y) * z}px`;
+    editor.style.width = `${Math.max(20, layout.width * z)}px`;
+    editor.style.height = `${Math.max(layout.lines.length * layout.lineHeight, el.fontSize * 1.6) * z + 5}px`;
+    editor.style.fontSize = `${el.fontSize * z}px`;
+    editor.style.lineHeight = '1.45'; editor.style.padding = '0'; editor.style.border = '0';
+    editor.style.textAlign = layout.centered ? 'center' : 'left';
+    editor.style.color = el.type === 'text' ? el.color : (el.textColor || '#24334a');
+    editor.style.background = el.type === 'text' ? '#ffffffee' : el.color;
+    if (el.type === 'text' && el.color === '#ffffff') editor.style.background = '#354258e8';
+    const rendered = [...world.children].find(node => node.getAttribute('data-element-id') === el.id);
+    if (rendered) { const text = rendered.querySelector('text'); if (text) text.style.visibility = 'hidden'; }
+  }
+  function editText(el, selectAll = false) {
+    if (!el || !hasText(el)) return;
+    finishEdit(); selected = new Set([el.id]); editing = { id: el.id, original: el.text, height: el.height };
+    editor.value = el.text; editor.hidden = false; updateUI(); render();
+    editor.focus(); if (selectAll) editor.select(); else editor.setSelectionRange(editor.value.length, editor.value.length);
+  }
+  function finishEdit(cancel = false) {
+    if (!editing) return;
+    const el = getElement(editing.id);
+    if (el) {
+      el.text = cancel ? editing.original : editor.value;
+      if (cancel) el.height = editing.height;
+      else fitTextHeight(el);
+    }
+    editing = null; editor.hidden = true;
+    if (el) commit();
+  }
+  editor.addEventListener('input', () => {
+    const el = getElement(editing?.id); if (!el) return;
+    el.text = editor.value; fitTextHeight(el); positionEditor();
+  });
+  editor.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); finishEdit(true); stage.focus(); }
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); finishEdit(); stage.focus(); }
+  });
+  editor.addEventListener('blur', () => finishEdit());
+
+  canvas.addEventListener('pointerdown', event => {
+    if (restoring || (event.button !== 0 && event.button !== 1)) return;
+    finishEdit(); stage.focus({ preventScroll: true });
+    const p = point(event); lastPointer = p;
+    const target = event.target.closest('[data-element-id]');
+    const id = target?.getAttribute('data-element-id');
+    const handle = event.target.getAttribute('data-handle');
+    if (event.button === 1 || spacePressed || tool === 'hand') {
+      gesture = { type: 'pan', clientX: event.clientX, clientY: event.clientY, x: doc.viewport.x, y: doc.viewport.y };
+      stage.style.cursor = 'grabbing';
+    } else if (isShape(tool)) {
+      if (doc.elements.length >= 5000) { toast('オブジェクト数の上限です。'); return; }
+      const shape = M.createItem(tool, { x: p.x, y: p.y, text: 'テキスト' });
+      doc.elements.push(shape); selected = new Set([shape.id]);
+      gesture = { type: 'shape', id: shape.id, start: p, dragged: false };
+    } else if (tool === 'note' || tool === 'text') {
+      addItem(tool, p, tool === 'note' ? { text: 'アイデアを書く' } : { text: 'テキスト' }, true); return;
+    } else if (tool === 'arrow') {
+      if (doc.elements.length >= 5000) { toast('オブジェクト数の上限です。'); return; }
+      const arrow = M.createItem('arrow', { from: endpoint(p), to: { ...p } });
+      doc.elements.push(arrow); selected = new Set([arrow.id]);
+      gesture = { type: 'arrow', id: arrow.id, start: p, created: true };
+    } else if (handle) {
+      const el = getElement(event.target.getAttribute('data-id'));
+      gesture = { type: handle === 'resize' ? 'resize' : 'endpoint', end: handle, id: el.id, start: p, original: M.clone(el) };
+    } else if (id) {
+      if (event.shiftKey) { if (selected.has(id)) selected.delete(id); else selected.add(id); }
+      else if (!selected.has(id)) selected = new Set([id]);
+      gesture = { type: 'move', start: p, originals: doc.elements.filter(el => selected.has(el.id)).map(el => ({ ...M.clone(el), ...(el.type === 'arrow' ? { visibleEnds: M.arrowEndpoints(el, doc.elements) } : {}) })), moved: false };
+    } else {
+      if (!event.shiftKey) selected.clear();
+      gesture = { type: 'marquee', start: p, current: p, initial: new Set(selected) };
+    }
+    event.preventDefault(); canvas.setPointerCapture(event.pointerId); render(); updateUI();
+  });
+  canvas.addEventListener('pointermove', event => {
+    const p = point(event); lastPointer = p;
+    if (!gesture) return;
+    const g = gesture;
+    if (g.type === 'pan') { doc.viewport.x = g.x + event.clientX - g.clientX; doc.viewport.y = g.y + event.clientY - g.clientY; }
+    if (g.type === 'move') {
+      const dx = p.x - g.start.x, dy = p.y - g.start.y;
+      if (Math.hypot(dx, dy) * doc.viewport.zoom > 2) g.moved = true;
+      if (g.moved) for (const original of g.originals) {
+        const el = getElement(original.id);
+        if (el.type === 'arrow') {
+          for (const end of ['from', 'to']) {
+            const base = original[end].elementId && !selected.has(original[end].elementId) ? original.visibleEnds[end] : original[end];
+            el[end] = { ...base, x: base.x + dx, y: base.y + dy };
+          }
+        } else { el.x = original.x + dx; el.y = original.y + dy; }
+      }
+    }
+    if (g.type === 'shape') {
+      const el = getElement(g.id), dx = p.x - g.start.x, dy = p.y - g.start.y;
+      if (Math.hypot(dx, dy) * doc.viewport.zoom > 5) g.dragged = true;
+      if (g.dragged) { el.x = Math.min(p.x, g.start.x); el.y = Math.min(p.y, g.start.y); el.width = Math.max(100, Math.abs(dx)); el.height = Math.max(70, Math.abs(dy)); }
+    }
+    if (g.type === 'resize') {
+      const el = getElement(g.id), original = g.original;
+      el.width = Math.max(el.type === 'text' ? 70 : 100, original.width + p.x - g.start.x);
+      el.height = el.type === 'image' ? el.width * original.height / original.width : Math.max(60, original.height + p.y - g.start.y);
+      if (hasText(el)) {
+        const manualHeight = el.height; fitTextHeight(el); el.height = Math.max(manualHeight, el.height);
+      }
+    }
+    if (g.type === 'arrow') { const el = getElement(g.id); el.to = endpoint(p, el.from.elementId); }
+    if (g.type === 'endpoint') { const el = getElement(g.id); el[g.end] = endpoint(p, el[g.end === 'from' ? 'to' : 'from'].elementId); }
+    if (g.type === 'marquee') {
+      g.current = p;
+      const left = Math.min(g.start.x, p.x), top = Math.min(g.start.y, p.y), right = Math.max(g.start.x, p.x), bottom = Math.max(g.start.y, p.y);
+      selected = new Set(g.initial);
+      for (const el of doc.elements) {
+        const ends = el.type === 'arrow' ? M.arrowEndpoints(el, doc.elements) : null;
+        const b = ends ? { x: Math.min(ends.from.x, ends.to.x), y: Math.min(ends.from.y, ends.to.y), width: Math.abs(ends.to.x - ends.from.x), height: Math.abs(ends.to.y - ends.from.y) } : M.getBounds([el]);
+        if (b && b.x >= left && b.y >= top && b.x + b.width <= right && b.y + b.height <= bottom) selected.add(el.id);
+      }
+    }
+    render();
+  });
+  function endGesture(event, cancelled = false) {
+    if (!gesture) return;
+    const g = gesture; gesture = null;
+    if (g.type === 'shape') {
+      if (cancelled) { doc.elements = doc.elements.filter(x => x.id !== g.id); selected.clear(); }
+      else { const el = getElement(g.id); fitTextHeight(el); setTool('select'); commit(); editText(el, true); }
+    }
+    if (g.type === 'arrow') {
+      const el = getElement(g.id), ends = M.arrowEndpoints(el, doc.elements);
+      if (cancelled || Math.hypot(ends.to.x - ends.from.x, ends.to.y - ends.from.y) < 8) {
+        doc.elements = doc.elements.filter(x => x.id !== g.id); selected.clear();
+        if (!cancelled) toast('始点から終点までドラッグすると矢印を引けます。');
+      } else setTool('select');
+    } else if (cancelled && g.original) Object.assign(getElement(g.id), g.original);
+    else if (cancelled && g.originals) g.originals.forEach(original => { const { visibleEnds, ...clean } = original; Object.assign(getElement(original.id), clean); });
+    if (!['pan', 'marquee', 'shape'].includes(g.type)) commit();
+    else { updateUI(); render(); scheduleAutosave(); }
+    stage.style.cursor = spacePressed || tool === 'hand' ? 'grab' : tool === 'arrow' ? 'crosshair' : 'default';
+    if (event && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    // SVG nodes are regenerated on selection; use stable pointer positions for double clicks.
+    if (!cancelled && event && tool === 'select' && ((g.type === 'move' && !g.moved) || (g.type === 'marquee' && Math.hypot(g.current.x - g.start.x, g.current.y - g.start.y) < 3))) {
+      const p = point(event), hit = boxAt(p), now = performance.now();
+      if (lastTap && now - lastTap.time < 450 && lastTap.id === (hit?.id || null) && Math.hypot(lastTap.x - event.clientX, lastTap.y - event.clientY) < 6) {
+        lastTap = null;
+        if (hit) editText(hit);
+        else addItem('note', p, { text: 'アイデアを書く' }, true);
+      } else lastTap = { id: hit?.id || null, time: now, x: event.clientX, y: event.clientY };
+    } else lastTap = null;
+  }
+  canvas.addEventListener('pointerup', event => endGesture(event));
+  canvas.addEventListener('pointercancel', event => endGesture(event, true));
+  canvas.addEventListener('contextmenu', event => event.preventDefault());
+  function zoomAt(nextZoom, screen = { x: stage.clientWidth / 2, y: stage.clientHeight / 2 }) {
+    const old = doc.viewport.zoom, zoom = Math.max(.2, Math.min(3, nextZoom));
+    doc.viewport.x = screen.x - (screen.x - doc.viewport.x) * zoom / old;
+    doc.viewport.y = screen.y - (screen.y - doc.viewport.y) * zoom / old;
+    doc.viewport.zoom = zoom; render(); scheduleAutosave();
+  }
+  stage.addEventListener('wheel', event => {
+    if (event.target !== canvas && !canvas.contains(event.target)) return;
+    event.preventDefault();
+    if (event.ctrlKey || event.metaKey) {
+      const rect = stage.getBoundingClientRect(); zoomAt(doc.viewport.zoom * Math.exp(-event.deltaY * .01), { x: event.clientX - rect.left, y: event.clientY - rect.top });
+    } else {
+      const multiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1;
+      doc.viewport.x -= event.deltaX * multiplier; doc.viewport.y -= event.deltaY * multiplier; render(); scheduleAutosave();
+    }
+  }, { passive: false });
+  function fitAll() {
+    finishEdit();
+    if (!doc.elements.length) { doc.viewport = { x: 0, y: 0, zoom: 1 }; render(); return; }
+    const b = M.getBounds(doc.elements), padding = 100;
+    const zoom = Math.max(.2, Math.min(1.4, (stage.clientWidth - padding * 2) / Math.max(b.width, 1), (stage.clientHeight - padding * 2) / Math.max(b.height, 1)));
+    doc.viewport = { zoom, x: stage.clientWidth / 2 - (b.x + b.width / 2) * zoom, y: stage.clientHeight / 2 - (b.y + b.height / 2) * zoom };
+    render(); scheduleAutosave();
+  }
+  function updateInspector() {
+    const elements = doc.elements.filter(el => selected.has(el.id));
+    $('selection-panel').hidden = elements.length === 0 || !!editing;
+    if (!elements.length) return;
+    const one = elements.length === 1 ? elements[0] : null;
+    $('selection-kind').textContent = one ? ({ rect: '四角', ellipse: '丸', diamond: 'ひし形', note: '付箋', text: 'テキスト', image: '画像', arrow: '矢印' })[one.type] : `${elements.length} 個を選択`;
+    $('colors').replaceChildren();
+    const palette = palettes[one?.type];
+    $('colors').hidden = !palette; $('colors').closest('.panel-field').hidden = !palette;
+    if (palette) for (const color of palette) {
+      const button = document.createElement('button'); button.className = 'color-swatch';
+      button.style.setProperty('--swatch', color); button.style.backgroundColor = color;
+      button.title = `色 ${color}`; button.setAttribute('aria-label', `色を${color}に変更`);
+      button.classList.toggle('active', one.color === color);
+      button.addEventListener('click', () => { one.color = color; commit(); }); $('colors').append(button);
+    }
+    $('font-size').hidden = !one || !hasText(one); $('font-size').closest('.font-field').hidden = $('font-size').hidden;
+    if (one && hasText(one)) $('font-size').value = String(one.fontSize);
+    $('image-caption').hidden = one?.type !== 'image';
+  }
+  function removeSelected() {
+    finishEdit(); if (!selected.size) return;
+    // Freeze connected endpoints at their visible position before deleting their targets.
+    for (const el of doc.elements) if (el.type === 'arrow') {
+      const ends = M.arrowEndpoints(el, doc.elements);
+      for (const end of ['from', 'to']) if (selected.has(el[end].elementId)) el[end] = ends[end];
+    }
+    doc.elements = doc.elements.filter(el => !selected.has(el.id)); selected.clear(); commit();
+  }
+  function copySelection(elements) {
+    const ids = new Set(elements.map(el => el.id));
+    return elements.map(original => {
+      const copy = M.clone(original);
+      if (original.type === 'arrow') {
+        const ends = M.arrowEndpoints(original, doc.elements);
+        for (const end of ['from', 'to']) if (!ids.has(original[end].elementId)) copy[end] = ends[end];
+      }
+      return copy;
+    });
+  }
+  function duplicate(elements = copySelection(doc.elements.filter(el => selected.has(el.id))), offset = 28) {
+    finishEdit(); if (!elements.length) return;
+    if (doc.elements.length + elements.length > 5000) { toast('オブジェクト数の上限です。'); return; }
+    const idMap = new Map();
+    const copies = elements.map(el => { const copy = M.createItem(el.type, M.clone(el)); copy.id = M.createItem(el.type).id; idMap.set(el.id, copy.id); return copy; });
+    for (const copy of copies) {
+      copy.x += offset; copy.y += offset;
+      if (copy.type === 'arrow') for (const end of ['from', 'to']) {
+        copy[end].x += offset; copy[end].y += offset;
+        if (idMap.has(copy[end].elementId)) copy[end].elementId = idMap.get(copy[end].elementId);
+        else delete copy[end].elementId;
+      }
+    }
+    doc.elements.push(...copies); selected = new Set(copies.map(x => x.id)); commit();
+  }
+  function moveLayer(front) {
+    finishEdit(); const group = doc.elements.filter(el => selected.has(el.id)), rest = doc.elements.filter(el => !selected.has(el.id));
+    doc.elements = front ? [...rest, ...group] : [...group, ...rest]; commit();
+  }
+  async function addImages(files, at = center()) {
+    finishEdit(); let count = 0;
+    const startedDocument = doc;
+    for (const file of files) {
+      if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type)) { toast('PNG・JPEG・WebP・GIFの画像を選んでください。'); continue; }
+      if (file.size > 12 * 1024 * 1024) { toast('画像は1枚12MBまでです。小さくしてから追加してください。'); continue; }
+      try {
+        const src = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
+        const image = await loadImage(src);
+        if (doc !== startedDocument) return;
+        if (new Blob([M.serialize(doc)]).size + src.length > MAX_BYTES - 10000) { toast('ボードは40MBまでです。画像を小さくするか、別のボードに分けてください。'); break; }
+        const scale = Math.min(1, 560 / image.width, 440 / image.height);
+        const width = Math.max(24, image.width * scale), height = Math.max(24, image.height * scale);
+        addItem('image', { x: at.x - width / 2 + count * 24, y: at.y - height / 2 + count * 24 }, { src, width, height, name: file.name || '貼り付けた画像' }); count++;
+      } catch { toast('この画像を読み込めませんでした。別の形式で試してください。'); }
+    }
+    if (count) toast(`${count}枚の画像を追加しました。「文字をのせる」で注釈を付けられます。`);
+  }
+  function loadImage(src) { return new Promise((resolve, reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = src; }); }
+  $('image-input').addEventListener('change', event => { addImages([...event.target.files]); event.target.value = ''; });
+  stage.addEventListener('dragenter', event => { event.preventDefault(); if (event.dataTransfer.types.includes('Files')) { dragDepth++; $('drop-overlay').hidden = false; } });
+  stage.addEventListener('dragover', event => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; });
+  stage.addEventListener('dragleave', event => { event.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; $('drop-overlay').hidden = true; } });
+  stage.addEventListener('drop', async event => {
+    event.preventDefault(); dragDepth = 0; $('drop-overlay').hidden = true;
+    const files = [...event.dataTransfer.files], board = files.find(file => /\.(brainstorm|json)$/i.test(file.name));
+    if (board) await openFile(board); else await addImages(files, point(event));
+  });
+  const isTyping = target => target instanceof Element && (target.matches('input,textarea,select') || target.isContentEditable);
+  document.addEventListener('copy', event => {
+    if (isTyping(event.target) || document.querySelector('dialog[open]') || !selected.size) return;
+    clipboardElements = copySelection(doc.elements.filter(el => selected.has(el.id)));
+    event.clipboardData.setData('application/x-brainstormor', 'selection');
+    event.clipboardData.setData('text/plain', clipboardElements.filter(el => el.text).map(el => el.text).join('\n'));
+    event.preventDefault();
+  });
+  document.addEventListener('paste', event => {
+    if (restoring || isTyping(event.target) || document.querySelector('dialog[open]')) return;
+    const data = event.clipboardData;
+    const files = [...data.files].filter(file => file.type.startsWith('image/'));
+    if (files.length) { event.preventDefault(); addImages(files); return; }
+    if (data.types.includes('application/x-brainstormor') && clipboardElements) { event.preventDefault(); duplicate(clipboardElements); return; }
+    const text = data.getData('text/plain');
+    if (text) { event.preventDefault(); const el = addItem('note', center(), { text: text.slice(0, 20000) }); if (el) { fitTextHeight(el); commit(); } }
+  });
+
+  function filename(extension, title = doc.title) { return (title.trim() || '無題のボード').replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').slice(0, 100) + extension; }
+  function download(blob, name) {
+    const url = URL.createObjectURL(blob), link = document.createElement('a');
+    link.href = url; link.download = name; document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+  function syncTitle() {
+    doc.title = $('board-title').value.trim().slice(0, 160) || '無題のボード';
+    $('board-title').value = doc.title;
+    commit();
+  }
+  async function saveFile() {
+    if (saving || restoring) return;
+    finishEdit(); syncTitle(); saving = true;
+    try {
+      const captured = M.clone(doc), serialized = M.serialize(captured);
+      download(new Blob([serialized], { type: 'application/json' }), filename('.brainstorm', captured.title));
+      savedSnapshot = contentSnapshot(captured); autosave(); status();
+      toast('編集できるボードファイルを書き出しました。');
+    } catch (error) { toast(`保存できませんでした: ${error.message}`); }
+    finally { saving = false; }
+  }
+  async function openFile(file) {
+    finishEdit();
+    try {
+      if (file.size > MAX_BYTES) throw new Error('40MB以下のボードを選んでください。');
+      const loaded = M.parse(await file.text());
+      if (!confirmReplace()) return;
+      doc = loaded; selected.clear(); savedSnapshot = contentSnapshot();
+      resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave(); toast('ボードを開きました。');
+    } catch (error) { toast(`ファイルを開けません: ${error.message}`); }
+  }
+  function confirmReplace() { return !fileDirty() || (!doc.elements.length && doc.title === '無題のボード') || confirm('現在のボードにはファイルに保存していない変更があります。保存せずに切り替えますか？'); }
+  function newBoard() {
+    finishEdit(); if (!confirmReplace()) return;
+    doc = M.createDocument(); selected.clear(); savedSnapshot = contentSnapshot();
+    resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave();
+  }
+  function exportSVG() {
+    finishEdit();
+    if (!doc.elements.length) { toast('図形や付箋を追加してから書き出してください。'); return null; }
+    const b = M.getBounds(doc.elements), padding = 40;
+    const width = Math.max(1, Math.ceil(b.width + padding * 2)), height = Math.max(1, Math.ceil(b.height + padding * 2));
+    const root = svg('svg', { xmlns: NS, width, height, viewBox: `${b.x - padding} ${b.y - padding} ${width} ${height}` });
+    root.append(svg('title', {}, doc.title));
+    root.append(svg('rect', { x: b.x - padding, y: b.y - padding, width, height, fill: '#ffffff' }));
+    for (const el of doc.elements) root.append(renderElement(el));
+    return { source: new XMLSerializer().serializeToString(root), width, height };
+  }
+  async function exportImage(kind) {
+    $('export-dialog').close(); const result = exportSVG(); if (!result) return;
+    if (kind === 'svg') { download(new Blob([result.source], { type: 'image/svg+xml' }), filename('.svg')); toast('SVGを書き出しました。'); return; }
+    let url;
+    try {
+      url = URL.createObjectURL(new Blob([result.source], { type: 'image/svg+xml' }));
+      const image = await loadImage(url);
+      const scale = Math.min(2, 8192 / result.width, 8192 / result.height, Math.sqrt(24000000 / (result.width * result.height)));
+      const raster = document.createElement('canvas'); raster.width = Math.max(1, Math.round(result.width * scale)); raster.height = Math.max(1, Math.round(result.height * scale));
+      raster.getContext('2d').drawImage(image, 0, 0, raster.width, raster.height);
+      const blob = await new Promise(resolve => raster.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error('PNGの作成に失敗しました');
+      download(blob, filename('.png')); toast('PNG画像を書き出しました。');
+    } catch { toast('PNGを書き出せませんでした。SVGでの書き出しをお試しください。'); }
+    finally { if (url) URL.revokeObjectURL(url); }
+  }
+  document.querySelectorAll('[data-tool]').forEach(button => button.addEventListener('click', () => {
+    if (button.dataset.tool === 'image') { finishEdit(); $('image-input').click(); }
+    else setTool(button.dataset.tool);
+  }));
+  $('font-size').addEventListener('change', event => { for (const el of doc.elements) if (selected.has(el.id) && hasText(el)) { el.fontSize = Number(event.target.value); fitTextHeight(el); } commit(); });
+  $('image-caption').addEventListener('click', () => {
+    const image = getElement([...selected][0]); if (!image || image.type !== 'image') return;
+    addItem('text', { x: image.x + 12, y: image.y + 12 }, { text: 'ここに注釈を書く', color: '#ffffff', width: Math.max(100, image.width - 24), fontSize: 24 }, true);
+  });
+  $('bring-forward').addEventListener('click', () => moveLayer(true));
+  $('send-backward').addEventListener('click', () => moveLayer(false));
+  $('duplicate-btn').addEventListener('click', () => duplicate());
+  $('delete-btn').addEventListener('click', removeSelected);
+  $('undo-btn').addEventListener('click', () => undo()); $('redo-btn').addEventListener('click', () => undo(1));
+  $('zoom-in').addEventListener('click', () => zoomAt(doc.viewport.zoom * 1.2));
+  $('zoom-out').addEventListener('click', () => zoomAt(doc.viewport.zoom / 1.2));
+  $('zoom-label').addEventListener('click', () => zoomAt(1)); $('fit-btn').addEventListener('click', fitAll);
+  $('new-board').addEventListener('click', newBoard);
+  $('save-board').addEventListener('click', () => saveFile());
+  $('open-board').addEventListener('click', () => { finishEdit(); $('file-input').click(); });
+  $('file-input').addEventListener('change', event => { const file = event.target.files[0]; if (file) openFile(file); event.target.value = ''; });
+  $('export-board').addEventListener('click', () => { finishEdit(); $('export-dialog').showModal(); });
+  $('export-svg').addEventListener('click', () => exportImage('svg'));
+  $('export-png').addEventListener('click', () => exportImage('png'));
+  $('help-btn').addEventListener('click', () => $('help-dialog').showModal());
+  $('close-help').addEventListener('click', () => $('help-dialog').close());
+  $('close-export').addEventListener('click', () => $('export-dialog').close());
+  $('board-title').addEventListener('change', syncTitle);
+  $('board-title').addEventListener('blur', syncTitle);
+  $('board-title').addEventListener('keydown', event => { if (event.key === 'Enter') { event.target.blur(); stage.focus(); } });
+  document.addEventListener('keydown', event => {
+    if (document.querySelector('dialog[open]') || restoring) return;
+    const mod = event.ctrlKey || event.metaKey;
+    if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); if (document.activeElement === $('board-title')) $('board-title').blur(); saveFile(); return; }
+    if (isTyping(event.target) || event.isComposing) return;
+    const key = event.key.toLowerCase();
+    if (mod && key === 'z') { event.preventDefault(); undo(event.shiftKey ? 1 : -1); }
+    else if (mod && key === 'y') { event.preventDefault(); undo(1); }
+    else if (mod && key === 'd') { event.preventDefault(); duplicate(); }
+    else if (mod && key === 'a') { event.preventDefault(); selected = new Set(doc.elements.map(el => el.id)); updateUI(); render(); }
+    else if (mod && key === 'o') { event.preventDefault(); $('file-input').click(); }
+    else if (key === 'delete' || key === 'backspace') { event.preventDefault(); removeSelected(); }
+    else if (key === 'escape') { if (gesture) endGesture(null, true); selected.clear(); setTool('select'); render(); updateUI(); }
+    else if (key === ' ') { event.preventDefault(); spacePressed = true; stage.style.cursor = 'grab'; }
+    else if (key === 'enter' && selected.size === 1) { event.preventDefault(); editText(getElement([...selected][0])); }
+    else if (!mod && ['arrowleft', 'arrowright', 'arrowup', 'arrowdown'].includes(key)) {
+      event.preventDefault(); const amount = event.shiftKey ? 10 : 1, dx = key === 'arrowleft' ? -amount : key === 'arrowright' ? amount : 0, dy = key === 'arrowup' ? -amount : key === 'arrowdown' ? amount : 0;
+      for (const el of doc.elements.filter(x => selected.has(x.id))) {
+        if (el.type === 'arrow') { const ends = M.arrowEndpoints(el, doc.elements); for (const end of ['from', 'to']) { const base = selected.has(el[end].elementId) ? el[end] : ends[end]; el[end] = { ...base, x: base.x + dx, y: base.y + dy }; } }
+        else { el.x += dx; el.y += dy; }
+      }
+      commit();
+    } else if (!mod && !event.altKey) {
+      const shortcuts = { v: 'select', h: 'hand', r: 'rect', o: 'ellipse', d: 'diamond', n: 'note', t: 'text', a: 'arrow' };
+      if (shortcuts[key]) { event.preventDefault(); setTool(shortcuts[key]); }
+      else if (key === 'i') { event.preventDefault(); $('image-input').click(); }
+      else if (key === 'f') { event.preventDefault(); fitAll(); }
+      else if (key === '+' || key === '=') zoomAt(doc.viewport.zoom * 1.2);
+      else if (key === '-') zoomAt(doc.viewport.zoom / 1.2);
+      else if (key === '?') $('help-dialog').showModal();
+    }
+  });
+  document.addEventListener('keyup', event => { if (event.code === 'Space') { spacePressed = false; stage.style.cursor = tool === 'hand' ? 'grab' : 'default'; } });
+  window.addEventListener('blur', () => { spacePressed = false; if (gesture) endGesture(null); });
+  window.addEventListener('resize', () => render());
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { finishEdit(); autosave(); } });
+  window.addEventListener('beforeunload', event => { if (fileDirty() && (!localSaved || autosaveFailed || editing)) { event.preventDefault(); event.returnValue = ''; } });
+  async function init() {
+    savedSnapshot = contentSnapshot();
+    const local = await readLocal();
+    if (local?.document) {
+      try {
+        doc = M.parse(JSON.stringify(local.document));
+        savedSnapshot = typeof local.savedSnapshot === 'string' ? local.savedSnapshot : '';
+        localSaved = true;
+        if (doc.elements.length) toast('前回のボードを復元しました。');
+      } catch { toast('前回のデータを復元できませんでした。保存したファイルを開いてください。'); }
+    }
+    restoring = false; document.querySelector('.app-shell').inert = false; resetHistory(); setTool('select'); updateUI(); render();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
