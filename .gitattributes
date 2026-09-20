@@ -1,0 +1,4 @@
+# Generated HTML embeds the unmodified upstream Mermaid distribution, including
+# intentional whitespace inside its template literals. Review source changes.
+brainstormor.html linguist-generated=true whitespace=-blank-at-eol
+index.html linguist-generated=true whitespace=-blank-at-eol

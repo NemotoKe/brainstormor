@@ -583,13 +583,6 @@
       stage.focus({ preventScroll: true });
     } catch (error) { toast(`テンプレートを開けません: ${error.message}`); }
   }
-  function exportTemplate(id) {
-    try {
-      const template = F.createTemplate(id);
-      $('templates-dialog').close();
-      openMermaid('export', undefined, '', template);
-    } catch (error) { toast(`テンプレートを書き出せません: ${error.message}`); }
-  }
   function initializeFeatures() {
     const icons = {
       mindmap: '<path d="M50 42V22H22m28 0h28M50 42v20H22m28 0h28"/><rect x="35" y="33" width="30" height="18" rx="4"/><rect x="7" y="14" width="25" height="16" rx="4"/><rect x="68" y="14" width="25" height="16" rx="4"/><rect x="7" y="54" width="25" height="16" rx="4"/><rect x="68" y="54" width="25" height="16" rx="4"/>',
@@ -597,7 +590,6 @@
       retro: '<rect x="6" y="13" width="26" height="54" rx="4"/><rect x="37" y="13" width="26" height="54" rx="4"/><rect x="68" y="13" width="26" height="54" rx="4"/><path d="M12 26h14m17 0h14m17 0h14M12 37h14m17 0h14m17 0h14M12 48h10m21 0h10m21 0h10"/>',
     };
     for (const template of F.templates) {
-      const option = document.createElement('div'); option.className = 'template-option';
       const button = document.createElement('button'); button.type = 'button'; button.className = 'template-card'; button.dataset.template = template.id;
       button.setAttribute('aria-label', `${template.title}をボードで開く`);
       const preview = document.createElement('span'); preview.className = `template-preview template-${template.kind}`;
@@ -607,11 +599,33 @@
       const description = document.createElement('span'); description.className = 'template-description'; description.textContent = template.description;
       const openLabel = document.createElement('span'); openLabel.className = 'template-open-label'; openLabel.textContent = 'ボードで開く →';
       button.append(preview, title, description, openLabel); button.addEventListener('click', () => useTemplate(template.id));
-      const exportButton = document.createElement('button'); exportButton.type = 'button'; exportButton.className = 'button template-export'; exportButton.dataset.templateExport = template.id;
-      exportButton.textContent = 'Mermaidを書き出す'; exportButton.setAttribute('aria-label', `${template.title}をMermaidで書き出す`);
-      exportButton.addEventListener('click', () => exportTemplate(template.id));
-      option.append(button, exportButton); $('template-list').append(option);
+      $('template-list').append(button);
     }
+    const diagramIcons = {
+      sequence: '<rect x="8" y="7" width="24" height="15" rx="3"/><rect x="68" y="7" width="24" height="15" rx="3"/><path d="M20 24v49m60-49v49" stroke-dasharray="3 4"/><path d="M20 36h60l-6-5m6 5-6 5M80 58H20l6-5m-6 5 6 5"/>',
+      flowchart: icons.flow,
+      class: '<rect x="8" y="10" width="36" height="55" rx="3"/><rect x="59" y="27" width="33" height="38" rx="3"/><path d="M8 27h36M8 44h36m15 0h33M44 37h15M15 19h22M15 35h17M15 53h19M66 36h19M66 53h17"/>',
+      er: '<rect x="5" y="20" width="32" height="42" rx="3"/><rect x="63" y="20" width="32" height="42" rx="3"/><path d="M5 34h32m26 0h32M37 43h26M42 37v12m15-6 6-6m-6 6 6 6"/>',
+      state: '<circle cx="14" cy="41" r="5"/><rect x="33" y="27" width="35" height="28" rx="8"/><circle cx="88" cy="41" r="7"/><circle cx="88" cy="41" r="3"/><path d="M19 41h14m35 0h13"/>',
+      gantt: '<path d="M18 12v57h76M18 28h76m-76 18h76M42 12v57m25-57v57" stroke-opacity=".3"/><rect x="20" y="16" width="30" height="8" rx="2"/><rect x="42" y="34" width="37" height="8" rx="2"/><rect x="63" y="52" width="29" height="8" rx="2"/>',
+      mindmap: icons.mindmap,
+      pie: '<path d="M50 41V12a29 29 0 0 1 29 29zM45 18a28 28 0 1 0 33 29H45z"/>',
+    };
+    for (const template of window.BrainstormorMermaidTemplates.templates) {
+      const card = document.createElement('button'); card.type = 'button'; card.className = 'diagram-template-card'; card.dataset.diagramTemplate = template.id;
+      const preview = document.createElement('span'); preview.className = 'diagram-template-preview';
+      preview.innerHTML = `<svg viewBox="0 0 100 82" aria-hidden="true">${diagramIcons[template.id]}</svg>`;
+      const title = document.createElement('strong'); title.textContent = template.title;
+      const description = document.createElement('small'); description.textContent = template.description;
+      card.append(preview, title, description);
+      card.addEventListener('click', () => { $('templates-dialog').close(); window.BrainstormorDiagramEditor.open(template.id); });
+      $('diagram-template-list').append(card);
+    }
+    document.querySelectorAll('[data-template-group]').forEach(button => button.addEventListener('click', () => {
+      const group = button.dataset.templateGroup;
+      $('mermaid-template-section').hidden = group !== 'mermaid'; $('board-template-section').hidden = group !== 'board';
+      document.querySelectorAll('[data-template-group]').forEach(tab => tab.setAttribute('aria-pressed', String(tab === button)));
+    }));
     $('templates-btn').addEventListener('click', openTemplates);
     $('empty-templates')?.addEventListener('click', openTemplates);
     $('close-templates').addEventListener('click', () => $('templates-dialog').close());
@@ -643,7 +657,7 @@
       });
     }
   }
-  let mermaidMode = 'import', mermaidResult = null, mermaidTimer, mermaidFileName = '', mermaidExportDocument = null;
+  let mermaidMode = 'import', mermaidResult = null, mermaidTimer, mermaidFileName = '';
   const mermaidExample = 'flowchart LR\n  A["アイデアを出す"] --> B{"すぐ試せる？"}\n  B -->|はい| C["小さく試す"]\n  B -->|いいえ| D["もっと小さく分ける"]\n  D -.-> A';
   function mermaidMessage(messages, error = false) {
     const message = $('mermaid-message');
@@ -653,6 +667,13 @@
   function validateMermaid() {
     clearTimeout(mermaidTimer); mermaidResult = null; $('mermaid-load').disabled = true;
     if (mermaidMode !== 'import') return;
+    const diagramType = window.BrainstormorDiagramEditor.detectType($('mermaid-code').value);
+    $('mermaid-load').textContent = diagramType && diagramType !== 'flowchart' ? '図のエディタで開く' : 'ボードに読み込む';
+    if (diagramType && diagramType !== 'flowchart') {
+      mermaidResult = { diagramType, source: $('mermaid-code').value };
+      $('mermaid-summary').textContent = window.BrainstormorMermaidTemplates.getTemplate(diagramType).title;
+      mermaidMessage('図のエディタでプレビューしながら編集できます。'); $('mermaid-load').disabled = false; return;
+    }
     try {
       mermaidResult = window.BrainstormorMermaid.importFlowchart($('mermaid-code').value);
       const nodes = mermaidResult.document.elements.filter(el => el.type !== 'arrow').length;
@@ -663,7 +684,7 @@
   }
   function generateMermaid() {
     try {
-      const result = window.BrainstormorMermaid.exportFlowchart(mermaidExportDocument || doc, $('mermaid-direction').value);
+      const result = window.BrainstormorMermaid.exportFlowchart(doc, $('mermaid-direction').value);
       $('mermaid-code').value = result.source; mermaidMessage(result.warnings);
       $('mermaid-summary').textContent = `${result.source.split('\n').length}行`;
       $('mermaid-download').disabled = $('mermaid-copy').disabled = false;
@@ -680,17 +701,14 @@
     $('mermaid-choose-file').hidden = !importing; $('mermaid-load').hidden = !importing;
     $('mermaid-direction-field').hidden = importing; $('mermaid-copy').hidden = importing; $('mermaid-download').hidden = importing;
     $('mermaid-hint').textContent = importing
-      ? 'flowchart / graph のコードを貼り付けると、編集できる図形になります。'
-      : mermaidExportDocument
-        ? `テンプレート「${mermaidExportDocument.title}」のMermaidコードです。編集中のボードを変えずに、コピーやファイル保存ができます。`
-        : 'いまのボードをMermaidコードに変換しました。コピーやファイル保存で持ち出せます。';
+      ? 'Mermaidコードを貼り付けます。フローチャートはボードへ、ほかの種類は図のエディタへ読み込みます。'
+      : 'いまのボードをMermaidコードに変換しました。コピーやファイル保存で持ち出せます。';
     if (importing) { $('mermaid-code').value = source ?? mermaidDraft; validateMermaid(); }
     else generateMermaid();
   }
   let mermaidDraft = mermaidExample;
-  function openMermaid(mode = 'import', source, name = '', exportDocument = null) {
+  function openMermaid(mode = 'import', source, name = '') {
     finishEdit(); if (gesture) endGesture(null, true);
-    mermaidExportDocument = exportDocument;
     if (source !== undefined) { mermaidDraft = source; mermaidFileName = name; }
     setMermaidMode(mode, source); $('mermaid-dialog').showModal();
     if (mode === 'import') $('mermaid-code').focus();
@@ -701,12 +719,18 @@
       if (file.size > 1024 * 1024) throw new Error('Mermaidファイルは1MB以下にしてください。');
       const source = await file.text();
       mermaidDraft = source; mermaidFileName = file.name.replace(/\.[^.]+$/, '');
+      const diagramType = window.BrainstormorDiagramEditor.detectType(source);
+      if (diagramType && diagramType !== 'flowchart') {
+        $('mermaid-dialog').close(); window.BrainstormorDiagramEditor.open(diagramType, source, mermaidFileName); return;
+      }
       if ($('mermaid-dialog').open) setMermaidMode('import', source);
       else openMermaid('import', source, mermaidFileName);
     } catch (error) { if ($('mermaid-dialog').open) mermaidMessage(error.message, true); else toast(error.message); }
   }
   async function loadMermaidBoard() {
-    validateMermaid(); if (!mermaidResult || !(await confirmReplace())) return;
+    validateMermaid(); if (!mermaidResult) return;
+    if (mermaidResult.diagramType) { $('mermaid-dialog').close(); window.BrainstormorDiagramEditor.open(mermaidResult.diagramType, mermaidResult.source, mermaidFileName); return; }
+    if (!(await confirmReplace())) return;
     const loaded = M.clone(mermaidResult.document);
     if (mermaidFileName) loaded.title = mermaidFileName;
     closeSearch(false); doc = loaded; selected.clear(); savedSnapshot = ''; localSaved = false;
@@ -715,6 +739,7 @@
   }
   function initializeMermaid() {
     $('mermaid-btn').addEventListener('click', () => openMermaid());
+    $('mermaid-new-diagram').addEventListener('click', () => { $('mermaid-dialog').close(); openTemplates(); });
     $('export-mermaid').addEventListener('click', () => { $('export-dialog').close(); openMermaid('export'); });
     $('close-mermaid').addEventListener('click', () => $('mermaid-dialog').close());
     document.querySelectorAll('[data-mermaid-mode]').forEach(button => button.addEventListener('click', () => {
@@ -731,7 +756,7 @@
     $('mermaid-file-input').addEventListener('change', event => { readMermaidFile(event.target.files[0]); event.target.value = ''; });
     $('mermaid-load').addEventListener('click', loadMermaidBoard);
     $('mermaid-download').addEventListener('click', () => {
-      download(new Blob([$('mermaid-code').value], { type: 'text/plain;charset=utf-8' }), filename('.mmd', (mermaidExportDocument || doc).title));
+      download(new Blob([$('mermaid-code').value], { type: 'text/plain;charset=utf-8' }), filename('.mmd'));
       toast('Mermaidファイルを書き出しました。');
     });
     $('mermaid-copy').addEventListener('click', async () => {
@@ -993,6 +1018,7 @@
   $('replace-discard').addEventListener('click', () => finishReplace(true));
   $('replace-save').addEventListener('click', async () => { if (await saveFile()) finishReplace(true); });
   $('replace-dialog').addEventListener('cancel', event => { event.preventDefault(); finishReplace(false); });
+  window.BrainstormorDiagramEditor.initialize({ download, toast });
   initializeFeatures();
   initializeMermaid();
   init();
