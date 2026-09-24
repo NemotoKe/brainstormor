@@ -9,7 +9,7 @@
   const MAX_BYTES = 40 * 1024 * 1024;
   let doc = M.createDocument(), selected = new Set(), tool = 'select';
   let history = [], historyIndex = -1, savedSnapshot = '', autosaveTimer, toastTimer;
-  let gesture = null, editing = null, shiftPressed = false;
+  let gesture = null, editing = null;
   let localSaved = false, autosaveFailed = false, revision = 0, dragDepth = 0;
   let lastPointer = null, restoring = true, clipboardElements = null, dbPromise;
   let persistenceQueue = Promise.resolve();
@@ -312,9 +312,9 @@
     updatePanCursor();
   }
   function updatePanCursor() {
-    const panning = gesture?.type === 'pan' || gesture?.type === 'shift-pan';
-    stage.style.cursor = panning ? 'grabbing' : shiftPressed || tool === 'hand' ? 'grab' : tool === 'text' ? 'text' : ['arrow', 'note', 'rect', 'ellipse', 'diamond'].includes(tool) ? 'crosshair' : 'default';
-    canvas.style.cursor = panning ? 'grabbing' : shiftPressed ? 'grab' : '';
+    const panning = gesture?.type === 'pan';
+    stage.style.cursor = panning ? 'grabbing' : tool === 'hand' ? 'grab' : tool === 'text' ? 'text' : ['arrow', 'note', 'rect', 'ellipse', 'diamond'].includes(tool) ? 'crosshair' : 'default';
+    canvas.style.cursor = panning ? 'grabbing' : '';
   }
   function addItem(type, p = center(), overrides = {}, edit = false) {
     if (doc.elements.length >= 5000) { toast('1つのボードに置ける上限は5,000個です。'); return; }
@@ -369,16 +369,14 @@
   editor.addEventListener('blur', () => finishEdit());
 
   canvas.addEventListener('pointerdown', event => {
-    if (restoring || (event.button !== 0 && event.button !== 1)) return;
+    if (restoring || (event.button !== 0 && event.button !== 1 && event.button !== 2)) return;
     finishEdit(); stage.focus({ preventScroll: true });
     const p = point(event); lastPointer = p;
     const target = event.target.closest('[data-element-id]');
     const id = target?.getAttribute('data-element-id');
     const handle = event.target.getAttribute('data-handle');
-    if (event.button === 1 || tool === 'hand') {
+    if (event.button === 1 || event.button === 2 || tool === 'hand') {
       gesture = { type: 'pan', clientX: event.clientX, clientY: event.clientY, x: doc.viewport.x, y: doc.viewport.y };
-    } else if (event.shiftKey) {
-      gesture = { type: 'shift-pan', clientX: event.clientX, clientY: event.clientY, x: doc.viewport.x, y: doc.viewport.y, id, moved: false };
     } else if (isShape(tool)) {
       if (doc.elements.length >= 5000) { toast('オブジェクト数の上限です。'); return; }
       const shape = M.createItem(tool, { x: p.x, y: p.y, text: 'テキスト' });
@@ -397,10 +395,11 @@
       const el = getElement(event.target.getAttribute('data-id'));
       gesture = { type: handle === 'resize' ? 'resize' : 'endpoint', end: handle, id: el.id, start: p, original: M.clone(el) };
     } else if (id) {
-      if (!selected.has(id)) selected = new Set([id]);
+      if (event.shiftKey) { if (selected.has(id)) selected.delete(id); else selected.add(id); }
+      else if (!selected.has(id)) selected = new Set([id]);
       gesture = { type: 'move', start: p, originals: doc.elements.filter(el => selected.has(el.id)).map(el => ({ ...M.clone(el), ...(el.type === 'arrow' ? { visibleEnds: M.arrowEndpoints(el, doc.elements) } : {}) })), moved: false };
     } else {
-      selected.clear();
+      if (!event.shiftKey) selected.clear();
       gesture = { type: 'marquee', start: p, current: p, initial: new Set(selected) };
     }
     event.preventDefault(); canvas.setPointerCapture(event.pointerId); updatePanCursor(); render(); updateUI();
@@ -409,10 +408,7 @@
     const p = point(event); lastPointer = p;
     if (!gesture) return;
     const g = gesture;
-    if (g.type === 'pan' || g.type === 'shift-pan') {
-      if (g.type === 'shift-pan' && Math.hypot(event.clientX - g.clientX, event.clientY - g.clientY) > 3) g.moved = true;
-      if (g.type === 'pan' || g.moved) { doc.viewport.x = g.x + event.clientX - g.clientX; doc.viewport.y = g.y + event.clientY - g.clientY; }
-    }
+    if (g.type === 'pan') { doc.viewport.x = g.x + event.clientX - g.clientX; doc.viewport.y = g.y + event.clientY - g.clientY; }
     if (g.type === 'move') {
       const dx = p.x - g.start.x, dy = p.y - g.start.y;
       if (Math.hypot(dx, dy) * doc.viewport.zoom > 2) g.moved = true;
@@ -468,11 +464,7 @@
       } else setTool('select');
     } else if (cancelled && g.original) Object.assign(getElement(g.id), g.original);
     else if (cancelled && g.originals) g.originals.forEach(original => { const { visibleEnds, ...clean } = original; Object.assign(getElement(original.id), clean); });
-    if (g.type === 'shift-pan' && !g.moved && !cancelled && g.id) {
-      if (selected.has(g.id)) selected.delete(g.id);
-      else selected.add(g.id);
-    }
-    if (!['pan', 'shift-pan', 'marquee', 'shape'].includes(g.type)) commit();
+    if (!['pan', 'marquee', 'shape'].includes(g.type)) commit();
     else { updateUI(); render(); scheduleAutosave(); }
     updatePanCursor();
     if (event && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
@@ -501,6 +493,10 @@
     const multiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1;
     if (event.ctrlKey || event.metaKey) {
       const rect = stage.getBoundingClientRect(); zoomAt(doc.viewport.zoom * Math.exp(-event.deltaY * multiplier * .001), { x: event.clientX - rect.left, y: event.clientY - rect.top });
+    } else if (event.shiftKey) {
+      // Some browsers already convert Shift + wheel into deltaX.
+      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      doc.viewport.x -= delta * multiplier; render(); scheduleAutosave();
     } else {
       doc.viewport.x -= event.deltaX * multiplier; doc.viewport.y -= event.deltaY * multiplier; render(); scheduleAutosave();
     }
@@ -1087,7 +1083,6 @@
     else if (key === 'tab' && !mod && !event.altKey && (event.target === stage || canvas.contains(event.target)) && selected.size === 1 && (isShape(getElement([...selected][0])) || getElement([...selected][0]).type === 'note')) { event.preventDefault(); addBranch(event.shiftKey ? 'down' : 'right'); }
     else if (key === 'escape' && !$('search-panel').hidden) { event.preventDefault(); closeSearch(); }
     else if (key === 'escape') { if (gesture) endGesture(null, true); selected.clear(); setTool('select'); render(); updateUI(); }
-    else if (key === 'shift') { shiftPressed = true; updatePanCursor(); }
     else if (key === 'enter' && selected.size === 1) { event.preventDefault(); editElement(getElement([...selected][0])); }
     else if (!mod && ['arrowleft', 'arrowright', 'arrowup', 'arrowdown'].includes(key)) {
       event.preventDefault(); const amount = event.shiftKey ? 10 : 1, dx = key === 'arrowleft' ? -amount : key === 'arrowright' ? amount : 0, dy = key === 'arrowup' ? -amount : key === 'arrowdown' ? amount : 0;
@@ -1106,8 +1101,7 @@
       else if (key === '?') $('help-dialog').showModal();
     }
   });
-  document.addEventListener('keyup', event => { if (event.key === 'Shift') { shiftPressed = false; updatePanCursor(); } });
-  window.addEventListener('blur', () => { shiftPressed = false; if (gesture) endGesture(null); updatePanCursor(); });
+  window.addEventListener('blur', () => { if (gesture) endGesture(null); updatePanCursor(); });
   window.addEventListener('resize', () => render());
   document.addEventListener('visibilitychange', () => { if (document.hidden) { finishEdit(); autosave(); } });
   window.addEventListener('beforeunload', event => { if (fileDirty() && (!localSaved || autosaveFailed || editing)) { event.preventDefault(); event.returnValue = ''; } });

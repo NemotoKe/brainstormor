@@ -291,7 +291,7 @@
       <div class="tool-area">
         <div class="toolbar floating-surface" role="toolbar" aria-label="描画ツール">
           <button class="tool-button active" data-tool="select" type="button" title="選択・移動 (V)" aria-label="選択・移動" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 14 10-7 1.4L8 21 5 3Z"/></svg><span class="tool-key">V</span></button>
-          <button class="tool-button" data-tool="hand" type="button" title="ボードを移動 (H / Shift + ドラッグ)" aria-label="ボードを移動" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12V6a1.5 1.5 0 0 1 3 0m0 5V4a1.5 1.5 0 0 1 3 0v7m0-5a1.5 1.5 0 0 1 3 0v6m0-3a1.5 1.5 0 0 1 3 0v6c0 4-2.5 7-6.5 7-2.6 0-4.1-1.1-5.5-3l-4-6a1.5 1.5 0 0 1 2.3-1.9L8 13"/></svg><span class="tool-key">H</span></button>
+          <button class="tool-button" data-tool="hand" type="button" title="ボードを移動 (H / 右クリック + ドラッグ)" aria-label="ボードを移動" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12V6a1.5 1.5 0 0 1 3 0m0 5V4a1.5 1.5 0 0 1 3 0v7m0-5a1.5 1.5 0 0 1 3 0v6m0-3a1.5 1.5 0 0 1 3 0v6c0 4-2.5 7-6.5 7-2.6 0-4.1-1.1-5.5-3l-4-6a1.5 1.5 0 0 1 2.3-1.9L8 13"/></svg><span class="tool-key">H</span></button>
           <span class="toolbar-divider" aria-hidden="true"></span>
           <button class="tool-button" data-tool="rect" type="button" title="四角を置く (R)" aria-label="四角を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/></svg><span class="tool-key">R</span></button>
           <button class="tool-button" data-tool="ellipse" type="button" title="丸を置く (O)" aria-label="丸を置く" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="8"/></svg><span class="tool-key">O</span></button>
@@ -376,7 +376,7 @@
       <div id="drop-overlay" class="drop-overlay" hidden><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></svg><strong>ここに画像をドロップ</strong><span>思いつきのとなりに、インスピレーションを。</span></div></div>
 
       <footer class="board-footer">
-        <div class="board-information"><span id="item-count">0 個のアイデア</span><span class="footer-separator" aria-hidden="true">·</span><span class="navigation-hint"><kbd>Shift</kbd> + ドラッグで移動</span></div>
+        <div class="board-information"><span id="item-count">0 個のアイデア</span><span class="footer-separator" aria-hidden="true">·</span><span class="navigation-hint">右クリック + ドラッグで移動</span></div>
         <div class="view-controls"><div class="zoom-controls floating-surface" role="group" aria-label="表示倍率"><button id="zoom-out" class="icon-button" type="button" title="縮小" aria-label="縮小"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button><button id="zoom-label" type="button" title="100% に戻す">100%</button><button id="zoom-in" class="icon-button" type="button" title="拡大" aria-label="拡大"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button><span class="toolbar-divider" aria-hidden="true"></span><button id="fit-btn" class="icon-button" type="button" title="全体を表示 (F)" aria-label="全体を表示"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button></div><button id="help-btn" class="icon-button floating-surface help-button" type="button" title="使いかた・ショートカット" aria-label="使いかた・ショートカット"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4M12 17h.01"/></svg></button></div>
       </footer>
     </main>
@@ -385,8 +385,8 @@
   <dialog id="help-dialog" class="app-dialog">
     <div class="dialog-heading"><div><p class="eyebrow">MAKE ROOM FOR IDEAS</p><h2>気軽に、使いこなそう。</h2></div><button id="close-help" class="icon-button" type="button" aria-label="使いかたを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <p class="dialog-description">図形を置いたら、そのまま文字を入力。<br>矢印でつなげば、考えの流れが見えてきます。</p>
-    <div class="shortcut-list"><div><span>選択・移動</span><kbd>V</kbd></div><div><span>ボードを移動</span><kbd>H</kbd></div><div><span>四角を置く</span><kbd>R</kbd></div><div><span>丸を置く</span><kbd>O</kbd></div><div><span>ひし形を置く</span><kbd>D</kbd></div><div><span>付箋を置く</span><kbd>N</kbd></div><div><span>文字を置く</span><kbd>T</kbd></div><div><span>矢印を引く</span><kbd>A</kbd></div><div><span>一時的にボードを移動</span><kbd>Shift + ドラッグ</kbd></div><div><span>元に戻す / やり直す</span><kbd>⌘ / Ctrl + Z / Shift + Z</kbd></div><div><span>複製</span><kbd>⌘ / Ctrl + D</kbd></div><div><span>ファイルに保存</span><kbd>⌘ / Ctrl + S</kbd></div><div><span>全体を表示</span><kbd>F</kbd></div><div><span>選択した要素を削除</span><kbd>Delete</kbd></div></div>
-    <div class="shortcut-list extra-shortcuts"><div><span>右 / 下につながる図形を追加</span><kbd>Tab / Shift + Tab</kbd></div><div><span>ボード内を検索</span><kbd>⌘ / Ctrl + F</kbd></div><div><span>次 / 前の検索結果</span><kbd>Enter / Shift + Enter</kbd></div><div><span>検索を閉じる</span><kbd>Escape</kbd></div></div>
+    <div class="shortcut-list"><div><span>選択・移動</span><kbd>V</kbd></div><div><span>ボードを移動</span><kbd>H</kbd></div><div><span>四角を置く</span><kbd>R</kbd></div><div><span>丸を置く</span><kbd>O</kbd></div><div><span>ひし形を置く</span><kbd>D</kbd></div><div><span>付箋を置く</span><kbd>N</kbd></div><div><span>文字を置く</span><kbd>T</kbd></div><div><span>矢印を引く</span><kbd>A</kbd></div><div><span>一時的にボードを移動</span><kbd>右クリック + ドラッグ</kbd></div><div><span>元に戻す / やり直す</span><kbd>⌘ / Ctrl + Z / Shift + Z</kbd></div><div><span>複製</span><kbd>⌘ / Ctrl + D</kbd></div><div><span>ファイルに保存</span><kbd>⌘ / Ctrl + S</kbd></div><div><span>全体を表示</span><kbd>F</kbd></div><div><span>選択した要素を削除</span><kbd>Delete</kbd></div></div>
+    <div class="shortcut-list extra-shortcuts"><div><span>右 / 下につながる図形を追加</span><kbd>Tab / Shift + Tab</kbd></div><div><span>横にスクロール</span><kbd>Shift + ホイール</kbd></div><div><span>ボード内を検索</span><kbd>⌘ / Ctrl + F</kbd></div><div><span>次 / 前の検索結果</span><kbd>Enter / Shift + Enter</kbd></div><div><span>検索を閉じる</span><kbd>Escape</kbd></div></div>
     <p class="dialog-tip">図形の文字はダブルクリックで編集。文字を編集していない状態で図形を選び、Tab で右、Shift + Tab で下につながる図形を追加できます。</p>
     <p class="dialog-tip">複数選択すると、右のパネルで位置揃えや等間隔の配置ができます。矢印を選ぶと、ラベル・線の種類・向き・太さを変更できます。</p>
     <p class="dialog-tip">「保存」で .brainstorm ファイルに保存し、「開く」で続きを編集できます。中身は JSON 形式です。</p>
@@ -6189,7 +6189,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   const MAX_BYTES = 40 * 1024 * 1024;
   let doc = M.createDocument(), selected = new Set(), tool = 'select';
   let history = [], historyIndex = -1, savedSnapshot = '', autosaveTimer, toastTimer;
-  let gesture = null, editing = null, shiftPressed = false;
+  let gesture = null, editing = null;
   let localSaved = false, autosaveFailed = false, revision = 0, dragDepth = 0;
   let lastPointer = null, restoring = true, clipboardElements = null, dbPromise;
   let persistenceQueue = Promise.resolve();
@@ -6492,9 +6492,9 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     updatePanCursor();
   }
   function updatePanCursor() {
-    const panning = gesture?.type === 'pan' || gesture?.type === 'shift-pan';
-    stage.style.cursor = panning ? 'grabbing' : shiftPressed || tool === 'hand' ? 'grab' : tool === 'text' ? 'text' : ['arrow', 'note', 'rect', 'ellipse', 'diamond'].includes(tool) ? 'crosshair' : 'default';
-    canvas.style.cursor = panning ? 'grabbing' : shiftPressed ? 'grab' : '';
+    const panning = gesture?.type === 'pan';
+    stage.style.cursor = panning ? 'grabbing' : tool === 'hand' ? 'grab' : tool === 'text' ? 'text' : ['arrow', 'note', 'rect', 'ellipse', 'diamond'].includes(tool) ? 'crosshair' : 'default';
+    canvas.style.cursor = panning ? 'grabbing' : '';
   }
   function addItem(type, p = center(), overrides = {}, edit = false) {
     if (doc.elements.length >= 5000) { toast('1つのボードに置ける上限は5,000個です。'); return; }
@@ -6549,16 +6549,14 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   editor.addEventListener('blur', () => finishEdit());
 
   canvas.addEventListener('pointerdown', event => {
-    if (restoring || (event.button !== 0 && event.button !== 1)) return;
+    if (restoring || (event.button !== 0 && event.button !== 1 && event.button !== 2)) return;
     finishEdit(); stage.focus({ preventScroll: true });
     const p = point(event); lastPointer = p;
     const target = event.target.closest('[data-element-id]');
     const id = target?.getAttribute('data-element-id');
     const handle = event.target.getAttribute('data-handle');
-    if (event.button === 1 || tool === 'hand') {
+    if (event.button === 1 || event.button === 2 || tool === 'hand') {
       gesture = { type: 'pan', clientX: event.clientX, clientY: event.clientY, x: doc.viewport.x, y: doc.viewport.y };
-    } else if (event.shiftKey) {
-      gesture = { type: 'shift-pan', clientX: event.clientX, clientY: event.clientY, x: doc.viewport.x, y: doc.viewport.y, id, moved: false };
     } else if (isShape(tool)) {
       if (doc.elements.length >= 5000) { toast('オブジェクト数の上限です。'); return; }
       const shape = M.createItem(tool, { x: p.x, y: p.y, text: 'テキスト' });
@@ -6577,10 +6575,11 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
       const el = getElement(event.target.getAttribute('data-id'));
       gesture = { type: handle === 'resize' ? 'resize' : 'endpoint', end: handle, id: el.id, start: p, original: M.clone(el) };
     } else if (id) {
-      if (!selected.has(id)) selected = new Set([id]);
+      if (event.shiftKey) { if (selected.has(id)) selected.delete(id); else selected.add(id); }
+      else if (!selected.has(id)) selected = new Set([id]);
       gesture = { type: 'move', start: p, originals: doc.elements.filter(el => selected.has(el.id)).map(el => ({ ...M.clone(el), ...(el.type === 'arrow' ? { visibleEnds: M.arrowEndpoints(el, doc.elements) } : {}) })), moved: false };
     } else {
-      selected.clear();
+      if (!event.shiftKey) selected.clear();
       gesture = { type: 'marquee', start: p, current: p, initial: new Set(selected) };
     }
     event.preventDefault(); canvas.setPointerCapture(event.pointerId); updatePanCursor(); render(); updateUI();
@@ -6589,10 +6588,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     const p = point(event); lastPointer = p;
     if (!gesture) return;
     const g = gesture;
-    if (g.type === 'pan' || g.type === 'shift-pan') {
-      if (g.type === 'shift-pan' && Math.hypot(event.clientX - g.clientX, event.clientY - g.clientY) > 3) g.moved = true;
-      if (g.type === 'pan' || g.moved) { doc.viewport.x = g.x + event.clientX - g.clientX; doc.viewport.y = g.y + event.clientY - g.clientY; }
-    }
+    if (g.type === 'pan') { doc.viewport.x = g.x + event.clientX - g.clientX; doc.viewport.y = g.y + event.clientY - g.clientY; }
     if (g.type === 'move') {
       const dx = p.x - g.start.x, dy = p.y - g.start.y;
       if (Math.hypot(dx, dy) * doc.viewport.zoom > 2) g.moved = true;
@@ -6648,11 +6644,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
       } else setTool('select');
     } else if (cancelled && g.original) Object.assign(getElement(g.id), g.original);
     else if (cancelled && g.originals) g.originals.forEach(original => { const { visibleEnds, ...clean } = original; Object.assign(getElement(original.id), clean); });
-    if (g.type === 'shift-pan' && !g.moved && !cancelled && g.id) {
-      if (selected.has(g.id)) selected.delete(g.id);
-      else selected.add(g.id);
-    }
-    if (!['pan', 'shift-pan', 'marquee', 'shape'].includes(g.type)) commit();
+    if (!['pan', 'marquee', 'shape'].includes(g.type)) commit();
     else { updateUI(); render(); scheduleAutosave(); }
     updatePanCursor();
     if (event && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
@@ -6681,6 +6673,10 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     const multiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1;
     if (event.ctrlKey || event.metaKey) {
       const rect = stage.getBoundingClientRect(); zoomAt(doc.viewport.zoom * Math.exp(-event.deltaY * multiplier * .001), { x: event.clientX - rect.left, y: event.clientY - rect.top });
+    } else if (event.shiftKey) {
+      // Some browsers already convert Shift + wheel into deltaX.
+      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      doc.viewport.x -= delta * multiplier; render(); scheduleAutosave();
     } else {
       doc.viewport.x -= event.deltaX * multiplier; doc.viewport.y -= event.deltaY * multiplier; render(); scheduleAutosave();
     }
@@ -7267,7 +7263,6 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     else if (key === 'tab' && !mod && !event.altKey && (event.target === stage || canvas.contains(event.target)) && selected.size === 1 && (isShape(getElement([...selected][0])) || getElement([...selected][0]).type === 'note')) { event.preventDefault(); addBranch(event.shiftKey ? 'down' : 'right'); }
     else if (key === 'escape' && !$('search-panel').hidden) { event.preventDefault(); closeSearch(); }
     else if (key === 'escape') { if (gesture) endGesture(null, true); selected.clear(); setTool('select'); render(); updateUI(); }
-    else if (key === 'shift') { shiftPressed = true; updatePanCursor(); }
     else if (key === 'enter' && selected.size === 1) { event.preventDefault(); editElement(getElement([...selected][0])); }
     else if (!mod && ['arrowleft', 'arrowright', 'arrowup', 'arrowdown'].includes(key)) {
       event.preventDefault(); const amount = event.shiftKey ? 10 : 1, dx = key === 'arrowleft' ? -amount : key === 'arrowright' ? amount : 0, dy = key === 'arrowup' ? -amount : key === 'arrowdown' ? amount : 0;
@@ -7286,8 +7281,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
       else if (key === '?') $('help-dialog').showModal();
     }
   });
-  document.addEventListener('keyup', event => { if (event.key === 'Shift') { shiftPressed = false; updatePanCursor(); } });
-  window.addEventListener('blur', () => { shiftPressed = false; if (gesture) endGesture(null); updatePanCursor(); });
+  window.addEventListener('blur', () => { if (gesture) endGesture(null); updatePanCursor(); });
   window.addEventListener('resize', () => render());
   document.addEventListener('visibilitychange', () => { if (document.hidden) { finishEdit(); autosave(); } });
   window.addEventListener('beforeunload', event => { if (fileDirty() && (!localSaved || autosaveFailed || editing)) { event.preventDefault(); event.returnValue = ''; } });
