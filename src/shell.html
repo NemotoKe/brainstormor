@@ -87,6 +87,7 @@
         <div class="panel-field"><span class="field-label">カラー</span><div id="colors" class="color-swatches" role="group" aria-label="カラー"></div></div>
         <label class="panel-field font-field" for="font-size"><span class="field-label">文字サイズ</span><select id="font-size"><option value="16">16 px</option><option value="20">20 px</option><option value="24" selected>24 px</option><option value="32">32 px</option><option value="40">40 px</option><option value="56">56 px</option></select></label>
         <button id="image-caption" class="button caption-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg>文字をのせる</button>
+        <button id="diagram-edit" class="button caption-button" type="button" hidden>Mermaid図を編集</button>
         <section id="branch-controls" class="inspector-section" aria-label="つながる図形を追加" hidden>
           <h3 class="inspector-label">つながる図形を追加</h3>
           <div class="branch-grid">
@@ -146,7 +147,7 @@
     <div class="dialog-heading"><div><p class="eyebrow">A PLACE TO START</p><h2>図の種類から、はじめる。</h2></div><button id="close-templates" class="icon-button" type="button" aria-label="テンプレートを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <p class="dialog-description">シーケンス図やフローチャートなど、作りたい図を選びます。</p>
     <div class="mermaid-tabs" role="group" aria-label="テンプレートの種類"><button type="button" data-template-group="mermaid" aria-pressed="true">Mermaidの図</button><button type="button" data-template-group="board" aria-pressed="false">ブレストボード</button></div>
-    <section id="mermaid-template-section"><div id="diagram-template-list" class="diagram-template-list" aria-label="Mermaidの図の種類"></div><p class="dialog-tip">シーケンス図とフローチャートは、項目や接続先を選んで編集できます。ほかの図はコードとプレビューで編集します。図ごとに下書きを残します。</p></section>
+    <section id="mermaid-template-section"><div id="diagram-template-list" class="diagram-template-list" aria-label="Mermaidの図の種類"></div><p class="dialog-tip">選んだ図をボードに置きます。ダブルクリックで編集でき、変更はボードに反映されます。</p></section>
     <section id="board-template-section" hidden><div id="template-list" class="template-list" aria-label="ボードのテンプレート"></div><p class="dialog-tip">「ボードで開く」は現在のボードを置き換え、未保存の変更がある場合は確認します。</p></section>
   </dialog>
 
@@ -166,13 +167,13 @@
     <div class="mermaid-tools"><button id="mermaid-choose-file" class="button quiet-button" type="button">.mmdファイルを選ぶ</button><label id="mermaid-direction-field" hidden>図の向き <select id="mermaid-direction"><option value="LR">左から右</option><option value="TB">上から下</option><option value="RL">右から左</option><option value="BT">下から上</option></select></label><span id="mermaid-summary" aria-live="polite"></span></div>
     <label class="sr-only" for="mermaid-code">Mermaidコード</label><textarea id="mermaid-code" spellcheck="false" autocomplete="off" aria-label="Mermaidコード"></textarea>
     <div id="mermaid-message" class="mermaid-message" role="status" aria-live="polite" hidden></div>
-    <p class="mermaid-scope">ボードへの変換は基本的なflowchart / graphに対応。シーケンス図などは図のエディタで開きます。ボードの配置を残すには .brainstorm で保存してください。</p>
-    <div class="mermaid-actions"><button id="mermaid-copy" class="button quiet-button" type="button" hidden>コードをコピー</button><button id="mermaid-download" class="button primary-button" type="button" hidden>.mmdを保存</button><button id="mermaid-load" class="button primary-button" type="button" disabled>ボードに読み込む</button></div>
+    <p class="mermaid-scope">基本的なフローチャートはボードの図形と矢印に変換します。シーケンス図などはMermaidコードを保った1つの図としてボードに置き、ダブルクリックで編集できます。</p>
+    <div class="mermaid-actions"><button id="mermaid-copy" class="button quiet-button" type="button" hidden>コードをコピー</button><button id="mermaid-download" class="button primary-button" type="button" hidden>.mmdを保存</button><button id="mermaid-load" class="button primary-button" type="button" disabled>ボードで開く</button></div>
   </dialog>
   <input id="mermaid-file-input" type="file" accept=".mmd,.mermaid,.txt" hidden>
   <dialog id="diagram-dialog" class="app-dialog diagram-dialog" aria-labelledby="diagram-heading">
     <div class="dialog-heading"><div><p class="eyebrow">BUILD THE CONNECTIONS</p><h2 id="diagram-heading">Mermaidの図を編集</h2></div><button id="close-diagram" class="icon-button" type="button" aria-label="図のエディタを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-    <div class="diagram-tools"><label>図の名前<input id="diagram-title" maxlength="100" autocomplete="off"></label><label>図の種類<select id="diagram-type"></select></label><button id="diagram-open-file" class="button quiet-button" type="button">.mmdを開く</button></div>
+    <div class="diagram-tools"><label>図の名前<input id="diagram-title" maxlength="100" autocomplete="off"></label></div>
     <div class="diagram-workspace">
       <section class="diagram-edit-pane" aria-label="図を編集">
         <div class="mermaid-tabs" role="group" aria-label="図の編集方法"><button type="button" data-diagram-mode="form" aria-pressed="false">かんたん編集</button><button type="button" data-diagram-mode="source" aria-pressed="true">コード</button></div>
@@ -188,9 +189,8 @@
     <div id="diagram-error" class="mermaid-message is-error" role="status" hidden></div>
     <button id="diagram-discard-invalid" class="button quiet-button" type="button" hidden>未確定の入力を取り消す</button>
     <p class="diagram-edit-hint">かんたん編集は図の構造からコードを生成します。コードにエラーがある間は、最後に表示できた図を残します。</p>
-    <div class="diagram-footer"><span id="diagram-draft-status"></span><div class="mermaid-actions"><button id="diagram-copy" class="button quiet-button" type="button">コードをコピー</button><button id="diagram-save-svg" class="button quiet-button" type="button" disabled>SVGを保存</button><button id="diagram-save-code" class="button primary-button" type="button">.mmdを保存</button></div></div>
+    <div class="diagram-footer"><span id="diagram-draft-status">変更は「ボードに反映」で確定します</span><div class="mermaid-actions"><button id="diagram-apply" class="button primary-button" type="button" disabled>ボードに反映</button></div></div>
   </dialog>
-  <input id="diagram-file-input" type="file" accept=".mmd,.mermaid,.txt" hidden>
   <dialog id="replace-dialog" class="app-dialog replace-dialog" aria-labelledby="replace-title">
     <h2 id="replace-title">いまのボードを保存しますか？</h2>
     <p class="dialog-description">ファイルに保存していない変更があります。別のボードを開く前に、続きを残せます。</p>

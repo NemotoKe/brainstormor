@@ -1,10 +1,9 @@
 (() => {
   'use strict';
-  const T = window.BrainstormorMermaidTemplates, F = window.BrainstormorDiagramModel;
+  const F = window.BrainstormorDiagramModel;
   const $ = id => document.getElementById(id);
-  const KEY = 'brainstormor-mermaid-drafts-v1', MAX_SOURCE = 50000;
-  const drafts = new Map(), previews = new Map();
-  let activeId, form = null, mode = 'source', timer, version = 0, formInvalid = false, services;
+  const MAX_SOURCE = 50000;
+  let form = null, mode = 'source', timer, version = 0, formInvalid = false, services, boardMode = null;
   function normalizeSource(source) {
     const text = source.trim();
     const fenced = /^```(?:mermaid)?\s*\r?\n([\s\S]*?)\r?\n```$/i.exec(text);
@@ -16,31 +15,12 @@
     const types = [['sequenceDiagram', 'sequence'], ['flowchart', 'flowchart'], ['graph', 'flowchart'], ['classDiagram', 'class'], ['erDiagram', 'er'], ['stateDiagram', 'state'], ['gantt', 'gantt'], ['mindmap', 'mindmap'], ['pie', 'pie']];
     return types.find(([keyword]) => new RegExp(`^${keyword}(?:\\b|-)`).test(first))?.[1] || null;
   }
-  function getDraft(id) {
-    if (!drafts.has(id)) {
-      const template = T.getTemplate(id);
-      drafts.set(id, { title: template.title, source: template.source });
-    }
-    return drafts.get(id);
-  }
-  function persist() {
-    try { localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(drafts))); $('diagram-draft-status').textContent = '下書きをこのブラウザに保存しました'; }
-    catch { $('diagram-draft-status').textContent = '下書きの一時保存ができません。.mmdで保存してください'; }
-  }
-  function restore() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY));
-      for (const template of T.templates) {
-        const draft = saved?.[template.id];
-        if (draft && typeof draft.source === 'string' && draft.source.length <= MAX_SOURCE && typeof draft.title === 'string') drafts.set(template.id, { source: draft.source, title: draft.title.slice(0, 100) });
-      }
-    } catch { /* A fresh editor is available even when browser storage is unavailable. */ }
-  }
+  function getDraft() { return boardMode.draft; }
   function error(message = '') { $('diagram-error').textContent = message; $('diagram-error').hidden = !message; }
+  function currentPreview() { return boardMode?.preview; }
   function buttons() {
-    const source = getDraft(activeId).source;
-    $('diagram-save-code').disabled = $('diagram-copy').disabled = formInvalid || !source.trim();
-    $('diagram-save-svg').disabled = formInvalid || previews.get(activeId)?.source !== source;
+    const source = getDraft().source;
+    $('diagram-apply').disabled = formInvalid || !detectType(source) || currentPreview()?.source !== source;
     $('diagram-discard-invalid').hidden = !formInvalid;
   }
   function canLeaveForm() {
@@ -50,30 +30,30 @@
   }
   function queuePreview(delay = 300) {
     clearTimeout(timer);
-    const ticket = ++version, id = activeId, source = getDraft(id).source;
-    $('diagram-save-svg').disabled = true;
+    const ticket = ++version, source = getDraft().source, target = boardMode;
+    $('diagram-apply').disabled = true;
     $('diagram-preview-status').textContent = '図を更新しています…';
     timer = setTimeout(async () => {
       try {
         if (!source.trim()) throw new Error('Mermaidコードを入力してください。');
         if (source.length > MAX_SOURCE) throw new Error('コードは50,000文字以内にしてください。');
         const result = await window.BrainstormorMermaidRenderer.render(source);
-        if (ticket !== version || id !== activeId) return;
-        previews.set(id, { source, svg: result.svg });
+        if (ticket !== version || target !== boardMode) return;
+        boardMode.preview = { source, svg: result.svg };
         // Only the local renderer's sanitized SVG is inserted as markup.
         $('diagram-preview').innerHTML = result.svg;
         $('diagram-preview-status').textContent = '最新の図を表示しています';
         error(); buttons();
       } catch (failure) {
-        if (ticket !== version || id !== activeId) return;
-        $('diagram-preview-status').textContent = previews.has(id) ? '最後に表示できた図です' : '図を表示できません';
-        error(`コードを確認してください。${previews.has(id) ? 'プレビューには最後に表示できた図を残しています。' : ''}\n${String(failure.message || failure).slice(0, 1600)}`);
+        if (ticket !== version || target !== boardMode) return;
+        $('diagram-preview-status').textContent = currentPreview() ? '最後に表示できた図です' : '図を表示できません';
+        error(`コードを確認してください。${currentPreview() ? 'プレビューには最後に表示できた図を残しています。' : ''}\n${String(failure.message || failure).slice(0, 1600)}`);
         buttons();
       }
     }, delay);
   }
   function updateFormMode() {
-    const available = !!F.parse(getDraft(activeId).source);
+    const available = !!F.parse(getDraft().source);
     const button = document.querySelector('[data-diagram-mode="form"]');
     button.disabled = !available;
     $('diagram-form-hint').textContent = available
@@ -94,8 +74,8 @@
   function commitForm(rerender = false) {
     try {
       const source = F.serialize(form);
-      getDraft(activeId).source = source; $('diagram-code').value = source; formInvalid = false;
-      error(); persist(); buttons(); queuePreview();
+      getDraft().source = source; $('diagram-code').value = source; formInvalid = false;
+      error(); buttons(); queuePreview();
       if (rerender) renderForm();
       else refreshRoutes();
     } catch (failure) {
@@ -156,49 +136,32 @@
       row.append(route, text, actions); links.append(row);
     });
   }
-  function activate(id) {
-    clearTimeout(timer); version++; activeId = id; formInvalid = false;
-    const draft = getDraft(id); $('diagram-type').value = id; $('diagram-title').value = draft.title; $('diagram-code').value = draft.source;
+  function activate() {
+    clearTimeout(timer); version++; formInvalid = false;
+    const draft = getDraft(); $('diagram-title').value = draft.title; $('diagram-code').value = draft.source;
     form = F.parse(draft.source); mode = form ? 'form' : 'source';
-    $('diagram-preview').innerHTML = previews.get(id)?.svg || '';
-    if (form) renderForm(); updateFormMode(); error(); buttons(); persist(); queuePreview(0);
+    $('diagram-preview').replaceChildren();
+    if (form) renderForm(); updateFormMode(); error(); buttons(); queuePreview(0);
   }
-  function open(id = 'sequence', source, title) {
+  function openBoard(source, title, onApply) {
     if (!canLeaveForm()) return;
-    if (source !== undefined) {
-      if (source.length > MAX_SOURCE) { services.toast('コードは50,000文字以内にしてください。'); return; }
-      source = normalizeSource(source);
-      drafts.set(id, { source, title: (title || T.getTemplate(id).title).slice(0, 100) });
-    }
+    if (source.length > MAX_SOURCE) { services.toast('コードは50,000文字以内にしてください。'); return; }
+    boardMode = { draft: { source: normalizeSource(source), title: title.slice(0, 100) }, preview: null, onApply };
     if (!$('diagram-dialog').open) $('diagram-dialog').showModal();
-    activate(id);
+    activate();
   }
-  async function readFile(file) {
-    if (!file) return;
-    try {
-      if (file.size > 200000) throw new Error('Mermaidファイルは200KB以下にしてください。');
-      const source = await file.text();
-      if (source.length > MAX_SOURCE) throw new Error('コードは50,000文字以内にしてください。');
-      const id = detectType(source);
-      if (!id) throw new Error('対応する図の種類を読み取れません。先頭にMermaidの図の種類を指定してください。');
-      open(id, source, file.name.replace(/\.[^.]+$/, ''));
-    } catch (failure) { services.toast(failure.message); }
-  }
-  function filename(extension) { return (getDraft(activeId).title.trim() || 'Mermaidの図').replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').slice(0, 100) + extension; }
   function initialize(options) {
-    services = options; restore();
-    for (const template of T.templates) { const option = document.createElement('option'); option.value = template.id; option.textContent = template.title; $('diagram-type').append(option); }
-    $('diagram-type').addEventListener('change', event => { if (canLeaveForm()) activate(event.target.value); else event.target.value = activeId; });
-    $('diagram-title').addEventListener('input', event => { getDraft(activeId).title = event.target.value; persist(); });
+    services = options;
+    $('diagram-title').addEventListener('input', event => { getDraft().title = event.target.value; buttons(); });
     $('close-diagram').addEventListener('click', () => { if (canLeaveForm()) $('diagram-dialog').close(); });
     $('diagram-dialog').addEventListener('cancel', event => { if (!canLeaveForm()) event.preventDefault(); });
-    $('diagram-dialog').addEventListener('close', () => { clearTimeout(timer); version++; });
+    $('diagram-dialog').addEventListener('close', () => { clearTimeout(timer); version++; boardMode = null; });
     document.querySelectorAll('[data-diagram-mode]').forEach(button => button.addEventListener('click', () => {
       if (formInvalid) { error('入力中の項目を修正してから、編集方法を切り替えてください。'); return; }
-      if (button.dataset.diagramMode === 'form') { form = F.parse(getDraft(activeId).source); if (!form) return; renderForm(); }
+      if (button.dataset.diagramMode === 'form') { form = F.parse(getDraft().source); if (!form) return; renderForm(); }
       mode = button.dataset.diagramMode; updateFormMode();
     }));
-    $('diagram-code').addEventListener('input', event => { getDraft(activeId).source = event.target.value; formInvalid = false; persist(); updateFormMode(); buttons(); queuePreview(); });
+    $('diagram-code').addEventListener('input', event => { getDraft().source = event.target.value; formInvalid = false; updateFormMode(); buttons(); queuePreview(); });
     $('sequence-add-participant').addEventListener('click', () => {
       const limit = form.kind === 'sequence' ? 12 : 30; if (form.nodes.length >= limit) return;
       let number = 1; while (form.nodes.some(node => node.id === `p${number}`)) number++;
@@ -210,18 +173,15 @@
       form.links.push({ from: form.nodes[0].id, to: (form.nodes[1] || form.nodes[0]).id, text: form.kind === 'sequence' ? 'メッセージ' : '', kind: 'request' }); commitForm(true);
       const input = $('sequence-messages').lastElementChild.querySelector('textarea'); input.focus(); input.select();
     });
-    $('diagram-discard-invalid').addEventListener('click', () => { form = F.parse(getDraft(activeId).source); formInvalid = false; renderForm(); error(); buttons(); queuePreview(0); });
-    $('diagram-open-file').addEventListener('click', () => { if (canLeaveForm()) $('diagram-file-input').click(); });
-    $('diagram-file-input').addEventListener('change', event => { readFile(event.target.files[0]); event.target.value = ''; });
-    $('diagram-save-code').addEventListener('click', () => { if (!formInvalid) { services.download(new Blob([getDraft(activeId).source], { type: 'text/plain;charset=utf-8' }), filename('.mmd')); services.toast('Mermaidファイルを保存しました。'); } });
-    $('diagram-save-svg').addEventListener('click', () => {
-      const preview = previews.get(activeId); if (!formInvalid && preview?.source === getDraft(activeId).source) services.download(new Blob([preview.svg], { type: 'image/svg+xml;charset=utf-8' }), filename('.svg'));
-    });
-    $('diagram-copy').addEventListener('click', async () => {
-      if (formInvalid) return;
-      try { await navigator.clipboard.writeText(getDraft(activeId).source); services.toast('Mermaidコードをコピーしました。'); }
-      catch { mode = 'source'; updateFormMode(); $('diagram-code').focus(); $('diagram-code').select(); services.toast('コードを選択しました。⌘ / Ctrl + C でコピーしてください。'); }
+    $('diagram-discard-invalid').addEventListener('click', () => { form = F.parse(getDraft().source); formInvalid = false; renderForm(); error(); buttons(); queuePreview(0); });
+    $('diagram-apply').addEventListener('click', () => {
+      if (!boardMode || formInvalid) return;
+      const draft = boardMode.draft, preview = boardMode.preview, diagramType = detectType(draft.source);
+      if (!diagramType || preview?.source !== draft.source) return;
+      try {
+        if (boardMode.onApply({ source: draft.source, name: draft.title, diagramType, svg: preview.svg }) !== false) $('diagram-dialog').close();
+      } catch (failure) { error(failure.message); }
     });
   }
-  window.BrainstormorDiagramEditor = Object.freeze({ initialize, open, readFile, detectType });
+  window.BrainstormorDiagramEditor = Object.freeze({ initialize, openBoard, detectType });
 })();

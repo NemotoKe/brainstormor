@@ -25,6 +25,17 @@ test('all element types and Unicode content round trip without losing embedded i
   assert.deepEqual(model.parse('\ufeff' + model.serialize(doc)), doc);
 });
 
+test('Mermaid diagrams keep editable source in board files without accepting saved SVG markup', () => {
+  const source = 'sequenceDiagram\n  participant U as 利用者\n  U->>U: 考える';
+  const diagram = model.createItem('diagram', { id: 'sequence', x: -40, y: 20, width: 640, height: 360, source, diagramType: 'sequence', name: '相談の流れ' });
+  const imported = parseObject(board({ ...diagram, svg: '<script>alert(1)</script>' }));
+  assert.deepEqual(imported.elements[0], diagram);
+  assert.deepEqual(model.parse(model.serialize(imported)), imported);
+  for (const changes of [{ source: '' }, { source: 'x'.repeat(model.LIMITS.diagramSource + 1) }, { diagramType: 'architecture' }, { name: 1 }]) {
+    assert.throws(() => parseObject(board({ ...diagram, ...changes })));
+  }
+});
+
 test('standalone browser global works without CommonJS or dependencies', () => {
   const context = vm.createContext({ TextEncoder, atob });
   vm.runInContext(fs.readFileSync(require.resolve('../src/model.js'), 'utf8'), context);

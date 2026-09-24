@@ -337,6 +337,7 @@
         <div class="panel-field"><span class="field-label">カラー</span><div id="colors" class="color-swatches" role="group" aria-label="カラー"></div></div>
         <label class="panel-field font-field" for="font-size"><span class="field-label">文字サイズ</span><select id="font-size"><option value="16">16 px</option><option value="20">20 px</option><option value="24" selected>24 px</option><option value="32">32 px</option><option value="40">40 px</option><option value="56">56 px</option></select></label>
         <button id="image-caption" class="button caption-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16m-4 0h8"/></svg>文字をのせる</button>
+        <button id="diagram-edit" class="button caption-button" type="button" hidden>Mermaid図を編集</button>
         <section id="branch-controls" class="inspector-section" aria-label="つながる図形を追加" hidden>
           <h3 class="inspector-label">つながる図形を追加</h3>
           <div class="branch-grid">
@@ -396,7 +397,7 @@
     <div class="dialog-heading"><div><p class="eyebrow">A PLACE TO START</p><h2>図の種類から、はじめる。</h2></div><button id="close-templates" class="icon-button" type="button" aria-label="テンプレートを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <p class="dialog-description">シーケンス図やフローチャートなど、作りたい図を選びます。</p>
     <div class="mermaid-tabs" role="group" aria-label="テンプレートの種類"><button type="button" data-template-group="mermaid" aria-pressed="true">Mermaidの図</button><button type="button" data-template-group="board" aria-pressed="false">ブレストボード</button></div>
-    <section id="mermaid-template-section"><div id="diagram-template-list" class="diagram-template-list" aria-label="Mermaidの図の種類"></div><p class="dialog-tip">シーケンス図とフローチャートは、項目や接続先を選んで編集できます。ほかの図はコードとプレビューで編集します。図ごとに下書きを残します。</p></section>
+    <section id="mermaid-template-section"><div id="diagram-template-list" class="diagram-template-list" aria-label="Mermaidの図の種類"></div><p class="dialog-tip">選んだ図をボードに置きます。ダブルクリックで編集でき、変更はボードに反映されます。</p></section>
     <section id="board-template-section" hidden><div id="template-list" class="template-list" aria-label="ボードのテンプレート"></div><p class="dialog-tip">「ボードで開く」は現在のボードを置き換え、未保存の変更がある場合は確認します。</p></section>
   </dialog>
 
@@ -416,13 +417,13 @@
     <div class="mermaid-tools"><button id="mermaid-choose-file" class="button quiet-button" type="button">.mmdファイルを選ぶ</button><label id="mermaid-direction-field" hidden>図の向き <select id="mermaid-direction"><option value="LR">左から右</option><option value="TB">上から下</option><option value="RL">右から左</option><option value="BT">下から上</option></select></label><span id="mermaid-summary" aria-live="polite"></span></div>
     <label class="sr-only" for="mermaid-code">Mermaidコード</label><textarea id="mermaid-code" spellcheck="false" autocomplete="off" aria-label="Mermaidコード"></textarea>
     <div id="mermaid-message" class="mermaid-message" role="status" aria-live="polite" hidden></div>
-    <p class="mermaid-scope">ボードへの変換は基本的なflowchart / graphに対応。シーケンス図などは図のエディタで開きます。ボードの配置を残すには .brainstorm で保存してください。</p>
-    <div class="mermaid-actions"><button id="mermaid-copy" class="button quiet-button" type="button" hidden>コードをコピー</button><button id="mermaid-download" class="button primary-button" type="button" hidden>.mmdを保存</button><button id="mermaid-load" class="button primary-button" type="button" disabled>ボードに読み込む</button></div>
+    <p class="mermaid-scope">基本的なフローチャートはボードの図形と矢印に変換します。シーケンス図などはMermaidコードを保った1つの図としてボードに置き、ダブルクリックで編集できます。</p>
+    <div class="mermaid-actions"><button id="mermaid-copy" class="button quiet-button" type="button" hidden>コードをコピー</button><button id="mermaid-download" class="button primary-button" type="button" hidden>.mmdを保存</button><button id="mermaid-load" class="button primary-button" type="button" disabled>ボードで開く</button></div>
   </dialog>
   <input id="mermaid-file-input" type="file" accept=".mmd,.mermaid,.txt" hidden>
   <dialog id="diagram-dialog" class="app-dialog diagram-dialog" aria-labelledby="diagram-heading">
     <div class="dialog-heading"><div><p class="eyebrow">BUILD THE CONNECTIONS</p><h2 id="diagram-heading">Mermaidの図を編集</h2></div><button id="close-diagram" class="icon-button" type="button" aria-label="図のエディタを閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-    <div class="diagram-tools"><label>図の名前<input id="diagram-title" maxlength="100" autocomplete="off"></label><label>図の種類<select id="diagram-type"></select></label><button id="diagram-open-file" class="button quiet-button" type="button">.mmdを開く</button></div>
+    <div class="diagram-tools"><label>図の名前<input id="diagram-title" maxlength="100" autocomplete="off"></label></div>
     <div class="diagram-workspace">
       <section class="diagram-edit-pane" aria-label="図を編集">
         <div class="mermaid-tabs" role="group" aria-label="図の編集方法"><button type="button" data-diagram-mode="form" aria-pressed="false">かんたん編集</button><button type="button" data-diagram-mode="source" aria-pressed="true">コード</button></div>
@@ -438,9 +439,8 @@
     <div id="diagram-error" class="mermaid-message is-error" role="status" hidden></div>
     <button id="diagram-discard-invalid" class="button quiet-button" type="button" hidden>未確定の入力を取り消す</button>
     <p class="diagram-edit-hint">かんたん編集は図の構造からコードを生成します。コードにエラーがある間は、最後に表示できた図を残します。</p>
-    <div class="diagram-footer"><span id="diagram-draft-status"></span><div class="mermaid-actions"><button id="diagram-copy" class="button quiet-button" type="button">コードをコピー</button><button id="diagram-save-svg" class="button quiet-button" type="button" disabled>SVGを保存</button><button id="diagram-save-code" class="button primary-button" type="button">.mmdを保存</button></div></div>
+    <div class="diagram-footer"><span id="diagram-draft-status">変更は「ボードに反映」で確定します</span><div class="mermaid-actions"><button id="diagram-apply" class="button primary-button" type="button" disabled>ボードに反映</button></div></div>
   </dialog>
-  <input id="diagram-file-input" type="file" accept=".mmd,.mermaid,.txt" hidden>
   <dialog id="replace-dialog" class="app-dialog replace-dialog" aria-labelledby="replace-title">
     <h2 id="replace-title">いまのボードを保存しますか？</h2>
     <p class="dialog-description">ファイルに保存していない変更があります。別のボードを開く前に、続きを残せます。</p>
@@ -459,7 +459,7 @@
 
   const FORMAT = 'brainstormor';
   const VERSION = 1;
-  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000, arrowLabel: 200 });
+  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000, arrowLabel: 200, diagramSource: 50000 });
   const DEFAULTS = Object.freeze({ noteColor: '#fff2aa', textColor: '#24334a', arrowColor: '#526076', rectColor: '#daeafd', ellipseColor: '#d7f1e3', diamondColor: '#eee0ff', noteFontSize: 20, textFontSize: 24, shapeFontSize: 20, strokeWidth: 3 });
   const SHAPES = ['rect', 'ellipse', 'diamond'];
   const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
@@ -535,7 +535,7 @@
   }
   function normalizeItem(value) {
     record(value, '要素');
-    if (!['note', 'text', 'image', 'arrow', ...SHAPES].includes(value.type)) fail('未対応の要素が含まれています。');
+    if (!['note', 'text', 'image', 'diagram', 'arrow', ...SHAPES].includes(value.type)) fail('未対応の要素が含まれています。');
     const result = {
       id: id(value.id), type: value.type,
       x: coordinate(value.x, 'x'), y: coordinate(value.y, 'y'),
@@ -552,6 +552,11 @@
     } else if (value.type === 'image') {
       result.src = imageSource(value.src);
       result.name = string(value.name, '画像名', 10000);
+    } else if (value.type === 'diagram') {
+      result.source = string(value.source, 'Mermaidコード', LIMITS.diagramSource);
+      if (!result.source.trim()) fail('Mermaidコードを入力してください。');
+      result.diagramType = choice(value.diagramType, ['flowchart', 'sequence', 'class', 'er', 'state', 'gantt', 'mindmap', 'pie'], 'Mermaid図の種類');
+      result.name = string(value.name, 'Mermaid図の名前', 100);
     } else {
       result.from = endpoint(value.from, '矢印の始点');
       result.to = endpoint(value.to, '矢印の終点');
@@ -600,6 +605,7 @@
       : type === 'text' ? { width: 280, height: 52, text: '', color: DEFAULTS.textColor, fontSize: DEFAULTS.textFontSize }
       : SHAPES.includes(type) ? { width: type === 'diamond' ? 240 : 220, height: type === 'diamond' ? 160 : 130, text: '', color: DEFAULTS[type + 'Color'], fontSize: DEFAULTS.shapeFontSize, textColor: DEFAULTS.textColor }
       : type === 'image' ? { width: 400, height: 300, src: TRANSPARENT_IMAGE, name: '画像' }
+      : type === 'diagram' ? { width: 720, height: 480, name: 'Mermaidの図' }
       : type === 'arrow' ? { width: 0, height: 0, from: { x: 0, y: 0 }, to: { x: 160, y: 0 }, color: DEFAULTS.arrowColor, strokeWidth: DEFAULTS.strokeWidth, label: '', lineStyle: 'solid', head: 'end' }
       : {};
     return normalizeItem(Object.assign({}, common, defaults, overrides, { type }));
@@ -836,7 +842,7 @@
     const needle = normalized(query).trim();
     if (!needle) return [];
     return elements.filter(item => {
-      const text = item.type === 'arrow' ? item.label : item.text;
+      const text = item.type === 'arrow' ? item.label : item.type === 'diagram' ? `${item.name} ${item.source}` : item.text;
       return typeof text === 'string' && normalized(text).includes(needle);
     }).map(item => item.id);
   }
@@ -1198,6 +1204,8 @@
     const warnings = ['位置・サイズ・重なり順はMermaidには保存されません。Mermaid側で配置を決めます。'];
     const images = doc.elements.filter(item => item.type === 'image').length;
     if (images) warnings.push(`画像${images}個はMermaidに含めません。`);
+    const diagrams = doc.elements.filter(item => item.type === 'diagram').length;
+    if (diagrams) warnings.push(`Mermaid図${diagrams}個はフローチャートへの変換に含めません。図を選択して書き出すと元のコードを取得できます。`);
     const simplified = nodes.filter(item => item.type === 'note' || item.type === 'text').length;
     if (simplified) warnings.push(`付箋・テキスト${simplified}個は四角い図形として書き出します。`);
     const mapping = new Map(nodes.map((item, index) => [item.id, `n${index + 1}`]));
@@ -5666,7 +5674,9 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   }
 
   function sourceText(source) {
-    const text = String(source ?? '').trim();
+    const input = String(source ?? '').trim();
+    const fenced = /^```(?:mermaid)?\s*\r?\n([\s\S]*?)\r?\n```$/i.exec(input);
+    const text = fenced ? fenced[1].trim() : input;
     if (!text) throw new Error('Mermaid のコードを入力してください。');
     if (text.length > maximumLength) throw new Error('Mermaid のコードは 100,000 文字以内にしてください。');
     // Block image/CSS resource loading before Mermaid constructs its temporary
@@ -5982,11 +5992,10 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
 </script>
   <script>(() => {
   'use strict';
-  const T = window.BrainstormorMermaidTemplates, F = window.BrainstormorDiagramModel;
+  const F = window.BrainstormorDiagramModel;
   const $ = id => document.getElementById(id);
-  const KEY = 'brainstormor-mermaid-drafts-v1', MAX_SOURCE = 50000;
-  const drafts = new Map(), previews = new Map();
-  let activeId, form = null, mode = 'source', timer, version = 0, formInvalid = false, services;
+  const MAX_SOURCE = 50000;
+  let form = null, mode = 'source', timer, version = 0, formInvalid = false, services, boardMode = null;
   function normalizeSource(source) {
     const text = source.trim();
     const fenced = /^```(?:mermaid)?\s*\r?\n([\s\S]*?)\r?\n```$/i.exec(text);
@@ -5998,31 +6007,12 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     const types = [['sequenceDiagram', 'sequence'], ['flowchart', 'flowchart'], ['graph', 'flowchart'], ['classDiagram', 'class'], ['erDiagram', 'er'], ['stateDiagram', 'state'], ['gantt', 'gantt'], ['mindmap', 'mindmap'], ['pie', 'pie']];
     return types.find(([keyword]) => new RegExp(`^${keyword}(?:\\b|-)`).test(first))?.[1] || null;
   }
-  function getDraft(id) {
-    if (!drafts.has(id)) {
-      const template = T.getTemplate(id);
-      drafts.set(id, { title: template.title, source: template.source });
-    }
-    return drafts.get(id);
-  }
-  function persist() {
-    try { localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(drafts))); $('diagram-draft-status').textContent = '下書きをこのブラウザに保存しました'; }
-    catch { $('diagram-draft-status').textContent = '下書きの一時保存ができません。.mmdで保存してください'; }
-  }
-  function restore() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY));
-      for (const template of T.templates) {
-        const draft = saved?.[template.id];
-        if (draft && typeof draft.source === 'string' && draft.source.length <= MAX_SOURCE && typeof draft.title === 'string') drafts.set(template.id, { source: draft.source, title: draft.title.slice(0, 100) });
-      }
-    } catch { /* A fresh editor is available even when browser storage is unavailable. */ }
-  }
+  function getDraft() { return boardMode.draft; }
   function error(message = '') { $('diagram-error').textContent = message; $('diagram-error').hidden = !message; }
+  function currentPreview() { return boardMode?.preview; }
   function buttons() {
-    const source = getDraft(activeId).source;
-    $('diagram-save-code').disabled = $('diagram-copy').disabled = formInvalid || !source.trim();
-    $('diagram-save-svg').disabled = formInvalid || previews.get(activeId)?.source !== source;
+    const source = getDraft().source;
+    $('diagram-apply').disabled = formInvalid || !detectType(source) || currentPreview()?.source !== source;
     $('diagram-discard-invalid').hidden = !formInvalid;
   }
   function canLeaveForm() {
@@ -6032,30 +6022,30 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   }
   function queuePreview(delay = 300) {
     clearTimeout(timer);
-    const ticket = ++version, id = activeId, source = getDraft(id).source;
-    $('diagram-save-svg').disabled = true;
+    const ticket = ++version, source = getDraft().source, target = boardMode;
+    $('diagram-apply').disabled = true;
     $('diagram-preview-status').textContent = '図を更新しています…';
     timer = setTimeout(async () => {
       try {
         if (!source.trim()) throw new Error('Mermaidコードを入力してください。');
         if (source.length > MAX_SOURCE) throw new Error('コードは50,000文字以内にしてください。');
         const result = await window.BrainstormorMermaidRenderer.render(source);
-        if (ticket !== version || id !== activeId) return;
-        previews.set(id, { source, svg: result.svg });
+        if (ticket !== version || target !== boardMode) return;
+        boardMode.preview = { source, svg: result.svg };
         // Only the local renderer's sanitized SVG is inserted as markup.
         $('diagram-preview').innerHTML = result.svg;
         $('diagram-preview-status').textContent = '最新の図を表示しています';
         error(); buttons();
       } catch (failure) {
-        if (ticket !== version || id !== activeId) return;
-        $('diagram-preview-status').textContent = previews.has(id) ? '最後に表示できた図です' : '図を表示できません';
-        error(`コードを確認してください。${previews.has(id) ? 'プレビューには最後に表示できた図を残しています。' : ''}\n${String(failure.message || failure).slice(0, 1600)}`);
+        if (ticket !== version || target !== boardMode) return;
+        $('diagram-preview-status').textContent = currentPreview() ? '最後に表示できた図です' : '図を表示できません';
+        error(`コードを確認してください。${currentPreview() ? 'プレビューには最後に表示できた図を残しています。' : ''}\n${String(failure.message || failure).slice(0, 1600)}`);
         buttons();
       }
     }, delay);
   }
   function updateFormMode() {
-    const available = !!F.parse(getDraft(activeId).source);
+    const available = !!F.parse(getDraft().source);
     const button = document.querySelector('[data-diagram-mode="form"]');
     button.disabled = !available;
     $('diagram-form-hint').textContent = available
@@ -6076,8 +6066,8 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   function commitForm(rerender = false) {
     try {
       const source = F.serialize(form);
-      getDraft(activeId).source = source; $('diagram-code').value = source; formInvalid = false;
-      error(); persist(); buttons(); queuePreview();
+      getDraft().source = source; $('diagram-code').value = source; formInvalid = false;
+      error(); buttons(); queuePreview();
       if (rerender) renderForm();
       else refreshRoutes();
     } catch (failure) {
@@ -6138,49 +6128,32 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
       row.append(route, text, actions); links.append(row);
     });
   }
-  function activate(id) {
-    clearTimeout(timer); version++; activeId = id; formInvalid = false;
-    const draft = getDraft(id); $('diagram-type').value = id; $('diagram-title').value = draft.title; $('diagram-code').value = draft.source;
+  function activate() {
+    clearTimeout(timer); version++; formInvalid = false;
+    const draft = getDraft(); $('diagram-title').value = draft.title; $('diagram-code').value = draft.source;
     form = F.parse(draft.source); mode = form ? 'form' : 'source';
-    $('diagram-preview').innerHTML = previews.get(id)?.svg || '';
-    if (form) renderForm(); updateFormMode(); error(); buttons(); persist(); queuePreview(0);
+    $('diagram-preview').replaceChildren();
+    if (form) renderForm(); updateFormMode(); error(); buttons(); queuePreview(0);
   }
-  function open(id = 'sequence', source, title) {
+  function openBoard(source, title, onApply) {
     if (!canLeaveForm()) return;
-    if (source !== undefined) {
-      if (source.length > MAX_SOURCE) { services.toast('コードは50,000文字以内にしてください。'); return; }
-      source = normalizeSource(source);
-      drafts.set(id, { source, title: (title || T.getTemplate(id).title).slice(0, 100) });
-    }
+    if (source.length > MAX_SOURCE) { services.toast('コードは50,000文字以内にしてください。'); return; }
+    boardMode = { draft: { source: normalizeSource(source), title: title.slice(0, 100) }, preview: null, onApply };
     if (!$('diagram-dialog').open) $('diagram-dialog').showModal();
-    activate(id);
+    activate();
   }
-  async function readFile(file) {
-    if (!file) return;
-    try {
-      if (file.size > 200000) throw new Error('Mermaidファイルは200KB以下にしてください。');
-      const source = await file.text();
-      if (source.length > MAX_SOURCE) throw new Error('コードは50,000文字以内にしてください。');
-      const id = detectType(source);
-      if (!id) throw new Error('対応する図の種類を読み取れません。先頭にMermaidの図の種類を指定してください。');
-      open(id, source, file.name.replace(/\.[^.]+$/, ''));
-    } catch (failure) { services.toast(failure.message); }
-  }
-  function filename(extension) { return (getDraft(activeId).title.trim() || 'Mermaidの図').replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').slice(0, 100) + extension; }
   function initialize(options) {
-    services = options; restore();
-    for (const template of T.templates) { const option = document.createElement('option'); option.value = template.id; option.textContent = template.title; $('diagram-type').append(option); }
-    $('diagram-type').addEventListener('change', event => { if (canLeaveForm()) activate(event.target.value); else event.target.value = activeId; });
-    $('diagram-title').addEventListener('input', event => { getDraft(activeId).title = event.target.value; persist(); });
+    services = options;
+    $('diagram-title').addEventListener('input', event => { getDraft().title = event.target.value; buttons(); });
     $('close-diagram').addEventListener('click', () => { if (canLeaveForm()) $('diagram-dialog').close(); });
     $('diagram-dialog').addEventListener('cancel', event => { if (!canLeaveForm()) event.preventDefault(); });
-    $('diagram-dialog').addEventListener('close', () => { clearTimeout(timer); version++; });
+    $('diagram-dialog').addEventListener('close', () => { clearTimeout(timer); version++; boardMode = null; });
     document.querySelectorAll('[data-diagram-mode]').forEach(button => button.addEventListener('click', () => {
       if (formInvalid) { error('入力中の項目を修正してから、編集方法を切り替えてください。'); return; }
-      if (button.dataset.diagramMode === 'form') { form = F.parse(getDraft(activeId).source); if (!form) return; renderForm(); }
+      if (button.dataset.diagramMode === 'form') { form = F.parse(getDraft().source); if (!form) return; renderForm(); }
       mode = button.dataset.diagramMode; updateFormMode();
     }));
-    $('diagram-code').addEventListener('input', event => { getDraft(activeId).source = event.target.value; formInvalid = false; persist(); updateFormMode(); buttons(); queuePreview(); });
+    $('diagram-code').addEventListener('input', event => { getDraft().source = event.target.value; formInvalid = false; updateFormMode(); buttons(); queuePreview(); });
     $('sequence-add-participant').addEventListener('click', () => {
       const limit = form.kind === 'sequence' ? 12 : 30; if (form.nodes.length >= limit) return;
       let number = 1; while (form.nodes.some(node => node.id === `p${number}`)) number++;
@@ -6192,20 +6165,17 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
       form.links.push({ from: form.nodes[0].id, to: (form.nodes[1] || form.nodes[0]).id, text: form.kind === 'sequence' ? 'メッセージ' : '', kind: 'request' }); commitForm(true);
       const input = $('sequence-messages').lastElementChild.querySelector('textarea'); input.focus(); input.select();
     });
-    $('diagram-discard-invalid').addEventListener('click', () => { form = F.parse(getDraft(activeId).source); formInvalid = false; renderForm(); error(); buttons(); queuePreview(0); });
-    $('diagram-open-file').addEventListener('click', () => { if (canLeaveForm()) $('diagram-file-input').click(); });
-    $('diagram-file-input').addEventListener('change', event => { readFile(event.target.files[0]); event.target.value = ''; });
-    $('diagram-save-code').addEventListener('click', () => { if (!formInvalid) { services.download(new Blob([getDraft(activeId).source], { type: 'text/plain;charset=utf-8' }), filename('.mmd')); services.toast('Mermaidファイルを保存しました。'); } });
-    $('diagram-save-svg').addEventListener('click', () => {
-      const preview = previews.get(activeId); if (!formInvalid && preview?.source === getDraft(activeId).source) services.download(new Blob([preview.svg], { type: 'image/svg+xml;charset=utf-8' }), filename('.svg'));
-    });
-    $('diagram-copy').addEventListener('click', async () => {
-      if (formInvalid) return;
-      try { await navigator.clipboard.writeText(getDraft(activeId).source); services.toast('Mermaidコードをコピーしました。'); }
-      catch { mode = 'source'; updateFormMode(); $('diagram-code').focus(); $('diagram-code').select(); services.toast('コードを選択しました。⌘ / Ctrl + C でコピーしてください。'); }
+    $('diagram-discard-invalid').addEventListener('click', () => { form = F.parse(getDraft().source); formInvalid = false; renderForm(); error(); buttons(); queuePreview(0); });
+    $('diagram-apply').addEventListener('click', () => {
+      if (!boardMode || formInvalid) return;
+      const draft = boardMode.draft, preview = boardMode.preview, diagramType = detectType(draft.source);
+      if (!diagramType || preview?.source !== draft.source) return;
+      try {
+        if (boardMode.onApply({ source: draft.source, name: draft.title, diagramType, svg: preview.svg }) !== false) $('diagram-dialog').close();
+      } catch (failure) { error(failure.message); }
     });
   }
-  window.BrainstormorDiagramEditor = Object.freeze({ initialize, open, readFile, detectType });
+  window.BrainstormorDiagramEditor = Object.freeze({ initialize, openBoard, detectType });
 })();
 </script>
   <script>(() => {
@@ -6225,6 +6195,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   let persistenceQueue = Promise.resolve();
   let saving = false, lastTap = null;
   let searchMatches = [], searchIndex = -1;
+  const diagramPreviews = new Map();
   document.querySelector('.app-shell').inert = true;
   const measure = document.createElement('canvas').getContext('2d');
   const fonts = '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
@@ -6382,6 +6353,36 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     if (isShape(el)) el.height = Math.max(el.height, el.type === 'diamond' ? contentHeight * 2 + 32 : el.type === 'ellipse' ? contentHeight / .65 + 20 : contentHeight + 32);
     else el.height = Math.max(el.type === 'note' ? 100 : 44, contentHeight + (el.type === 'note' ? 40 : 20));
   }
+  function diagramPreview(el, rendered) {
+    const parsed = new DOMParser().parseFromString(rendered.svg, 'image/svg+xml');
+    const viewBox = parsed.documentElement.getAttribute('viewBox')?.trim().split(/[\s,]+/).map(Number);
+    const naturalWidth = viewBox?.length === 4 && Number.isFinite(viewBox[2]) && viewBox[2] > 0 ? viewBox[2] : 720;
+    const naturalHeight = viewBox?.length === 4 && Number.isFinite(viewBox[3]) && viewBox[3] > 0 ? viewBox[3] : 480;
+    const scale = Math.min(720 / naturalWidth, 520 / naturalHeight);
+    return {
+      source: el.source,
+      image: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(rendered.svg)}`,
+      width: Math.max(240, Math.round(naturalWidth * scale)),
+      height: Math.max(160, Math.round(naturalHeight * scale)),
+    };
+  }
+  function ensureDiagramPreview(el) {
+    const cached = diagramPreviews.get(el.id);
+    if (cached?.source === el.source) return cached.promise;
+    const entry = { source: el.source };
+    diagramPreviews.set(el.id, entry);
+    entry.promise = window.BrainstormorMermaidRenderer.render(el.source).then(rendered => {
+      if (diagramPreviews.get(el.id) === entry) {
+        Object.assign(entry, diagramPreview(el, rendered));
+        render();
+      }
+      return entry;
+    }, failure => {
+      if (diagramPreviews.get(el.id) === entry) { entry.error = failure; render(); }
+      throw failure;
+    });
+    return entry.promise;
+  }
   function renderElement(el) {
     const group = svg('g', { 'data-element-id': el.id, class: `board-element element-${el.type}` });
     if (el.type === 'arrow') {
@@ -6419,6 +6420,17 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     } else if (el.type === 'image') {
       group.append(svg('rect', { width: el.width, height: el.height, rx: 4, fill: '#fff', stroke: '#dce2e8' }));
       group.append(svg('image', { width: el.width, height: el.height, href: el.src, preserveAspectRatio: 'none' }));
+    } else if (el.type === 'diagram') {
+      const preview = diagramPreviews.get(el.id);
+      if (preview?.source !== el.source) ensureDiagramPreview(el).catch(() => {});
+      group.append(svg('title', {}, `${el.name}。ダブルクリックで編集`));
+      group.append(svg('rect', { width: el.width, height: el.height, rx: 8, fill: '#fff', stroke: '#dce2e8' }));
+      if (preview?.source === el.source && preview.image) {
+        group.append(svg('image', { x: 8, y: 8, width: Math.max(1, el.width - 16), height: Math.max(1, el.height - 16), href: preview.image, preserveAspectRatio: 'xMidYMid meet', 'pointer-events': 'none' }));
+      } else {
+        const message = preview?.error ? '図を表示できません。ダブルクリックでコードを確認' : 'Mermaid図を描画中…';
+        group.append(svg('text', { x: el.width / 2, y: el.height / 2, 'text-anchor': 'middle', fill: '#526076', 'font-size': 16, 'pointer-events': 'none' }, message));
+      }
     } else {
       group.append(svg('rect', { width: el.width, height: el.height, rx: 3, fill: 'transparent' }));
     }
@@ -6594,7 +6606,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     if (g.type === 'resize') {
       const el = getElement(g.id), original = g.original;
       el.width = Math.max(el.type === 'text' ? 70 : 100, original.width + p.x - g.start.x);
-      el.height = el.type === 'image' ? el.width * original.height / original.width : Math.max(60, original.height + p.y - g.start.y);
+      el.height = ['image', 'diagram'].includes(el.type) ? el.width * original.height / original.width : Math.max(60, original.height + p.y - g.start.y);
       if (hasText(el)) {
         const manualHeight = el.height; fitTextHeight(el); el.height = Math.max(manualHeight, el.height);
       }
@@ -6679,7 +6691,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     $('selection-panel').hidden = elements.length === 0 || !!editing;
     if (!elements.length) return;
     const one = elements.length === 1 ? elements[0] : null;
-    $('selection-kind').textContent = one ? ({ rect: '四角', ellipse: '丸', diamond: 'ひし形', note: '付箋', text: 'テキスト', image: '画像', arrow: '矢印' })[one.type] : `${elements.length} 個を選択`;
+    $('selection-kind').textContent = one ? ({ rect: '四角', ellipse: '丸', diamond: 'ひし形', note: '付箋', text: 'テキスト', image: '画像', diagram: 'Mermaid図', arrow: '矢印' })[one.type] : `${elements.length} 個を選択`;
     $('colors').replaceChildren();
     const palette = palettes[one?.type];
     $('colors').hidden = !palette; $('colors').closest('.panel-field').hidden = !palette;
@@ -6693,6 +6705,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     $('font-size').hidden = !one || !hasText(one); $('font-size').closest('.font-field').hidden = $('font-size').hidden;
     if (one && hasText(one)) setSelectValue('font-size', one.fontSize, `${one.fontSize} px`);
     $('image-caption').hidden = one?.type !== 'image';
+    $('diagram-edit').hidden = one?.type !== 'diagram';
     $('branch-controls').hidden = !one || !(isShape(one) || one.type === 'note');
     const boxes = elements.filter(el => el.type !== 'arrow');
     $('alignment-controls').hidden = boxes.length < 2;
@@ -6754,6 +6767,14 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     if (el?.type === 'arrow') {
       selected = new Set([el.id]); updateUI(); render();
       $('arrow-label').focus(); $('arrow-label').select();
+    } else if (el?.type === 'diagram') {
+      window.BrainstormorDiagramEditor.openBoard(el.source, el.name, ({ source, name, diagramType, svg: renderedSvg }) => {
+        const current = getElement(el.id);
+        if (!current) { toast('編集する図が見つかりません。'); return false; }
+        current.source = source; current.name = name; current.diagramType = diagramType;
+        diagramPreviews.set(current.id, diagramPreview(current, { svg: renderedSvg }));
+        commit(); toast('ボードのMermaid図を更新しました。'); return true;
+      });
     } else editText(el);
   }
   function updateSearch() {
@@ -6828,7 +6849,12 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
       const title = document.createElement('strong'); title.textContent = template.title;
       const description = document.createElement('small'); description.textContent = template.description;
       card.append(preview, title, description);
-      card.addEventListener('click', () => { $('templates-dialog').close(); window.BrainstormorDiagramEditor.open(template.id); });
+      card.addEventListener('click', async () => {
+        $('templates-dialog').close();
+        try {
+          if (await openDiagramBoard(template.source, template.id, template.title)) toast('Mermaid図をボードに置きました。ダブルクリックで編集できます。');
+        } catch (error) { toast(`図を開けません: ${error.message}`); }
+      });
       $('diagram-template-list').append(card);
     }
     document.querySelectorAll('[data-template-group]').forEach(button => button.addEventListener('click', () => {
@@ -6878,11 +6904,11 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     clearTimeout(mermaidTimer); mermaidResult = null; $('mermaid-load').disabled = true;
     if (mermaidMode !== 'import') return;
     const diagramType = window.BrainstormorDiagramEditor.detectType($('mermaid-code').value);
-    $('mermaid-load').textContent = diagramType && diagramType !== 'flowchart' ? '図のエディタで開く' : 'ボードに読み込む';
+    $('mermaid-load').textContent = 'ボードで開く';
     if (diagramType && diagramType !== 'flowchart') {
       mermaidResult = { diagramType, source: $('mermaid-code').value };
       $('mermaid-summary').textContent = window.BrainstormorMermaidTemplates.getTemplate(diagramType).title;
-      mermaidMessage('図のエディタでプレビューしながら編集できます。'); $('mermaid-load').disabled = false; return;
+      mermaidMessage('Mermaidコードを保った図としてボードに置きます。'); $('mermaid-load').disabled = false; return;
     }
     try {
       mermaidResult = window.BrainstormorMermaid.importFlowchart($('mermaid-code').value);
@@ -6890,11 +6916,23 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
       const arrows = mermaidResult.document.elements.length - nodes;
       $('mermaid-summary').textContent = `${nodes}個の図形 · ${arrows}本の矢印`;
       mermaidMessage(mermaidResult.warnings); $('mermaid-load').disabled = false;
-    } catch (error) { $('mermaid-summary').textContent = ''; mermaidMessage(error.message, true); }
+    } catch (error) {
+      if (diagramType === 'flowchart') {
+        mermaidResult = { diagramType, source: $('mermaid-code').value };
+        $('mermaid-summary').textContent = 'フローチャートをMermaid図として配置';
+        mermaidMessage('図形への変換に対応しない構文です。Mermaid図として描画できるか、ボードで開くときに確認します。');
+        $('mermaid-load').disabled = false;
+      } else { $('mermaid-summary').textContent = ''; mermaidMessage(error.message, true); }
+    }
   }
   function generateMermaid() {
     try {
-      const result = window.BrainstormorMermaid.exportFlowchart(doc, $('mermaid-direction').value);
+      const diagrams = doc.elements.filter(el => el.type === 'diagram');
+      const selectedDiagram = selected.size === 1 ? diagrams.find(el => selected.has(el.id)) : null;
+      const diagram = selectedDiagram || (doc.elements.length === 1 ? diagrams[0] : null);
+      const result = diagram
+        ? { source: diagram.source, warnings: ['ボード上のMermaid図のコードです。'] }
+        : window.BrainstormorMermaid.exportFlowchart(doc, $('mermaid-direction').value);
       $('mermaid-code').value = result.source; mermaidMessage(result.warnings);
       $('mermaid-summary').textContent = `${result.source.split('\n').length}行`;
       $('mermaid-download').disabled = $('mermaid-copy').disabled = false;
@@ -6909,9 +6947,10 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     document.querySelectorAll('[data-mermaid-mode]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mermaidMode === mode)));
     $('mermaid-code').readOnly = !importing;
     $('mermaid-choose-file').hidden = !importing; $('mermaid-load').hidden = !importing;
-    $('mermaid-direction-field').hidden = importing; $('mermaid-copy').hidden = importing; $('mermaid-download').hidden = importing;
+    $('mermaid-direction-field').hidden = importing || (selected.size === 1 && doc.elements.some(el => el.type === 'diagram' && selected.has(el.id))) || (doc.elements.length === 1 && doc.elements[0].type === 'diagram');
+    $('mermaid-copy').hidden = importing; $('mermaid-download').hidden = importing;
     $('mermaid-hint').textContent = importing
-      ? 'Mermaidコードを貼り付けます。フローチャートはボードへ、ほかの種類は図のエディタへ読み込みます。'
+      ? 'Mermaidコードを貼り付けてボードで開きます。基本的なフローチャートは図形に変換します。'
       : 'いまのボードをMermaidコードに変換しました。コピーやファイル保存で持ち出せます。';
     if (importing) { $('mermaid-code').value = source ?? mermaidDraft; validateMermaid(); }
     else generateMermaid();
@@ -6928,18 +6967,38 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     try {
       if (file.size > 1024 * 1024) throw new Error('Mermaidファイルは1MB以下にしてください。');
       const source = await file.text();
+      if (source.length > M.LIMITS.diagramSource) throw new Error('Mermaidコードは50,000文字以内にしてください。');
       mermaidDraft = source; mermaidFileName = file.name.replace(/\.[^.]+$/, '');
-      const diagramType = window.BrainstormorDiagramEditor.detectType(source);
-      if (diagramType && diagramType !== 'flowchart') {
-        $('mermaid-dialog').close(); window.BrainstormorDiagramEditor.open(diagramType, source, mermaidFileName); return;
-      }
       if ($('mermaid-dialog').open) setMermaidMode('import', source);
       else openMermaid('import', source, mermaidFileName);
     } catch (error) { if ($('mermaid-dialog').open) mermaidMessage(error.message, true); else toast(error.message); }
   }
+  async function openDiagramBoard(source, diagramType, title, stillCurrent = () => true) {
+    if (source.length > M.LIMITS.diagramSource) throw new Error('Mermaidコードは50,000文字以内にしてください。');
+    const rendered = await window.BrainstormorMermaidRenderer.render(source);
+    if (!stillCurrent() || !(await confirmReplace())) return false;
+    const loaded = M.createDocument(title);
+    const diagram = M.createItem('diagram', { source, diagramType, name: title });
+    const preview = diagramPreview(diagram, rendered);
+    diagram.width = preview.width; diagram.height = preview.height;
+    loaded.elements.push(diagram); diagramPreviews.set(diagram.id, preview);
+    closeSearch(false); doc = loaded; selected = new Set([diagram.id]); savedSnapshot = ''; localSaved = false;
+    resetHistory(); revision++; setTool('select'); if ($('mermaid-dialog').open) $('mermaid-dialog').close(); fitAll(); updateUI(); render(); autosave();
+    stage.focus({ preventScroll: true });
+    return true;
+  }
   async function loadMermaidBoard() {
     validateMermaid(); if (!mermaidResult) return;
-    if (mermaidResult.diagramType) { $('mermaid-dialog').close(); window.BrainstormorDiagramEditor.open(mermaidResult.diagramType, mermaidResult.source, mermaidFileName); return; }
+    if (mermaidResult.diagramType) {
+      const { diagramType, source } = mermaidResult;
+      $('mermaid-load').disabled = true; mermaidMessage('Mermaid図を描画しています…');
+      try {
+        const title = mermaidFileName || window.BrainstormorMermaidTemplates.getTemplate(diagramType).title;
+        if (await openDiagramBoard(source, diagramType, title, () => $('mermaid-code').value === source)) toast('Mermaid図をボードで開きました。ダブルクリックで編集できます。');
+      } catch (error) { mermaidMessage(`Mermaid図を開けません: ${error.message}`, true); }
+      finally { $('mermaid-load').disabled = false; }
+      return;
+    }
     if (!(await confirmReplace())) return;
     const loaded = M.clone(mermaidResult.document);
     if (mermaidFileName) loaded.title = mermaidFileName;
@@ -7111,9 +7170,10 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     closeSearch(false); doc = M.createDocument(); selected.clear(); savedSnapshot = contentSnapshot();
     resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave();
   }
-  function exportSVG() {
+  async function exportSVG() {
     finishEdit();
     if (!doc.elements.length) { toast('図形や付箋を追加してから書き出してください。'); return null; }
+    await Promise.all(doc.elements.filter(el => el.type === 'diagram').map(ensureDiagramPreview));
     const b = M.getBounds(doc.elements), padding = 40;
     const width = Math.max(1, Math.ceil(b.width + padding * 2)), height = Math.max(1, Math.ceil(b.height + padding * 2));
     const root = svg('svg', { xmlns: NS, width, height, viewBox: `${b.x - padding} ${b.y - padding} ${width} ${height}` });
@@ -7123,7 +7183,11 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     return { source: new XMLSerializer().serializeToString(root), width, height };
   }
   async function exportImage(kind) {
-    $('export-dialog').close(); const result = exportSVG(); if (!result) return;
+    $('export-dialog').close();
+    let result;
+    try { result = await exportSVG(); }
+    catch (error) { toast(`Mermaid図を描画できません: ${error.message}`); return; }
+    if (!result) return;
     const exportTitle = doc.title;
     if (kind === 'svg') { download(new Blob([result.source], { type: 'image/svg+xml' }), filename('.svg')); toast('SVGを書き出しました。'); return; }
     let url;
@@ -7147,6 +7211,10 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   $('image-caption').addEventListener('click', () => {
     const image = getElement([...selected][0]); if (!image || image.type !== 'image') return;
     addItem('text', { x: image.x + 12, y: image.y + 12 }, { text: 'ここに注釈を書く', color: '#ffffff', width: Math.max(100, image.width - 24), fontSize: 24 }, true);
+  });
+  $('diagram-edit').addEventListener('click', () => {
+    const diagram = getElement([...selected][0]);
+    if (diagram?.type === 'diagram') editElement(diagram);
   });
   $('bring-forward').addEventListener('click', () => moveLayer(true));
   $('send-backward').addEventListener('click', () => moveLayer(false));
@@ -7228,7 +7296,7 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
   $('replace-discard').addEventListener('click', () => finishReplace(true));
   $('replace-save').addEventListener('click', async () => { if (await saveFile()) finishReplace(true); });
   $('replace-dialog').addEventListener('cancel', event => { event.preventDefault(); finishReplace(false); });
-  window.BrainstormorDiagramEditor.initialize({ download, toast });
+  window.BrainstormorDiagramEditor.initialize({ toast });
   initializeFeatures();
   initializeMermaid();
   init();

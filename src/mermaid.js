@@ -352,6 +352,8 @@
     const warnings = ['位置・サイズ・重なり順はMermaidには保存されません。Mermaid側で配置を決めます。'];
     const images = doc.elements.filter(item => item.type === 'image').length;
     if (images) warnings.push(`画像${images}個はMermaidに含めません。`);
+    const diagrams = doc.elements.filter(item => item.type === 'diagram').length;
+    if (diagrams) warnings.push(`Mermaid図${diagrams}個はフローチャートへの変換に含めません。図を選択して書き出すと元のコードを取得できます。`);
     const simplified = nodes.filter(item => item.type === 'note' || item.type === 'text').length;
     if (simplified) warnings.push(`付箋・テキスト${simplified}個は四角い図形として書き出します。`);
     const mapping = new Map(nodes.map((item, index) => [item.id, `n${index + 1}`]));

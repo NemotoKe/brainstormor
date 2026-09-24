@@ -40,7 +40,9 @@
   }
 
   function sourceText(source) {
-    const text = String(source ?? '').trim();
+    const input = String(source ?? '').trim();
+    const fenced = /^```(?:mermaid)?\s*\r?\n([\s\S]*?)\r?\n```$/i.exec(input);
+    const text = fenced ? fenced[1].trim() : input;
     if (!text) throw new Error('Mermaid のコードを入力してください。');
     if (text.length > maximumLength) throw new Error('Mermaid のコードは 100,000 文字以内にしてください。');
     // Block image/CSS resource loading before Mermaid constructs its temporary

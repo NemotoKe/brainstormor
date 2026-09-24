@@ -129,7 +129,7 @@
     const needle = normalized(query).trim();
     if (!needle) return [];
     return elements.filter(item => {
-      const text = item.type === 'arrow' ? item.label : item.text;
+      const text = item.type === 'arrow' ? item.label : item.type === 'diagram' ? `${item.name} ${item.source}` : item.text;
       return typeof text === 'string' && normalized(text).includes(needle);
     }).map(item => item.id);
   }

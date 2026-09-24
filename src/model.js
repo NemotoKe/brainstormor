@@ -8,7 +8,7 @@
 
   const FORMAT = 'brainstormor';
   const VERSION = 1;
-  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000, arrowLabel: 200 });
+  const LIMITS = Object.freeze({ fileBytes: 40 * 1024 * 1024, elements: 5000, coordinate: 10000000, dimension: 1000000, text: 200000, title: 10000, arrowLabel: 200, diagramSource: 50000 });
   const DEFAULTS = Object.freeze({ noteColor: '#fff2aa', textColor: '#24334a', arrowColor: '#526076', rectColor: '#daeafd', ellipseColor: '#d7f1e3', diamondColor: '#eee0ff', noteFontSize: 20, textFontSize: 24, shapeFontSize: 20, strokeWidth: 3 });
   const SHAPES = ['rect', 'ellipse', 'diamond'];
   const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
@@ -84,7 +84,7 @@
   }
   function normalizeItem(value) {
     record(value, '要素');
-    if (!['note', 'text', 'image', 'arrow', ...SHAPES].includes(value.type)) fail('未対応の要素が含まれています。');
+    if (!['note', 'text', 'image', 'diagram', 'arrow', ...SHAPES].includes(value.type)) fail('未対応の要素が含まれています。');
     const result = {
       id: id(value.id), type: value.type,
       x: coordinate(value.x, 'x'), y: coordinate(value.y, 'y'),
@@ -101,6 +101,11 @@
     } else if (value.type === 'image') {
       result.src = imageSource(value.src);
       result.name = string(value.name, '画像名', 10000);
+    } else if (value.type === 'diagram') {
+      result.source = string(value.source, 'Mermaidコード', LIMITS.diagramSource);
+      if (!result.source.trim()) fail('Mermaidコードを入力してください。');
+      result.diagramType = choice(value.diagramType, ['flowchart', 'sequence', 'class', 'er', 'state', 'gantt', 'mindmap', 'pie'], 'Mermaid図の種類');
+      result.name = string(value.name, 'Mermaid図の名前', 100);
     } else {
       result.from = endpoint(value.from, '矢印の始点');
       result.to = endpoint(value.to, '矢印の終点');
@@ -149,6 +154,7 @@
       : type === 'text' ? { width: 280, height: 52, text: '', color: DEFAULTS.textColor, fontSize: DEFAULTS.textFontSize }
       : SHAPES.includes(type) ? { width: type === 'diamond' ? 240 : 220, height: type === 'diamond' ? 160 : 130, text: '', color: DEFAULTS[type + 'Color'], fontSize: DEFAULTS.shapeFontSize, textColor: DEFAULTS.textColor }
       : type === 'image' ? { width: 400, height: 300, src: TRANSPARENT_IMAGE, name: '画像' }
+      : type === 'diagram' ? { width: 720, height: 480, name: 'Mermaidの図' }
       : type === 'arrow' ? { width: 0, height: 0, from: { x: 0, y: 0 }, to: { x: 160, y: 0 }, color: DEFAULTS.arrowColor, strokeWidth: DEFAULTS.strokeWidth, label: '', lineStyle: 'solid', head: 'end' }
       : {};
     return normalizeItem(Object.assign({}, common, defaults, overrides, { type }));
