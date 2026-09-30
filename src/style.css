@@ -248,3 +248,7 @@
   .diagram-footer { align-items: stretch; flex-direction: column; }
   .diagram-footer .mermaid-actions { justify-content: space-between; flex-wrap: wrap; gap: 4px; }
 }
+
+.current-file{font-size:11px;line-height:16px;color:var(--ink);max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.document-actions{flex-wrap:wrap}
+@media(max-width:1200px){.app-header{flex-wrap:wrap}.document-actions{width:100%;justify-content:flex-end}}

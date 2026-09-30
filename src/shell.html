@@ -20,6 +20,8 @@
         <div class="document-details">
           <label class="sr-only" for="board-title">ボード名</label>
           <input id="board-title" value="無題のボード" maxlength="120" autocomplete="off" spellcheck="false" aria-label="ボード名">
+          <span id="current-file" class="current-file" aria-live="polite">新規ボード（ファイル未保存）</span>
+          <span id="file-support" class="save-status" hidden>上書き非対応：保存はダウンロードになります</span>
           <span id="save-status" class="save-status">このブラウザに自動保存</span>
         </div>
       </div>
@@ -30,6 +32,7 @@
         <button id="search-btn" class="icon-button subtle-button" type="button" title="ボード内を検索 (⌘/Ctrl+F)" aria-label="ボード内を検索"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
         <button id="open-board" class="button quiet-button" type="button" title="ボードを開く (⌘/Ctrl+O)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2M3 7v11a2 2 0 0 0 2 2h13a2 2 0 0 0 1.9-1.4L22 11H7l-3 7"/></svg><span>開く</span></button>
         <button id="export-board" class="button quiet-button" type="button" title="ボードを書き出す"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>書き出し</span></button>
+        <button id="save-as-board" class="button quiet-button" type="button" title="名前をつけて保存 (⌘/Ctrl+Shift+S)">名前をつけて保存</button>
         <button id="save-board" class="button primary-button" type="button" title="ファイルに保存 (⌘/Ctrl+S)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg><span>保存</span></button>
       </nav>
     </header>

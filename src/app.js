@@ -14,6 +14,8 @@
   let lastPointer = null, restoring = true, clipboardElements = null, dbPromise;
   let persistenceQueue = Promise.resolve();
   let saving = false, lastTap = null;
+  let currentFileHandle = null, currentFileName = '';
+  const canSaveDirectly = typeof window.showSaveFilePicker === 'function';
   let searchMatches = [], searchIndex = -1;
   const diagramPreviews = new Map();
   document.querySelector('.app-shell').inert = true;
@@ -63,9 +65,15 @@
   }
   function status() {
     const unsaved = fileDirty();
+    const fileLabel = currentFileName ? currentFileName + (currentFileHandle ? '' : '（保存先を再選択）') : '新規ボード（ファイル未保存）';
+    $('current-file').textContent = fileLabel;
+    $('current-file').title = fileLabel;
+    $('save-board').querySelector('span').textContent = currentFileHandle ? '上書き保存' : '保存';
+    $('save-board').title = currentFileHandle ? '上書き保存 (⌘/Ctrl+S)' : '保存先を選んで保存 (⌘/Ctrl+S)';
+    $('file-support').hidden = canSaveDirectly;
     $('save-status').textContent = autosaveFailed ? 'ファイルに保存してください' : localSaved ? (unsaved ? 'ブラウザ保存済み · ファイル未保存' : '保存済み') : (unsaved ? '未保存の変更あり' : '保存済み');
     $('save-status').classList.toggle('unsaved', unsaved);
-    document.title = `${unsaved ? '● ' : ''}${doc.title || '無題のボード'} — brainstormor`;
+    document.title = `${unsaved ? '● ' : ''}${currentFileName || doc.title || '無題のボード'} — brainstormor`;
   }
   function updateUI() {
     if (document.activeElement !== $('board-title')) $('board-title').value = doc.title;
@@ -108,7 +116,7 @@
     if (restoring) return;
     clearTimeout(autosaveTimer);
     const captureRevision = revision;
-    const payload = { document: M.clone(doc), savedSnapshot, updated: new Date().toISOString() };
+    const payload = { document: M.clone(doc), savedSnapshot, currentFileName, updated: new Date().toISOString() };
     persistenceQueue = persistenceQueue.catch(() => {}).then(async () => {
       try {
         try {
@@ -363,7 +371,7 @@
     el.text = editor.value; fitTextHeight(el); positionEditor();
   });
   editor.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); finishEdit(true); stage.focus(); }
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); finishEdit(); stage.focus(); }
     if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); finishEdit(); stage.focus(); }
   });
   editor.addEventListener('blur', () => finishEdit());
@@ -636,7 +644,8 @@
     finishEdit(); if (!(await confirmReplace())) return;
     try {
       const template = F.createTemplate(id);
-      closeSearch(false); doc = template; selected.clear(); savedSnapshot = ''; localSaved = false;
+      currentFileHandle = null; currentFileName = '';
+    closeSearch(false); doc = template; selected.clear(); savedSnapshot = ''; localSaved = false;
       resetHistory(); revision++; setTool('select'); $('templates-dialog').close();
       fitAll(); updateUI(); render(); autosave(); toast('テンプレートを開きました。文字は自由に書き換えられます。');
       stage.focus({ preventScroll: true });
@@ -810,6 +819,7 @@
     const preview = diagramPreview(diagram, rendered);
     diagram.width = preview.width; diagram.height = preview.height;
     loaded.elements.push(diagram); diagramPreviews.set(diagram.id, preview);
+    currentFileHandle = null; currentFileName = '';
     closeSearch(false); doc = loaded; selected = new Set([diagram.id]); savedSnapshot = ''; localSaved = false;
     resetHistory(); revision++; setTool('select'); if ($('mermaid-dialog').open) $('mermaid-dialog').close(); fitAll(); updateUI(); render(); autosave();
     stage.focus({ preventScroll: true });
@@ -830,6 +840,7 @@
     if (!(await confirmReplace())) return;
     const loaded = M.clone(mermaidResult.document);
     if (mermaidFileName) loaded.title = mermaidFileName;
+    currentFileHandle = null; currentFileName = '';
     closeSearch(false); doc = loaded; selected.clear(); savedSnapshot = ''; localSaved = false;
     resetHistory(); revision++; setTool('select'); $('mermaid-dialog').close(); fitAll(); updateUI(); render(); autosave();
     toast('Mermaidを図形に変換しました。ダブルクリックで文字を編集できます。'); stage.focus({ preventScroll: true });
@@ -961,30 +972,61 @@
     $('board-title').value = doc.title;
     commit();
   }
-  async function saveFile() {
+  async function saveFile(saveAs = false) {
     if (saving || restoring) return false;
     finishEdit(); syncTitle(); saving = true;
     try {
       const captured = M.clone(doc), serialized = M.serialize(captured);
-      download(new Blob([serialized], { type: 'application/json' }), filename('.brainstorm', captured.title));
+      let handle = currentFileHandle;
+      if (canSaveDirectly) {
+        if (saveAs || !handle) handle = await window.showSaveFilePicker({
+          suggestedName: currentFileName || filename('.brainstorm', captured.title),
+          types: [{ description: 'ブレストボード', accept: { 'application/json': ['.brainstorm'] } }],
+        });
+        const writable = await handle.createWritable();
+        try { await writable.write(serialized); await writable.close(); }
+        catch (error) { try { await writable.abort(); } catch {} throw error; }
+        currentFileHandle = handle; currentFileName = handle.name;
+      } else {
+        const name = window.prompt('保存するファイル名（このブラウザでは上書きできません）', currentFileName || filename('.brainstorm', captured.title));
+        if (name === null || !name.trim()) return false;
+        const safeName = name.trim().replace(/[\\/:*?"<>|\x00-\x1F]/g, '_');
+        currentFileName = /\.brainstorm$/i.test(safeName) ? safeName : safeName + '.brainstorm';
+        download(new Blob([serialized], { type: 'application/json' }), currentFileName);
+      }
       savedSnapshot = contentSnapshot(captured); autosave(); status();
-      toast('編集できるボードファイルを書き出しました。'); return true;
-    } catch (error) { toast(`保存できませんでした: ${error.message}`); return false; }
+      toast(canSaveDirectly ? `${currentFileName} に保存しました。` : 'ボードファイルをダウンロードしました。'); return true;
+    } catch (error) { if (error.name !== 'AbortError') toast(`保存できませんでした: ${error.message}`); return false; }
     finally { saving = false; }
   }
-  async function openFile(file) {
+  async function chooseFile() {
+    if (saving || restoring) return;
+    finishEdit();
+    if (typeof window.showOpenFilePicker !== 'function') { $('file-input').click(); return; }
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [{ description: 'ボード・Mermaid', accept: { 'application/json': ['.brainstorm', '.json'], 'text/plain': ['.mmd', '.mermaid'] } }],
+      });
+      await openFile(await handle.getFile(), handle);
+    } catch (error) { if (error.name !== 'AbortError') toast(`ファイルを開けません: ${error.message}`); }
+  }
+  async function openFile(file, handle = null) {
+    if (saving || restoring) return;
     if (/\.(mmd|mermaid)$/i.test(file.name)) { await readMermaidFile(file); return; }
     finishEdit();
     try {
       if (file.size > MAX_BYTES) throw new Error('40MB以下のボードを選んでください。');
       const loaded = M.parse(await file.text());
       if (!(await confirmReplace())) return;
+      currentFileHandle = handle; currentFileName = file.name;
       closeSearch(false); doc = loaded; selected.clear(); savedSnapshot = contentSnapshot();
       resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave(); toast('ボードを開きました。');
     } catch (error) { toast(`ファイルを開けません: ${error.message}`); }
   }
   let replaceResolver = null;
   function confirmReplace() {
+    if (saving) { toast('保存が完了してから切り替えてください。'); return Promise.resolve(false); }
     if (!fileDirty() || (!doc.elements.length && doc.title === '無題のボード')) return Promise.resolve(true);
     if (replaceResolver) return Promise.resolve(false);
     return new Promise(resolve => { replaceResolver = resolve; $('replace-dialog').showModal(); });
@@ -995,6 +1037,7 @@
   }
   async function newBoard() {
     finishEdit(); if (!(await confirmReplace())) return;
+    currentFileHandle = null; currentFileName = '';
     closeSearch(false); doc = M.createDocument(); selected.clear(); savedSnapshot = contentSnapshot();
     resetHistory(); revision++; setTool('select'); updateUI(); render(); autosave();
   }
@@ -1054,7 +1097,8 @@
   $('zoom-label').addEventListener('click', () => zoomAt(1)); $('fit-btn').addEventListener('click', fitAll);
   $('new-board').addEventListener('click', newBoard);
   $('save-board').addEventListener('click', () => saveFile());
-  $('open-board').addEventListener('click', () => { finishEdit(); $('file-input').click(); });
+  $('save-as-board').addEventListener('click', () => saveFile(true));
+  $('open-board').addEventListener('click', chooseFile);
   $('file-input').addEventListener('change', event => { const file = event.target.files[0]; if (file) openFile(file); event.target.value = ''; });
   $('export-board').addEventListener('click', () => { finishEdit(); $('export-dialog').showModal(); });
   $('export-svg').addEventListener('click', () => exportImage('svg'));
@@ -1070,7 +1114,7 @@
     const mod = event.ctrlKey || event.metaKey;
     if (event.isComposing) return;
     if (mod && event.key.toLowerCase() === 'f') { event.preventDefault(); openSearch(); return; }
-    if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); if (document.activeElement === $('board-title')) $('board-title').blur(); saveFile(); return; }
+    if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); if (document.activeElement === $('board-title')) $('board-title').blur(); saveFile(event.shiftKey); return; }
     if (isTyping(event.target) || event.isComposing) return;
     const key = event.key.toLowerCase();
     if (gesture && !['shift', 'control', 'meta', 'alt', ' '].includes(key)) endGesture(null, true);
@@ -1078,7 +1122,7 @@
     else if (mod && key === 'y') { event.preventDefault(); undo(1); }
     else if (mod && key === 'd') { event.preventDefault(); duplicate(); }
     else if (mod && key === 'a') { event.preventDefault(); selected = new Set(doc.elements.map(el => el.id)); updateUI(); render(); }
-    else if (mod && key === 'o') { event.preventDefault(); $('file-input').click(); }
+    else if (mod && key === 'o') { event.preventDefault(); chooseFile(); }
     else if (key === 'delete' || key === 'backspace') { event.preventDefault(); removeSelected(); }
     else if (key === 'tab' && !mod && !event.altKey && (event.target === stage || canvas.contains(event.target)) && selected.size === 1 && (isShape(getElement([...selected][0])) || getElement([...selected][0]).type === 'note')) { event.preventDefault(); addBranch(event.shiftKey ? 'down' : 'right'); }
     else if (key === 'escape' && !$('search-panel').hidden) { event.preventDefault(); closeSearch(); }
@@ -1112,6 +1156,7 @@
       try {
         doc = M.parse(JSON.stringify(local.document));
         savedSnapshot = typeof local.savedSnapshot === 'string' ? local.savedSnapshot : '';
+        currentFileName = typeof local.currentFileName === 'string' ? local.currentFileName : '';
         localSaved = true;
         if (doc.elements.length) toast('前回のボードを復元しました。');
       } catch { toast('前回のデータを復元できませんでした。保存したファイルを開いてください。'); }
